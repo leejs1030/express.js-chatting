@@ -1,0 +1,9 @@
+.overflow-scroll{
+    height: 480px;
+    display: flex;
+    overflow: auto;
+}
+
+#pre-wrap {
+    white-space: pre-wrap;
+}

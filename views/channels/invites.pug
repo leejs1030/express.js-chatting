@@ -1,0 +1,15 @@
+extends ./layout.pug
+
+block content
+    .container.mb-4.mt-3
+        h3
+            a(href = `/channels/${channelId}`) 채팅으로
+        h5.mb-4
+            .page-header.ml-4.mr-4.mt-4.mb-4
+                .list-group-item
+                    each e in flist
+                        div.mb-4
+                            | #{e.id}(#{e.nick})
+                            a.btn.btn-primary.ml-5.float-right(href=`/channels/invite/${channelId}/${e.id}`) 초대
+                            br
+                            | #{e.friend_date}

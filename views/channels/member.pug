@@ -1,0 +1,12 @@
+extends ./layout.pug
+
+block content
+    .container.mb-4.mt-3
+        h3
+            a(href = `/channels/${channelId}`) 채팅으로
+        h5.mb-4
+            .page-header.ml-4.mr-4.mt-4.mb-4
+                .list-group-item
+                    each e in memberList
+                        div.mb-4
+                            | #{e.id}(#{e.nick})

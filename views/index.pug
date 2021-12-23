@@ -1,0 +1,27 @@
+//- Parameters
+//- user
+
+extends layout.pug
+
+
+//- block references 
+//-     script(src='/socket.io/socket.io.js')
+//-     script(type = 'text/javascript').
+//-         const socket = io();
+    
+
+
+block title
+    | Chattings
+
+//- block page_title
+//-     | 회원가입/로그인을 하신 뒤 서비스를 이용하실 수 있습니다.
+
+block buttons
+    a.btn.btn-primary.mr-2(href='/channels') 채널 목록
+    | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    a.btn.btn-info.mr-2(href='/friends') 친구 목록
+
+//- block scripts
+//-     script(defer, type = 'text/javascript').
+//-         const socket = io();

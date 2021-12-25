@@ -10,11 +10,20 @@ const getById = async (id) => {
 const create = async (id, password, nick) => {
     const sql = 'INSERT INTO users values($1, $2, $3)'; //id, password, nick을 받아서 유저 테이블에 삽입.
     //새로운 유저가 등록되는 회원 가입 과정.
+    const sql2 = 'INSERT INTO users values($1)';
     await runQuery(sql, [id, password, nick]);
+    await runQuery(sql2, [id]);
 };
+
+const getConfigById = async(id) =>{
+    const sql = "select * from user_config WHERE id = $1";
+    const result = runQuery(sql, [id]);
+    return result;
+}
 
 
 module.exports = {
     getById,
     create,
+    getConfigById,
 };    

@@ -1,7 +1,7 @@
 drop table msg, "session";
 drop table channel_users;
 drop table channels;
-drop table reqlist, flist, blist;
+drop table reqlist, flist, blist, user_config;
 drop table users;
 
 create table users(
@@ -9,6 +9,13 @@ create table users(
     password varchar(200) not null,
     nick varchar(20) not null,
     primary key(id)
+);
+
+create table user_config(
+    id varchar(20),
+    sendWithEnter boolean NOT NULL DEFAULT TRUE,
+    primary key(id),
+    foreign key (id) references users(id)
 );
 
 create table reqlist(

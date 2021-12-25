@@ -37,6 +37,7 @@ const showChannel = async(req, res, next) =>{
 
 const sendMsg = async(req, res, next) =>{
     try{
+        console.log("컨트롤러1");
         const {content} = req.body;
         if(content.length > 20000) return res.send(getAlertScript('20000글자 제한 초과!'));
         // console.log("hi!")

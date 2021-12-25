@@ -15,19 +15,25 @@ block buttons
     a.btn.btn-info.mr-2(href='/auth/sign_up') Sign Up
 
 block content
-    form.col-lg-6(method='post')
-        .input-group.mb-2
-            .input-group-prepend
-                span.input-group-text#username-addon Id
-            input.form-control#username(name='id',
-                                        type='text',
-                                        aria-label='ID',
-                                        aria-describedby='username-addon')
-        .input-group.mb-2
-            .input-group-prepend
-                span.input-group-text#password-addon Password
-            input.form-control#password(name='password',
-                                        type='password',
-                                        aria-label='Password',
-                                        aria-describedby='password-addon')
-        button.btn.btn-primary(type='submit') Sign In
+    .container.mb-4
+        form.col-lg-6(method='post')
+            .input-group.mb-2
+                .input-group-prepend
+                    span.input-group-text#username-addon Id
+                input.form-control#username(name='id',
+                                            type='text',
+                                            aria-label='ID',
+                                            aria-describedby='username-addon')
+            .input-group.mb-2
+                .input-group-prepend
+                    span.input-group-text#password-addon Password
+                input.form-control#password(name='password',
+                                            type='password',
+                                            aria-label='Password',
+                                            aria-describedby='password-addon')
+            .form-check.h3
+                //- .input-group-prepend
+                input#keepSignedIn.form-check-input.mt-2(name='keepSignedIn', type='checkbox', style='width:20px;height:20px;')
+                label.form-check-label
+                    | 로그인 상태 유지
+            button.btn.btn-primary(type='submit') Sign In

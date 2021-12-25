@@ -2,10 +2,14 @@ const socket = io();
 const sendbtn = document.getElementById('myPost');
 let txt = document.getElementById('input_msg');
 
-sendbtn.addEventListener('submit', function(e){
+
+
+const sendNewMsg = (e) => {
+    // console.log("이벤트리스너2");
     // console.log('유저정보');
     e.preventDefault();
-    // console.log(txt.value.length);
+    console.log(e);
+    console.log(txt.value.length);
     if(txt.value){
         if(txt.value.length > 20000){
             // txt.value = '';
@@ -21,8 +25,18 @@ sendbtn.addEventListener('submit', function(e){
         socket.emit('new msg', sendData);
         txt.value = '';
     }
-});
+}
 
+sendbtn.addEventListener('submit', sendNewMsg);
+sendbtn.addEventListener('keydown', function(e){
+    if(sendWithEnter && e.key == "Enter" && !e.shiftKey){
+        sendNewMsg(e);
+        // sendbtn.submit();
+    }
+    else if(!sendWithEnter && e.key == "Enter" && e.shiftKey){
+        sendNewMsg(e);
+    }
+});
 
 socket.on('update', (receivedData) =>{
     if(clientO.channel != receivedData.channel) return;

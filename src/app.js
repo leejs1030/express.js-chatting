@@ -19,6 +19,7 @@ app.use(morgan(MODE !== 'prod' ? 'dev' : 'combined'));
 app.use(express.urlencoded({ extended: true }));
 
 let PostgreSqlStore = require('connect-pg-simple')(session);
+
 app.use(session({
 	secret: SESSION_SECRET,
 	resave: false,
@@ -26,11 +27,25 @@ app.use(session({
 	store : new PostgreSqlStore({
         conString: `postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`
       }),
-	cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
+	cookie: {maxAge : 60 * 60 * 1000},
+	// cookie: {maxAge: null},
+	// cookie: { maxAge: 5 * 1000 },
 }));
 
+// app.use((req, res, next) => {
+// });
+
+app.use(function (req, res, next) {
+	if(req.session.keepSignedIn){
+			req.session.cookie.expires = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+			// console.log(req.session.cookie.expires);
+			// req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+	}
+	next();
+});
 app.use('/', controller);
 app.use(errorHandler);
+
 
 const http = require('http');
 const server = http.createServer(app);

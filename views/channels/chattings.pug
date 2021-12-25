@@ -1,4 +1,4 @@
-extends ./layout.pug
+extends ../layout.pug
 
 block references
     link(rel='stylesheet',
@@ -12,6 +12,7 @@ block references
             nick: '#{user.nick}',
             channel: '#{channelId}'
         };
+        const sendWithEnter = 1;
         //- const user = #{user};
         //- console.log('#{user.id}');
         //- console.log(#{user});

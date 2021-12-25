@@ -16,8 +16,18 @@ const signInForm = async (req, res, next) =>{
 //GET /
 const signIn = async (req, res, next) =>{
     try{
-        const {id, password} = req.body;
+        if(req.session.keepSignedIn === undefined){
+            req.session.keepSignedIn = false;
+        }
+        const {id, password, keepSignedIn} = req.body;
         if(!id || !password) throw new Error('BAD_REQUEST');
+
+
+        if(keepSignedIn === undefined)
+            req.session.keepSignedIn = false;
+        else if(keepSignedIn === "on")
+        req.session.keepSignedIn = true;
+        
 
         const user = await UserDAO.getById(id);
         if(!user) throw new Error('UNAUTHORIZED');
@@ -25,19 +35,10 @@ const signIn = async (req, res, next) =>{
         const isValid = await verifyPassword(password, user.password);
         if(!isValid) throw new Error('UNAUTHORIZED');
 
-        console.log("hi");
-        console.log(req.session);
-        if(req.session.num === undefined){
-            req.session.num = await 1;
-        } else {
-            req.session.num = await req.session.num + 1;
-        }
         req.session.user = await {
             id: user.id,
             nick: user.nick,
         };
-        console.log(req.session.user.id);
-        console.log(req.session);
         return await res.redirect('/');
     }catch(err){
         return next(err); //에러 객체가 error-handler에 전달됨.

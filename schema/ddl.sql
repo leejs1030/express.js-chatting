@@ -1,4 +1,4 @@
-drop table msg;
+drop table msg, "session";
 drop table channel_users;
 drop table channels;
 drop table reqlist, flist, blist;
@@ -64,6 +64,17 @@ create table msg(
     foreign key (sender) references users(id),
     foreign key (channel_id) references channels(id) ON DELETE CASCADE
 );
+
+CREATE TABLE "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+
+ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+CREATE INDEX "IDX_session_expire" ON "session" ("expire");
 
 -- insert into users values('admin', 'admin', '관리자');
 -- insert into users values('subadmin', 'subadmin', '부관리자');

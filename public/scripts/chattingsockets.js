@@ -38,8 +38,7 @@ sendbtn.addEventListener('keydown', function(e){
     }
 });
 
-socket.on('update', (receivedData) =>{
-    if(clientO.channel != receivedData.channel) return;
+socket.on(`update ${clientO.channel}`, (receivedData) =>{
     const msglist = document.getElementById('botScroll');
     let newMsg = document.createElement('span');
 

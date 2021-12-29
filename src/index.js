@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
 			msg: sendData.msg,
 			stime: receiveTime
 		};
-		return io.emit('update', receivedData);
+		return io.emit(`update ${receivedData.channel}`, receivedData);
 	});
 	socket.on('read', async (uid, cid) =>{
 		return ChannelDAO.readMsgFromChannel(uid, cid);

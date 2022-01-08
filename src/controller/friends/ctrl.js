@@ -1,5 +1,5 @@
 const {FriendDAO} = require('../../DAO');
-const getAlertScript = msg => `<script>alert("${msg}");history.back();</script>`;
+const {getAlertScript} = require('../../lib/usefulJS');
 
 
 const indexPage = async (req, res, next) =>{

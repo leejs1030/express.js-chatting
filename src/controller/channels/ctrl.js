@@ -1,5 +1,5 @@
 const {ChannelDAO, FriendDAO, UserDAO} = require('../../DAO');
-const getAlertScript = msg => `<script>alert("${msg}");history.back();</script>`;
+const {getAlertScript} = require('../../lib/usefulJS');
 
 const createChannel = async (req, res, next) =>{
     try{
@@ -29,7 +29,8 @@ const showChannel = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId} = req.params;
         const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
-        return res.render("channels/chattings.pug", {user, channelId, msglist});
+        const {send_enter} = await UserDAO.getSettingById(user.id);
+        return res.render("channels/chattings.pug", {user, channelId, msglist, send_enter});
     } catch(err){
         return next(err);
     }

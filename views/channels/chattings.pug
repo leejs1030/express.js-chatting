@@ -6,13 +6,15 @@ block references
     script(src='/scripts/myScroll.js', defer)
     script(src='/socket.io/socket.io.js')
     script(src='/scripts/chattingsockets.js', defer)
+
+block scripts
     script(type = 'text/javascript').
         const clientO = {
             id: '#{user.id}',
             nick: '#{user.nick}',
             channel: '#{channelId}'
         };
-        const sendWithEnter = 1;
+        const sendWithEnter = #{send_enter};
         //- const user = #{user};
         //- console.log('#{user.id}');
         //- console.log(#{user});

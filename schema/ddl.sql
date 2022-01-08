@@ -1,7 +1,7 @@
 drop table msg, "session";
 drop table channel_users;
 drop table channels;
-drop table reqlist, flist, blist, user_config;
+drop table reqlist, flist, blist, user_settings;
 drop table users;
 
 create table users(
@@ -11,9 +11,9 @@ create table users(
     primary key(id)
 );
 
-create table user_config(
+create table user_settings(
     id varchar(20),
-    sendWithEnter boolean NOT NULL DEFAULT TRUE,
+    send_enter boolean NOT NULL DEFAULT TRUE,
     primary key(id),
     foreign key (id) references users(id)
 );

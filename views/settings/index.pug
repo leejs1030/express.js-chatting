@@ -1,0 +1,22 @@
+extends ../layout.pug
+
+block scripts
+    script(type = 'text/javascript').
+        document.getElementById('send-enter').checked = #{info.send_enter};
+        document.getElementById('submit').addEventListener('click', (e)=>{
+            if(document.getElementById('send-enter').checked){
+                document.getElementById('send-enter-hidden').disabled = true;
+            }
+        });
+
+block content
+    .container.mb-4
+        form.col(method='post')
+            .form-check.h3
+                input#send-enter.form-check-input.mt-2(name='send_enter', type='checkbox', style='width:20px;height:20px;', value='true')
+                input#send-enter-hidden(type='hidden', name='send_enter', value='false')
+                label.form-check-label.h3(for='send-enter')
+                    | Enter로 메시지 전송, Shift + Enter로 줄 바꿈.
+            
+            
+            button#submit.btn.btn-primary.mt-5(type='submit') 설정 저장

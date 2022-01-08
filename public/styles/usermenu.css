@@ -1,0 +1,15 @@
+#user-menu{
+    width: 172px;
+    position: absolute;
+    top: 50px;
+    margin-left: 10px;
+    border: 3px solid black;
+    background-color: white;
+    z-index: 9999999999999;
+}
+
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}

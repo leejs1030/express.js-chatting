@@ -1,6 +1,6 @@
 const {UserDAO} = require('../../DAO');
 const { generatePassword, verifyPassword } = require('../../lib/passwords');
-const getAlertScript = msg => `<script>alert("${msg}");history.back();</script>`;
+const {getAlertScript} = require('../../lib/usefulJS');
 
 //GET /
 const signInForm = async (req, res, next) =>{
@@ -39,6 +39,7 @@ const signIn = async (req, res, next) =>{
             id: user.id,
             nick: user.nick,
         };
+        console.log(req.session);
         return await res.redirect('/');
     }catch(err){
         return next(err); //에러 객체가 error-handler에 전달됨.

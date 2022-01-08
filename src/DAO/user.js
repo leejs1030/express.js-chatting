@@ -10,20 +10,26 @@ const getById = async (id) => {
 const create = async (id, password, nick) => {
     const sql = 'INSERT INTO users values($1, $2, $3)'; //id, password, nick을 받아서 유저 테이블에 삽입.
     //새로운 유저가 등록되는 회원 가입 과정.
-    const sql2 = 'INSERT INTO users values($1)';
+    const sql2 = 'INSERT INTO user_settings values($1)';
     await runQuery(sql, [id, password, nick]);
     await runQuery(sql2, [id]);
 };
 
-const getConfigById = async(id) =>{
-    const sql = "select * from user_config WHERE id = $1";
-    const result = runQuery(sql, [id]);
-    return result;
+const getSettingById = async(id) =>{
+    const sql = "select * from user_settings WHERE id = $1";
+    const result = await runQuery(sql, [id]);
+    return result[0];
 }
 
+const setSettingById = async(id, info) =>{
+    const sql = "UPDATE user_settings SET send_enter = $2 WHERE id = $1";
+    let {send_enter} = info;
+    const result = await runQuery(sql, [id, send_enter]);
+}
 
 module.exports = {
     getById,
     create,
-    getConfigById,
+    getSettingById,
+    setSettingById,
 };    

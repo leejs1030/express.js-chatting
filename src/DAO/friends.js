@@ -1,6 +1,7 @@
 const { convertDate } = require('../lib/convertDate');
 const {runQuery} = require('../lib/database');
 const UserDAO = require('./user.js');
+const {errorAt} = require('../lib/usefulJS');
 
 
 
@@ -9,16 +10,16 @@ const getReceivedById = async (id)=>{
         const sql = 'SELECT users.nick as sender_nick, users.id as sender_id, reqlist.req_time ' + 
         'FROM reqlist INNER JOIN users ON users.id = reqlist.sender ' + 
         'WHERE reqlist.receiver = $1 AND ' + 
-        'users.id not in (SELECT added FROM blist WHERE adder = $2)';
+        'users.id not in (SELECT added FROM blist WHERE adder = $1)';
         //받은 요청 확인. 단, 내가 차단한 상대로부터 들어온 요청은 보이지 않음.
         //조건: JOIN, nested subquery
-        const result = await runQuery(sql, [id, id]);
+        const result = await runQuery(sql, [id]);
         result.forEach((value, index, array)=>{
             array[index].req_time = convertDate(value.req_time);
         });
         return result;
     } catch(err){
-        console.log(err);
+        return errorAt('getReceivedById', err);
     }
 };
 const getSentById = async (id)=>{
@@ -32,7 +33,7 @@ const getSentById = async (id)=>{
         });
         return result;
     } catch(err) {
-        console.log(err);
+        return errorAt('getSentById', err);
     }
 };
 const getFriendsById = async (id)=>{
@@ -46,7 +47,7 @@ const getFriendsById = async (id)=>{
         });
         return result;
     } catch(err) {
-        console.log(err);
+        return errorAt('getFriendsById', err);
     }
 };
 const getBlacksById = async (id)=>{
@@ -60,7 +61,7 @@ const getBlacksById = async (id)=>{
         });
         return result;
     } catch(err){
-        console.log(err);
+        return errorAt('getBlackById', err);
     }
 };
 
@@ -74,7 +75,7 @@ const allowRequest = async (id1, id2) =>{
         //그 요청을 받아들여 친구리스트 테이블에 추가
         await runQuery(sql2, [id1, id2]);
     } catch(err){
-        console.log(err);
+        return errorAt('allowRequest', err);
     }
 }
 
@@ -84,7 +85,7 @@ const rejectRequest = async (id1, id2) =>{
         //친구 요청 거절
         await runQuery(sql1, [id1, id2]);
     } catch(err){
-        console.log(err);
+        return errorAt('rejectRequest', err);
     }
 }
 
@@ -110,7 +111,7 @@ const newRequest = async (sender, receiver)=>{
             return 1; //1리턴. 컨트롤러에서 이미 요청 중/친구/블랙으로 인해 전송 불가함을 알림.
         }
     } catch(err){
-        console.log(err);
+        return errorAt('newRequest', err);
     }
 }
 
@@ -120,8 +121,8 @@ const newBlack = async (adder, added)=>{
         if(!(await UserDAO.getById(added))){ //상대방이 존재하는지 확인
             return 2; //안 한다면 2리턴. 컨트롤러에서 전송 불가함을 알림.
         }
-        const delFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $3 and id1 = $4)';
-        await runQuery(delFlist, [adder, added, adder, added]); //해당 유저를 친구 목록에서 삭제
+        const delFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
+        await runQuery(delFlist, [adder, added]); //해당 유저를 친구 목록에서 삭제
 
         const delReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
         await runQuery(delReqlist, [adder, added]); //해당 유저에게 보낸 요청 취소
@@ -130,7 +131,7 @@ const newBlack = async (adder, added)=>{
         await runQuery(sql, [adder, added]); //블랙 리스트 테이블에 추가.
         return 0;
     } catch(err){
-        console.log(err);
+        return errorAt('newBlack', err);
     }
 }
 
@@ -141,7 +142,7 @@ const isFriend = async (id1, id2) =>{
         const result = await runQuery(sql, [id1, id2]);
         return result[0];
     } catch(err){
-        console.log(err);
+        return errorAt('isFriend', err);
     }
 }
 
@@ -150,7 +151,7 @@ const cancelRequest = async (sender, receiver) =>{
         const sql = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2'; //친구 요청 취소
         await runQuery(sql, [sender, receiver]);
     } catch(err) {
-
+        return errorAt('cancelRequest', err);
     }
 }
 
@@ -161,7 +162,7 @@ const deleteFriend = async(id1, id2) =>{
         await runQuery(sql, [id1, id2]);
         return 0;
     } catch(err){
-        console.log(err);
+        return errorAt('deleteFriend', err);
     }
 }
 
@@ -171,7 +172,7 @@ const unBlack = async(adder, added) =>{
         await runQuery(sql, [adder, added]);
         return 0;
     } catch(err){
-        console.log(err);
+        return errorAt('unBlack', err);
     }
 }
 
@@ -189,7 +190,7 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
         const result = await runQuery(sql, [uid, cid]);
         return result;
     } catch(err){
-        console.log(err);
+        return errorAt('getFriendsByIdNotInChannel', err);
     }
 }
 
@@ -203,7 +204,7 @@ const includeToChannel = async(cid, uid) =>{
         const sql = 'INSERT INTO channel_users values($1, $2, $3)';
         await runQuery(sql, [cid, uid, num]);//해당 채널에 해당 유저를 추가하며, 읽지 않은 메시지 수를 num으로 설정.
     } catch(err){
-        console.log(err);
+        return errorAt('includeToChannel', err);
     }
 }
 

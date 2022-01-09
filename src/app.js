@@ -27,19 +27,20 @@ app.use(session({
 	store : new PostgreSqlStore({
         conString: `postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`
       }),
-	cookie: {maxAge : 10 * 1000}, //60 * 60 * 1000},
-	// cookie: {maxAge: null},
+	cookie: {maxAge: null},
+	resave: false,
 	// cookie: { maxAge: 5 * 1000 },
 }));
 
 // app.use((req, res, next) => {
 // });
 
+const YEAR = 365 * 24 * 60 * 60 * 1000;
 app.use(function (req, res, next) {
 	if(req.session.keepSignedIn){
-			req.session.cookie.expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-			req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000;
-			console.log(req.session);
+			req.session.resave = true;
+			req.session.cookie.expires = new Date(Date.now() + YEAR);
+			req.session.cookie.maxAge = YEAR;
 	}
 	next();
 });

@@ -18,9 +18,16 @@ block title
 //-     | 회원가입/로그인을 하신 뒤 서비스를 이용하실 수 있습니다.
 
 block buttons
-    a.btn.btn-primary.mr-2(href='/channels') 채널 목록
-    | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    a.btn.btn-info.mr-2(href='/friends') 친구 목록
+    .bs-docs-grid
+        .row.show-grid
+            .col-3
+                a.btn.btn-primary.mr-2.col-10(href='/channels') 채널 목록
+                //- | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            .col-2
+            .col-3
+                a.btn.btn-info.mr-2.col-10.text-center(href='/friends') 친구 목록
+                .well.col-10.text-center(style='background-color:#e2e3e5;')
+                    | 받은 요청: #{num}
 
 //- block scripts
 //-     script(defer, type = 'text/javascript').

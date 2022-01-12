@@ -15,23 +15,9 @@ const getReceivedById = async (id)=>{
         //조건: JOIN, nested subquery
         const result = await runQuery(sql, [id]);
         result.forEach((value, index, array)=>{
-            array[index].req_time = convertDate(value.req_time);
+            array[index].req_time = convertDate(value.req_time); //시간 변환
         });
         return result;
-    } catch(err){
-        return errorAt('getReceivedById', err);
-    }
-};
-const countReceivedById = async (id)=>{
-    try{
-        const sql = 'SELECT count(*) ' + 
-        'FROM reqlist INNER JOIN users ON users.id = reqlist.sender ' + 
-        'WHERE reqlist.receiver = $1 AND ' + 
-        'users.id not in (SELECT added FROM blist WHERE adder = $1)';
-        //받은 요청 확인. 단, 내가 차단한 상대로부터 들어온 요청은 보이지 않음.
-        //조건: JOIN, nested subquery
-        const result = await runQuery(sql, [id]);
-        return result[0].count;
     } catch(err){
         return errorAt('getReceivedById', err);
     }
@@ -78,7 +64,6 @@ const getBlacksById = async (id)=>{
         return errorAt('getBlackById', err);
     }
 };
-
 const allowRequest = async (id1, id2) =>{
     try{
         const sql1 = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2';
@@ -222,9 +207,55 @@ const includeToChannel = async(cid, uid) =>{
     }
 }
 
+
+const countReceivedById = async (id)=>{
+    try{
+        const result = await getReceivedById(id);
+        return result.length;
+    } catch(err){
+        return errorAt('getReceivedById', err);
+    }
+};
+const getCountsById = async (id) =>{
+    try{
+        let result = {
+            received: await countReceivedById(id),
+            sent: await countSentById(id),
+            friends: await countFriendsById(id),
+            blacks: await countBlacksById(id),
+        };
+        return result;
+    } catch(err){
+        return errorAt('getCountsById', err);
+    }
+};
+const countSentById = async(id) => {
+    try{
+        const result = await getSentById(id);
+        return result.length;
+    } catch(err){
+        return errorAt('countSentById', err);
+    }
+};
+const countFriendsById = async (id)=>{
+    try{
+        const result = await getFriendsById(id);
+        return result.length;
+    } catch(err) {
+        return errorAt('countFriendsById', err);
+    }
+};
+const countBlacksById = async (id)=>{
+    try{
+        const result = await getBlacksById(id);
+        return result.length;
+    } catch(err) {
+        return errorAt('countBlacksById', err);
+    }
+};
+
 module.exports = {
     getReceivedById,
-    countReceivedById,
     getSentById,
     getFriendsById,
     getBlacksById,
@@ -238,4 +269,5 @@ module.exports = {
     unBlack,
     getFriendsByIdNotInChannel,
     includeToChannel,
+    getCountsById,
 };

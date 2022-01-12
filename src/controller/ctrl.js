@@ -3,11 +3,11 @@ const {FriendDAO} = require('../DAO');
 const indexPage = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        let num = 0;
+        let counts = 0;
         if(user){
-            num = await FriendDAO.countReceivedById(user.id); //요청받은 숫자
+            counts = await FriendDAO.getCountsById(user.id); //요청받은 숫자
         }
-        return res.render('index.pug', {user, num});
+        return res.render('index.pug', {user, counts});
     }catch(err){
         return next(err);
     }

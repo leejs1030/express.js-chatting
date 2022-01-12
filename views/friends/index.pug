@@ -20,7 +20,7 @@ block content
             h1.mb-5.text-warning
                 |주의 사항: 아래는 id(닉네임)의 형태로 표시됩니다.
             h2.mb-2
-                | 받은 요청
+                | 받은 요청 (#{counts.received})
             h5.mb-4
                 .list-group-item
                     each e in reqreceived
@@ -33,7 +33,7 @@ block content
                             | #{e.req_time}
                         
             h2.mb-2
-                |보낸 요청
+                |보낸 요청 (#{counts.sent})
             h5.mb-4
                 .list-group-item
                     each e in reqsent
@@ -44,7 +44,7 @@ block content
                             br
                             | #{e.req_time}
             h2.mb-2
-                |친구 목록
+                |친구 목록 (#{counts.friends})
             h5.mb-4
                 .list-group-item
                     each e in friendlist
@@ -54,7 +54,7 @@ block content
                             br
                             | #{e.friend_date}
             h2.mb-2
-                |차단 목록
+                |차단 목록 (#{counts.blacks})
             h5.mb-4
                 .list-group-item
                     each e in blacklist

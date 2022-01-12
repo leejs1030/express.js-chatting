@@ -9,7 +9,9 @@ const indexPage = async (req, res, next) =>{
         const reqsent = await FriendDAO.getSentById(user.id);
         const friendlist = await FriendDAO.getFriendsById(user.id);
         const blacklist = await FriendDAO.getBlacksById(user.id);
-        return res.render('./friends/index.pug', {user, reqreceived, reqsent, friendlist, blacklist});
+        const counts = await FriendDAO.getCountsById(user.id);
+        console.log(counts);
+        return res.render('./friends/index.pug', {user, reqreceived, reqsent, friendlist, blacklist, counts});
     } catch(err){
         return next(err);
     }

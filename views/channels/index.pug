@@ -28,3 +28,12 @@ block content
                         else 
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-warning.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/quit/${e.id}`) 나감
+
+
+block scripts
+    script(type='text/javascript').
+        const clist = !{chan};
+
+block references
+    script(src='/socket.io/socket.io.js')
+    script(src='/scripts/channelsockets.js', defer)

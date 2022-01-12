@@ -5,17 +5,12 @@ let txt = document.getElementById('input_msg');
 
 
 const sendNewMsg = (e) => {
-    // console.log("이벤트리스너2");
-    // console.log('유저정보');
     e.preventDefault();
-    // console.log(e);
-    // console.log(txt.value.length);
     if(txt.value){
         if(txt.value.length > 20000){
             // txt.value = '';
             return sendbtn.submit();
         }
-        // console.log(`txt.value is : ${txt.value}`);
         const sendData = {
             id: clientO.id,
             nick: clientO.nick,

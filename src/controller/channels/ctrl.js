@@ -18,7 +18,7 @@ const indexPage = async (req, res, next) =>{
         const {user} = req.session;
         const channelList = await ChannelDAO.getChannelsByUserId(user.id);
         const {num} = await ChannelDAO.countChannelsByUserId(user.id);
-        return res.render('channels/index.pug', {user, channelList, num});
+        return res.render('channels/index.pug', {user, channelList, num, chan: JSON.stringify(channelList)});
     } catch(err){
         return next(err);
     }

@@ -1,24 +1,24 @@
 const socket = io();
 const sendbtn = document.getElementById('myPost');
 let txt = document.getElementById('input_msg');
-
+txt.value = '';
 
 
 const sendNewMsg = (e) => {
     e.preventDefault();
-    txt.value = txt.value.trim();
-    if(txt.value){
-        if(txt.value.length > 10000){
-            return sendbtn.submit();
-        }
-        const sendData = {
-            id: clientO.id,
-            nick: clientO.nick,
-            channel: clientO.channel,
-            msg: txt.value,
-        };
-        socket.emit('new msg', sendData);
-        txt.value = '';
+    if(txt.value.trim()){
+        txt.value = txt.value.trim();
+        sendbtn.submit();
+        // if(txt.value.length > 10000){
+        //     return sendbtn.submit();
+        // }
+        // const sendData = {
+        //     id: clientO.id,
+        //     nick: clientO.nick,
+        //     channel: clientO.channel,
+        //     msg: txt.value,
+        // };
+        // socket.emit('new msg', sendData);
     }
 }
 

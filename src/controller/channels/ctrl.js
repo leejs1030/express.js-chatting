@@ -39,12 +39,21 @@ const showChannel = async(req, res, next) =>{
 
 const sendMsg = async(req, res, next) =>{
     try{
-        console.log("컨트롤러1");
         const {content} = req.body;
+        if(!content) return;
         if(content.length > 10000) return res.send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
         const {user} = req.session;
         const {channelId} = req.params;
-        await ChannelDAO.sendMsg(user.id, channelId, content);
+        const receiveTime = await ChannelDAO.sendMsg(user.id, channelId, content);
+        const io = req.app.get('socketio');
+        let sendData = {id: user.id,
+			nick: user.nick,
+			channel: channelId,
+			msg: content,
+			stime: receiveTime,
+        };
+
+        io.emit(`update ${channelId}`, sendData);
         return res.redirect('back');
     } catch(err){
         return next(err);

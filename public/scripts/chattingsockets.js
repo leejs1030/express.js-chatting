@@ -50,4 +50,4 @@ socket.on(`update ${clientO.channel}`, (receivedData) =>{
     
     if(checkToScroll <= 100) msglist.scrollTop = totalScrolls;
     socket.emit('read', clientO.id, clientO.channel);
-})
+});

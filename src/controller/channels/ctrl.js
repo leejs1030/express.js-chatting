@@ -1,5 +1,6 @@
 const {ChannelDAO, FriendDAO, UserDAO} = require('../../DAO');
 const {getAlertScript} = require('../../lib/usefulJS');
+// const {app} = require('../../app');
 
 const createChannel = async (req, res, next) =>{
     try{
@@ -66,6 +67,8 @@ const includeToChannel = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId, targetId} = req.params;
         await FriendDAO.includeToChannel(channelId, targetId);
+        const io = req.app.get('socketio');
+        io.emit(`invite ${targetId}`);
         return res.redirect('back');
     } catch(err){
         return next(err);

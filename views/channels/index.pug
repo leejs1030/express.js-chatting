@@ -12,12 +12,13 @@ block content
                 | 참여 중인 채널 수: #{num}
             div.row
                 each e in channelList
-                    .row.mb-3.col-12(id=`C${e.id}`)
+                    .row.mb-3.col-12
                         .list-group-item.col-11.h-100
                             a.h1(href=`/channels/${e.id}`) #{e.name}
                             | (읽지 않은 메시지: 
                             span(id=`C${e.id}unread`) #{e.unread}
                             | )
+                            span(id=`C${e.id}`)
                             .float-right
                                 | 최근 업데이트
                                 br
@@ -33,6 +34,7 @@ block content
 block scripts
     script(type='text/javascript').
         const clist = !{chan};
+        const uid = "#{user.id}";
 
 block references
     script(src='/socket.io/socket.io.js')

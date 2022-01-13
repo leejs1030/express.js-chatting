@@ -1,13 +1,11 @@
 require('./env');
-const {server, io} = require('./app');
+const {app} = require('./app');
 const {ChannelDAO} = require('./DAO');
 
 const port = process.env.PORT || 4000;
-// const http = require('http');
-// const server = http.createServer(app);
-// const { Server } = require("socket.io");
-// const io = new Server(server);
 
+const io = app.get('socketio');
+const server = app.get('server');
 
 io.on('connection', (socket) => {
 	console.log('connected');

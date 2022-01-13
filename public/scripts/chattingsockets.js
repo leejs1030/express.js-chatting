@@ -6,9 +6,9 @@ let txt = document.getElementById('input_msg');
 
 const sendNewMsg = (e) => {
     e.preventDefault();
+    txt.value = txt.value.trim();
     if(txt.value){
-        if(txt.value.length > 20000){
-            // txt.value = '';
+        if(txt.value.length > 10000){
             return sendbtn.submit();
         }
         const sendData = {
@@ -26,7 +26,6 @@ sendbtn.addEventListener('submit', sendNewMsg);
 sendbtn.addEventListener('keydown', function(e){
     if(sendWithEnter && e.key == "Enter" && !e.shiftKey){
         sendNewMsg(e);
-        // sendbtn.submit();
     }
     else if(!sendWithEnter && e.key == "Enter" && e.shiftKey){
         sendNewMsg(e);

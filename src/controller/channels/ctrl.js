@@ -40,8 +40,7 @@ const sendMsg = async(req, res, next) =>{
     try{
         console.log("컨트롤러1");
         const {content} = req.body;
-        if(content.length > 20000) return res.send(getAlertScript('20000글자 제한 초과!'));
-        // console.log("hi!")
+        if(content.length > 10000) return res.send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
         const {user} = req.session;
         const {channelId} = req.params;
         await ChannelDAO.sendMsg(user.id, channelId, content);

@@ -26,9 +26,11 @@ block content
                         if e.creater == user.id
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-danger.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/delete/${e.id}`) 삭제
+                                //- need to change get --> delete
                         else 
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-warning.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/quit/${e.id}`) 나감
+                                //- need to change get --> delete
 
 
 block scripts

@@ -1,6 +1,6 @@
 const socket = io();
 const sendbtn = document.getElementById('myPost');
-let txt = document.getElementById('input_msg');
+let txt = document.getElementById('input-msg');
 txt.value = '';
 
 

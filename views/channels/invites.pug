@@ -11,5 +11,6 @@ block content
                         div.mb-4
                             | #{e.id}(#{e.nick})
                             a.btn.btn-primary.ml-5.float-right(href=`/channels/invite/${channelId}/${e.id}`) 초대
+                            //- need to change. get --> post
                             br
                             | #{e.friend_date}

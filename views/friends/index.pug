@@ -28,7 +28,9 @@ block content
                             | #{e.sender_id}(#{e.sender_nick})
                             .float-right
                                 a.btn.btn-primary.mr-2.ml-5(href=`/friends/allow/${e.sender_id}`) 수락
+                                //- need to change ???
                                 a.btn.btn-primary(href=`/friends/reject/${e.sender_id}`) 거절
+                                //- need to change get --> delete
                             br
                             | #{e.req_time}
                         
@@ -41,6 +43,7 @@ block content
                             | #{e.receiver_id}(#{e.receiver_nick})
                             .float-right
                                 a.btn.btn-primary.mr-2.ml-5(href=`/friends/cancel/${e.receiver_id}`) 취소
+                                //- need to change get --> delete
                             br
                             | #{e.req_time}
             h2.mb-2
@@ -51,6 +54,7 @@ block content
                         div.mb-4
                             | #{e.id}(#{e.nick})
                             a.btn.btn-primary.ml-5.float-right(href=`/friends/delete/${e.id}`) 삭제
+                            //- need to change get --> delete
                             br
                             | #{e.friend_date}
             h2.mb-2
@@ -61,6 +65,7 @@ block content
                         div.mb-4
                             | #{e.id}(#{e.nick}) 
                             a.btn.btn-primary.ml-5.float-right(href=`/friends/unblack/${e.id}`) 삭제
+                            //- need to change get --> delete
                             br
                             | #{e.black_date}
                             br

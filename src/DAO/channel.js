@@ -17,6 +17,16 @@ const getChannelsByUserId = async (id) =>{
     }
 }
 
+const getChannelNameById = async (id) =>{
+    try{
+        const sql = 'SELECT name FROM channels WHERE id = $1';
+        const result = await runQuery(sql, [id]);
+        return result;
+    } catch(err){
+        return errorAt('getChannelNameById', err);
+    }
+}
+
 const countChannelsByUserId = async (id) =>{
     try{
         const sql = 'SELECT count(*) as num FROM channel_users WHERE user_id = $1 GROUP BY user_id'; //사용자가 참여 중인 채널의 수를 센다.
@@ -142,6 +152,7 @@ const getMemberFromChannel = async(cid) =>{
 
 module.exports = {
     getChannelsByUserId,
+    getChannelNameById,
     countChannelsByUserId,
     createChannel,
     isChannelMember,

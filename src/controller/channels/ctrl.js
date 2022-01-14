@@ -31,7 +31,8 @@ const showChannel = async(req, res, next) =>{
         const {channelId} = req.params;
         const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
         const {send_enter} = await UserDAO.getSettingById(user.id);
-        return res.render("channels/chattings.pug", {user, channelId, msglist, send_enter});
+        const channelName = (await ChannelDAO.getChannelNameById(channelId))[0].name;
+        return res.render("channels/chattings.pug", {user, channelId, msglist, send_enter, channelName});
     } catch(err){
         return next(err);
     }

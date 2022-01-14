@@ -31,7 +31,7 @@ const showChannel = async(req, res, next) =>{
         const {channelId} = req.params;
         const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
         const {send_enter} = await UserDAO.getSettingById(user.id);
-        const channelName = (await ChannelDAO.getChannelNameById(channelId))[0].name;
+        const channelName = (await ChannelDAO.getChannelInfoById(channelId))[0].name;
         return res.render("channels/chattings.pug", {user, channelId, msglist, send_enter, channelName});
     } catch(err){
         return next(err);
@@ -77,8 +77,15 @@ const includeToChannel = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId, targetId} = req.params;
         await FriendDAO.includeToChannel(channelId, targetId);
+        const channelInfo = (await ChannelDAO.getChannelInfoById(channelId))[0];
+        const unread = (await ChannelDAO.getChannelUnreadById(channelId, targetId))[0].unread;
         const io = req.app.get('socketio');
-        io.emit(`invite ${targetId}`);
+        io.emit(`invite ${targetId}`, {
+            cid: channelId,
+            cname: channelInfo.name,
+            cunread: unread,
+            ctime: channelInfo.updatetime,
+        });
         return res.redirect('back');
     } catch(err){
         return next(err);

@@ -17,13 +17,24 @@ const getChannelsByUserId = async (id) =>{
     }
 }
 
-const getChannelNameById = async (id) =>{
+const getChannelInfoById = async (id) =>{
     try{
-        const sql = 'SELECT name FROM channels WHERE id = $1';
+        const sql = 'SELECT * FROM channels WHERE id = $1';
         const result = await runQuery(sql, [id]);
+        result[0].updatetime = convertDate(result[0].updatetime);
         return result;
     } catch(err){
         return errorAt('getChannelNameById', err);
+    }
+}
+
+const getChannelUnreadById = async (cid, uid) =>{
+    try{
+        const sql = 'SELECT unread FROM channel_users WHERE channel_id = $1 and user_id = $2';
+        const result = await runQuery(sql, [cid, uid]);
+        return result;
+    } catch(err){
+        return errorAt('getChannelUnreadById', err);
     }
 }
 
@@ -152,7 +163,8 @@ const getMemberFromChannel = async(cid) =>{
 
 module.exports = {
     getChannelsByUserId,
-    getChannelNameById,
+    getChannelInfoById,
+    getChannelUnreadById,
     countChannelsByUserId,
     createChannel,
     isChannelMember,

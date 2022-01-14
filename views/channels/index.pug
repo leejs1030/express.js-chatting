@@ -22,7 +22,7 @@ block content
                             .float-right
                                 | 최근 업데이트
                                 br
-                                span(id=`C${e.id}time`) #{e.updatetime}
+                                span.time-info(id=`C${e.id}time`) #{e.updatetime}
                         if e.creater == user.id
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-danger.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/delete/${e.id}`) 삭제

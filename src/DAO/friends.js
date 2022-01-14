@@ -93,7 +93,8 @@ const canSendRequest = async (sender, receiver) =>{
     const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
     const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
     const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
-    return !((await runQuery(sqlcan, [sender, receiver]))[0]);
+    const result =  await runQuery(sqlcan, [sender, receiver]);
+    return !(result[0]);
 }
 
 const newRequest = async (sender, receiver)=>{
@@ -119,7 +120,8 @@ const newRequest = async (sender, receiver)=>{
 
 const canAddBlack = async (adder, added) =>{
     const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2';
-    return !((await runQuery(sql, [adder, added]))[0]);
+    const result = await runQuery(sql, [adder, added]);
+    return !(result[0]);
 }
 
 const newBlack = async (adder, added)=>{
@@ -153,7 +155,7 @@ const isFriend = async (id1, id2) =>{
         const sql = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; //친구인지 확인
         //(id1, id2) 형태로 저장되었으므로, (a,b)와 (b,a)를 모두 고려해야함. 두 가지 경우 모두 a와 b가 친구.
         const result = await runQuery(sql, [id1, id2]);
-        return result[0];
+        return (result[0] === undefined ? false : true);
     } catch(err){
         return errorAt('isFriend', err);
     }
@@ -280,7 +282,9 @@ module.exports = {
     getBlacksById,
     allowRequest,
     rejectRequest,
+    canSendRequest,
     newRequest,
+    canAddBlack,
     newBlack,
     isFriend,
     cancelRequest,

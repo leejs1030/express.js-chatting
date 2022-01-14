@@ -114,12 +114,20 @@ const deleteChannel = async(req, res, next) =>{
     }
 }
 
-const memberList = async(req, res, next) =>{
+const memberList = async (req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const memberList = await ChannelDAO.getMemberFromChannel(channelId);
-        res.render('channels/member.pug', {user, channelId, memberList});
+        let memberList = await ChannelDAO.getMemberFromChannel(channelId);
+        for(const member of memberList){
+            if(user.id == member.id){
+                member.canRequest = member.canBlack = false;
+            } else {
+                member.canBlack = await FriendDAO.canAddBlack(user.id, member.id);
+                member.canRequest = await FriendDAO.canSendRequest(user.id, member.id);
+            }
+        }
+        return res.render('channels/member.pug', {user, channelId, memberList, memberListstr: JSON.stringify(memberList)});
     }catch(err){
         return next(err);
     }

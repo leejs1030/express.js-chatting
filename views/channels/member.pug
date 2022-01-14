@@ -10,3 +10,12 @@ block content
                     each e in memberList
                         div.mb-4
                             | #{e.id}(#{e.nick})
+                            if e.id != user.id
+                                form.form-check.h3.form-check-inline.float-right.ml-1(method='post' action='/friends')
+                                    input.invisible(name='targetid' value=`${e.id}` style='width:0px;padding:0px;border:0px;margin:0px')
+                                    input.btn.btn-primary.mr-1(type = 'submit',
+                                        name = 'action',
+                                        value = 'request')
+                                    input.btn.btn-primary(type = 'submit',
+                                        name = 'action',
+                                        value = 'black')

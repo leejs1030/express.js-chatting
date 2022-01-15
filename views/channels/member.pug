@@ -22,8 +22,16 @@ block content
                                         input.btn.btn-primary.mr-1(type = 'submit',
                                                 name = 'action',
                                                 value = 'request', id=`req${e.id}`)
+                                    else
+                                        input.btn.btn-primary.mr-1(type = 'submit',
+                                                name = 'action',
+                                                value = 'request', id=`req${e.id}`, disabled)
                                     if e.canBlack
                                         input.btn.btn-primary(type = 'submit',
                                                 name = 'action',
                                                 value = 'black', id=`black${e.id}`)
+                                    else
+                                        input.btn.btn-primary.mr-1(type = 'submit',
+                                                name = 'action',
+                                                value = 'black', id=`black${e.id}`, disabled)
                                         

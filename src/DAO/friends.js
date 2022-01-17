@@ -204,9 +204,9 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
         //이후 둘을 UNION하면 채널에 속하지 않은 모든 친구를 구할 수 있음.
         const result = await runQuery(sql, [uid, cid]);
         result.forEach((value, index, array)=>{
-            console.log(value.friend_date);
+            // console.log(value.friend_date);
             array[index].friend_date = convertDate(value.friend_date); //시간 변환
-            console.log(convertDate(value.friend_date));
+            // console.log(convertDate(value.friend_date));
         });
         return result;
     } catch(err){

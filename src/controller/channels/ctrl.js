@@ -40,21 +40,26 @@ const showChannel = async(req, res, next) =>{
 
 const sendMsg = async(req, res, next) =>{
     try{
+        return; // 현재 사용하지 않음. 소켓 파트로 대체.
+        // chatting sockets에서 new msg 소켓 보내면, src/index.js에서 받아서 처리.
         const {content} = req.body;
-        if(!content) return;
-        if(content.length > 10000) return res.send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
+        if(content.length > 10000 || !content){
+            return res.send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
+        }
         const {user} = req.session;
         const {channelId} = req.params;
         const receiveTime = await ChannelDAO.sendMsg(user.id, channelId, content);
         const io = req.app.get('socketio');
-        let sendData = {id: user.id,
+        let sendData = {
+            id: user.id,
 			nick: user.nick,
 			channel: channelId,
 			msg: content,
 			stime: receiveTime,
         };
 
-        io.emit(`update ${channelId}`, sendData);
+        io.to(sendData.channel).emit(`update`, sendData);
+        return res.status(204).send();
         return res.redirect('back');
     } catch(err){
         return next(err);

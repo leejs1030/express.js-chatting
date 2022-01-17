@@ -31,7 +31,7 @@ block content
                 //- need to change. get --> put
             //- .h4.float-right.text-right
                 
-    .container.mt-3
+    .container.mt-3.position-relative
         #botScroll.list-group.overflow-scroll
             each e in msglist
                 span
@@ -46,10 +46,13 @@ block content
                             | #{e.msg}
                     span.float-right.text-right.mb-2.h6
                         | #{e.msg_date}에 전송됨
-    
+        .position-absolute(style='right:33px;bottom:3px;')
+            button#botbtn.invisible 메시지
+            //- it will use later. scroll-down button. become visible when new message arrive.
     .container.hidden-xs.hidden-sm.sticky
         h2.mb-4
             form(method='post' id='myPost')
                 textarea.form-control(name='content', id = 'input-msg', autofocus)
                 input.btn.btn-primary.mr-5(type = 'submit', value = 'send', action="/#", id = 'sendchat')
                 //-  action=`/channels/${channelId}`
+    

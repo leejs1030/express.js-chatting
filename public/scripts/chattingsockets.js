@@ -1,26 +1,27 @@
 const socket = io();
 const sendbtn = document.getElementById('myPost');
 let txt = document.getElementById('input-msg');
+const msglist = document.getElementById('botScroll');
+const botbtn = document.getElementById('botbtn');
 txt.value = '';
 
-
-const sendNewMsg = (e) => {
+const sendNewMsg = async (e) => {
     e.preventDefault();
     if(txt.value.trim()){
         txt.value = txt.value.trim();
-        sendbtn.submit();
-        // if(txt.value.length > 10000){
-        //     return sendbtn.submit();
-        // }
-        // const sendData = {
-        //     id: clientO.id,
-        //     nick: clientO.nick,
-        //     channel: clientO.channel,
-        //     msg: txt.value,
-        // };
-        // socket.emit('new msg', sendData);
+        if(txt.value.length > 10000){
+            alert('10000 글자 이하로 작성해주세요!'); history.back();
+        }
+        const sendData = {
+            id: clientO.id,
+            nick: clientO.nick,
+            msg: txt.value,
+        };
+        socket.emit('new msg', sendData);
+        txt.value = '';
+        msglist.scrollTop = msglist.scrollHeight;
     }
-}
+};
 
 sendbtn.addEventListener('submit', sendNewMsg);
 sendbtn.addEventListener('keydown', function(e){
@@ -32,8 +33,7 @@ sendbtn.addEventListener('keydown', function(e){
     }
 });
 
-socket.on(`update ${clientO.channel}`, (receivedData) =>{
-    const msglist = document.getElementById('botScroll');
+socket.on(`update`, async (receivedData) =>{
     let newMsg = document.createElement('span');
 
     let clientScrolls = msglist.clientHeight + msglist.scrollTop;
@@ -49,5 +49,6 @@ socket.on(`update ${clientO.channel}`, (receivedData) =>{
     msglist.appendChild(newMsg);
     
     if(checkToScroll <= 100) msglist.scrollTop = totalScrolls;
-    socket.emit('read', clientO.id, clientO.channel);
+    else unread++;
+    socket.emit('read', clientO.id);
 });

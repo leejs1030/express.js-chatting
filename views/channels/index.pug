@@ -18,7 +18,13 @@ block content
                             | (읽지 않은 메시지: 
                             span(id=`C${e.id}unread`) #{e.unread}
                             | )
-                            span(id=`C${e.id}NEW`)
+                            if e.unread == 0
+                                span(id=`C${e.id}NEW`)
+                            else
+                                span.alert.alert-danger(id=`C${e.id}NEW`) NEW!
+                                //- const newbox = document.getElementById(`C${id}NEW`);
+                                //- if(!("alert" in newbox.classList)) newbox.className += ' alert alert-danger';
+                                //- newbox.textContent = "NEW!";
                             .float-right
                                 | 최근 업데이트
                                 br

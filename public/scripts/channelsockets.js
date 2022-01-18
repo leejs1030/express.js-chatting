@@ -28,7 +28,6 @@ const binary_search = (ctime) =>{
 
 
 socket.on(`update`, (receiveData) =>{
-    console.log('hi');
     const id = receiveData.channel;
     const unread = document.getElementById(`C${id}unread`);
     unread.textContent = parseInt(unread.textContent) + 1;

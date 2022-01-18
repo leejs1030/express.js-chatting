@@ -33,19 +33,14 @@ sendbtn.addEventListener('keydown', function(e){
 });
 
 socket.on(`update`, (receivedData) =>{
-    let newMsg = document.createElement('span');
+    let newMsg = msgElement(clientO, receivedData);
 
     let clientScrolls = msglist.clientHeight + msglist.scrollTop;
     let totalScrolls = msglist.scrollHeight;
     const checkToScroll = totalScrolls - clientScrolls;
 
-    if(clientO.id == receivedData.id){
-        newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-danger font-weight-bold h5">${receivedData.id}(${receivedData.nick}):</div><div id="pre-wrap">${receivedData.msg}</div></div><span class="float-right text-right mb-2 h6">${receivedData.stime}에 전송됨</span>`);
-    }
-    else{
-        newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-info">${receivedData.id}(${receivedData.nick}):</div><div id="pre-wrap">${receivedData.msg}</div></div><span class="float-right text-right mb-2 h6">${receivedData.stime}에 전송됨</span>`);
-    }
     msglist.appendChild(newMsg);
+    console.log(newMsg);
     
     if(checkToScroll <= 100) msglist.scrollTop = totalScrolls;
     else unread++;

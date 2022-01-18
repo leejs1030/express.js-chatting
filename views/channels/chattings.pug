@@ -20,9 +20,22 @@ block scripts
         };
         const sendWithEnter = #{send_enter};
         const msglist = document.getElementById('botScroll');
+        let initialMsgs = !{initialMsgs};
         let insertPos = #{unread};
+        let readPos = initialMsgs.length;
         let newUnread = 0;
-        //- let initialMsgs = !{initialMsgs};
+        const msgPerPage = 20;
+        const msgElement = (clientO, msg) => {
+            //- console.log(msg);
+            let newMsg = document.createElement('span');
+            if(clientO.id == msg.id){
+                newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-danger font-weight-bold h5">${msg.id}(${msg.nick}):</div><div id="pre-wrap">${msg.msg}</div></div><span class="float-right text-right mb-2 h6">${msg.msg_date}에 전송됨</span>`);
+            }
+            else{
+                newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-info">${msg.id}(${msg.nick}):</div><div id="pre-wrap">${msg.msg}</div></div><span class="float-right text-right mb-2 h6">${msg.msg_date}에 전송됨</span>`);
+            }
+            return newMsg;
+        };
 
 
 block content
@@ -43,19 +56,19 @@ block content
                 |  메시지
             //- it will use later. scroll-down button. become visible when new message arrive.
         #botScroll.list-group.overflow-scroll
-            each e in msglist
-                span
-                    .list-group-item.mb-0
-                        if e.id == user.id
-                            .text-danger.font-weight-bold.h5
-                                | #{e.id}(#{e.nick}):
-                        else
-                            .text-info
-                                | #{e.id}(#{e.nick}):
-                        #pre-wrap
-                            | #{e.msg}
-                    span.float-right.text-right.mb-2.h6
-                        | #{e.msg_date}에 전송됨
+            //- each e in msglist
+            //-     span
+                    //- .list-group-item.mb-0
+                    //-     if e.id == user.id
+                    //-         .text-danger.font-weight-bold.h5
+                    //-             | #{e.id}(#{e.nick}):
+                    //-     else
+                    //-         .text-info
+                    //-             | #{e.id}(#{e.nick}):
+                    //-     #pre-wrap
+                    //-         | #{e.msg}
+                    //- span.float-right.text-right.mb-2.h6
+                    //-     | #{e.msg_date}에 전송됨
     .container.hidden-xs.hidden-sm.sticky
         h2.mb-4
             form(method='post' id='myPost' action='/#')

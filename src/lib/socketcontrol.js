@@ -20,7 +20,7 @@ const receiveAndSend = async (io, receiveData, roomnum) =>{
         nick: receiveData.nick,
         channel: roomnum,
         msg: receiveData.msg,
-        stime: receiveTime
+        msg_date: receiveTime
     };
     return io.to(sendData.channel).emit(`update`, sendData);
 }

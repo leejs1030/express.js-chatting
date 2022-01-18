@@ -9,6 +9,7 @@ block references
     script(src='/scripts/myScroll.js', defer)
     script(src='/socket.io/socket.io.js')
     script(src='/scripts/chattingsockets.js', defer)
+    script(src='/scripts/unreadmsg.js', defer)
 
 block scripts
     script(type = 'text/javascript').
@@ -18,6 +19,10 @@ block scripts
             channel: '#{channelId}'
         };
         const sendWithEnter = #{send_enter};
+        const msglist = document.getElementById('botScroll');
+        let insertPos = #{unread};
+        let newUnread = 0;
+        //- let initialMsgs = !{initialMsgs};
 
 
 block content
@@ -32,6 +37,11 @@ block content
             //- .h4.float-right.text-right
                 
     .container.mt-3.position-relative
+        .position-absolute(style='right:33px;bottom:3px;z-index:1;')
+            button#botbtn.invisible
+                span#count-new-msg
+                |  메시지
+            //- it will use later. scroll-down button. become visible when new message arrive.
         #botScroll.list-group.overflow-scroll
             each e in msglist
                 span
@@ -46,9 +56,6 @@ block content
                             | #{e.msg}
                     span.float-right.text-right.mb-2.h6
                         | #{e.msg_date}에 전송됨
-        .position-absolute(style='right:33px;bottom:3px;')
-            button#botbtn.invisible 메시지
-            //- it will use later. scroll-down button. become visible when new message arrive.
     .container.hidden-xs.hidden-sm.sticky
         h2.mb-4
             form(method='post' id='myPost' action='/#')

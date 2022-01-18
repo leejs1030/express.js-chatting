@@ -56,5 +56,8 @@ socket.on(`invite`, (channelInfo) => {
     const getPos = binary_search(channelInfo.ctime);
     if(getPos != -1) channelList.insertBefore(newChannel, channelList.childNodes[getPos].nextSibling);
     else channelList.insertBefore(newChannel, channelList.childNodes[0]);
+    const newbox = document.getElementById(`C${channelInfo.cid}NEW`);
+    if(!("alert" in newbox.classList)) newbox.className += ' alert alert-danger';
+    newbox.textContent = "NEW!";
     socket.emit('join to');
 });

@@ -1,4 +1,5 @@
 const {ChannelDAO, FriendDAO, UserDAO} = require('../../DAO');
+const { getChannelUnreadById } = require('../../DAO/channel');
 const {getAlertScript} = require('../../lib/usefulJS');
 // const {app} = require('../../app');
 
@@ -29,10 +30,11 @@ const showChannel = async(req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelId} = req.params;
+        const unread = (await getChannelUnreadById(channelId, user.id))[0].unread
         const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
         const {send_enter} = await UserDAO.getSettingById(user.id);
         const channelName = (await ChannelDAO.getChannelInfoById(channelId))[0].name;
-        return res.render("channels/chattings.pug", {user, channelId, msglist, send_enter, channelName});
+        return res.render("channels/chattings.pug", {user, channelId, msglist, send_enter, channelName, unread});
     } catch(err){
         return next(err);
     }
@@ -41,7 +43,7 @@ const showChannel = async(req, res, next) =>{
 const sendMsg = async(req, res, next) =>{
     try{
         return; // 현재 사용하지 않음. 소켓 파트로 대체.
-        // chatting sockets에서 new msg 소켓 보내면, src/index.js에서 받아서 처리.
+        // /scripts/chattingsockets.js에서 new msg 소켓 보내면, /src/index.js에서 받아서 처리.
         const {content} = req.body;
         if(content.length > 10000 || !content){
             return res.send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
@@ -80,6 +82,8 @@ const inviteFriend = async(req, res, next) =>{
 
 const includeToChannel = async(req, res, next) =>{
     try{
+        return; // 현재 사용하지 않음. 소켓 파트로 대체.
+        // /scripts/invitesockets.js에서 전송하면 /src/index.js에서 받아서 처리.
         console.log('hello');
         const {user} = req.session;
         const {channelId, targetId} = req.params;

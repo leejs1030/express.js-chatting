@@ -1,7 +1,6 @@
 const socket = io();
 const sendbtn = document.getElementById('myPost');
 let txt = document.getElementById('input-msg');
-const msglist = document.getElementById('botScroll');
 const botbtn = document.getElementById('botbtn');
 txt.value = '';
 

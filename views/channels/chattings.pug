@@ -51,8 +51,8 @@ block content
             //- it will use later. scroll-down button. become visible when new message arrive.
     .container.hidden-xs.hidden-sm.sticky
         h2.mb-4
-            form(method='post' id='myPost')
-                textarea.form-control(name='content', id = 'input-msg', autofocus)
-                input.btn.btn-primary.mr-5(type = 'submit', value = 'send', action="/#", id = 'sendchat')
+            form(method='post' id='myPost' action='/#')
+                textarea.form-control(name='content' id = 'input-msg' autofocus)
+                input.btn.btn-primary.mr-5(type = 'submit' value = 'send' id = 'sendchat')
                 //-  action=`/channels/${channelId}`
     

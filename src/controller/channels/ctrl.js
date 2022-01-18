@@ -68,10 +68,11 @@ const sendMsg = async(req, res, next) =>{
 
 const inviteFriend = async(req, res, next) =>{
     try{
+        const io = req.app.get('socketio'); io.emit('hello', 'hello');
         const {user} = req.session;
         const {channelId} = req.params;
         const flist = await FriendDAO.getFriendsByIdNotInChannel(user.id, channelId);
-        return res.render('channels/invites.pug', {user, channelId, flist});
+        return res.render('channels/invites.pug', {user, channelId, flist, fids:JSON.stringify(flist)});
     } catch(err) {
         return next(err);
     }
@@ -79,13 +80,14 @@ const inviteFriend = async(req, res, next) =>{
 
 const includeToChannel = async(req, res, next) =>{
     try{
+        console.log('hello');
         const {user} = req.session;
         const {channelId, targetId} = req.params;
         await FriendDAO.includeToChannel(channelId, targetId);
         const channelInfo = (await ChannelDAO.getChannelInfoById(channelId))[0];
         const unread = (await ChannelDAO.getChannelUnreadById(channelId, targetId))[0].unread;
         const io = req.app.get('socketio');
-        io.emit(`invite ${targetId}`, {
+        io.to(targetId).emit(`invite`, {
             cid: channelId,
             cname: channelInfo.name,
             cunread: unread,

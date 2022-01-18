@@ -1,49 +1,30 @@
 require('./env');
-const {app} = require('./app');
+const {app, sessionmiddleware} = require('./app');
 const {ChannelDAO} = require('./DAO');
+const socketcontrol = require('./lib/socketcontrol');
 
 const port = process.env.PORT || 4000;
 
 const io = app.get('socketio');
 const server = app.get('server');
 
-const isNumber = (str) =>{
-	let x = parseInt(str);
-	if(isNaN(x)) return false;
-	return true;
-}
-
-// const createchattingListner = (cid) =>{
-// 	socket.o
-// }
 
 
-io.on('connection', (socket) => {
+
+io.use((socket, next) => {
+	sessionmiddleware(socket.request, {}, next);
+});
+io.on('connection', async (socket) => {
 	let roomnum = socket.handshake.headers.referer.split('/');
 	roomnum = roomnum[roomnum.length - 1];
-	if(isNumber(roomnum)) socket.join(roomnum);
-	
-	console.log('connected');
 
-	socket.on('disconnect', () => {
-		return console.log('disconnect');
-	});
-	
-	socket.on('new msg', async (receiveData) => {
-		const receiveTime = await ChannelDAO.sendMsg(receiveData.id, roomnum, receiveData.msg);
-		const sendData = {
-			id: receiveData.id,
-			nick: receiveData.nick,
-			channel: roomnum,
-			msg: receiveData.msg,
-			stime: receiveTime
-		};
-		return io.to(sendData.channel).emit(`update`, sendData);
-	});
-	
-	socket.on('read', async (uid) =>{
-		return ChannelDAO.readMsgFromChannel(uid, roomnum);
-	});
+	socketcontrol.initialJoinRoom(socket, roomnum);
+
+	socket.on('new msg', async (receiveData) => { socketcontrol.receiveAndSend(io, receiveData, roomnum); });
+	socket.on('read', async (uid) =>{ return await ChannelDAO.readMsgFromChannel(uid, roomnum); });
+	socket.on('disconnect', () => { socket.removeAllListeners(); });
+	socket.on('invite', (targetId) => { socketcontrol.inviteFriend(io, socket, roomnum, targetId); });
+	socket.on('join to', _ => { socketcontrol.initialJoinRoom(socket, roomnum); });
 });
 
 server.listen(port, () => {

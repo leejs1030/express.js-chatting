@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 
 let PostgreSqlStore = require('connect-pg-simple')(session);
 
-app.use(session({
+const sessionmiddleware = session({
 	secret: SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
@@ -36,11 +36,9 @@ app.use(session({
 	cookie: {maxAge: null},
 	resave: false,
 	// cookie: { maxAge: 5 * 1000 },
-}));
+});
 
-// app.use((req, res, next) => {
-// });
-
+app.use(sessionmiddleware);
 const YEAR = 365 * 24 * 60 * 60 * 1000;
 app.use(function (req, res, next) {
 	if(req.session.keepSignedIn){
@@ -52,7 +50,7 @@ app.use(function (req, res, next) {
 });
 app.use('/', controller);
 app.use(errorHandler);
+  
 
 
-
-module.exports = {server, io, app};
+module.exports = {server, io, app, sessionmiddleware};

@@ -26,29 +26,30 @@ const binary_search = (ctime) =>{
 }
 
 
-const createSocket = (id) => {
-    socket.on(`update ${id}`, () =>{
-        const unread = document.getElementById(`C${id}unread`);
-        unread.textContent = parseInt(unread.textContent) + 1;
-        if(!("text-danger" in unread.classList))unread.className += ' text-danger font-weight-bold';
-        const newbox = document.getElementById(`C${id}NEW`);
-        if(!("alert" in newbox.classList)) newbox.className += ' alert alert-danger';
-        newbox.textContent = "NEW!";
-        const target = document.getElementById(`C${id}`);
-        target.remove();
-        channelList.insertBefore(target, channelList.childNodes[0]);
-    });
-};
+
+socket.on(`update`, (receiveData) =>{
+    console.log('hi');
+    const id = receiveData.channel;
+    const unread = document.getElementById(`C${id}unread`);
+    unread.textContent = parseInt(unread.textContent) + 1;
+    if(!("text-danger" in unread.classList))unread.className += ' text-danger font-weight-bold';
+    const newbox = document.getElementById(`C${id}NEW`);
+    if(!("alert" in newbox.classList)) newbox.className += ' alert alert-danger';
+    newbox.textContent = "NEW!";
+    const target = document.getElementById(`C${id}`);
+    target.remove();
+    channelList.insertBefore(target, channelList.childNodes[0]);
+});
 
 
 for(e of clist){
-    createSocket(e.id);
+    // createSocket(e.id);
     const unread = document.getElementById(`C${e.id}unread`);
     const num = parseInt(unread.textContent);
     if(num) unread.className += ' text-danger font-weight-bold';
 }
 
-socket.on(`invite ${uid}`, (channelInfo) => {
+socket.on(`invite`, (channelInfo) => {
     const newChannel = document.createElement('div');
     newChannel.id = `C${channelInfo.cid}`;
     newChannel.className += ' row mb-3 col-12';
@@ -56,4 +57,5 @@ socket.on(`invite ${uid}`, (channelInfo) => {
     const getPos = binary_search(channelInfo.ctime);
     if(getPos != -1) channelList.insertBefore(newChannel, channelList.childNodes[getPos].nextSibling);
     else channelList.insertBefore(newChannel, channelList.childNodes[0]);
+    socket.emit('join to');
 });

@@ -33,7 +33,7 @@ sendbtn.addEventListener('keydown', function(e){
     }
 });
 
-socket.on(`update`, async (receivedData) =>{
+socket.on(`update`, (receivedData) =>{
     let newMsg = document.createElement('span');
 
     let clientScrolls = msglist.clientHeight + msglist.scrollTop;

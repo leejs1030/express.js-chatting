@@ -35,11 +35,11 @@ let unread = 0;
 socket.on(`update`, (receivedData) =>{
     let newMsg = msgElement(clientO, receivedData);
 
-    const needScroll = (msglist.scrollTop == msglist.scrollTopMax);
+    const needScroll = ((msglist.scrollHeight - msglist.scrollTop - msglist.offsetHeight) <= 1);
 
     msglist.appendChild(newMsg);
     
-    if(needScroll) msglist.scrollTop = msglist.scrollTopMax;
+    if(needScroll) msglist.scrollTop = msglist.scrollHeight;
     else {
         unread++;
         botbtn.className = "";

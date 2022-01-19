@@ -8,7 +8,7 @@ const generatePassword = async password => {
     const ALGO = 'sha512';
     const KEY_LEN = 64;
     const salt = await randomBytes(32);
-    const iter = Math.floor(Math.random() * 20000) + 200000;
+    const iter = crypto.randomInt(200000, 220000);
     const digest = await pbkdf2(password, salt, iter, KEY_LEN, ALGO);
     return `${ALGO}:${salt.toString('base64')}:${iter}:${KEY_LEN}:${digest.toString('base64')}`;
 };

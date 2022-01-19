@@ -1,33 +1,30 @@
 require('./env');
-const {server, io} = require('./app');
+const {app, sessionmiddleware} = require('./app');
 const {ChannelDAO} = require('./DAO');
+const socketcontrol = require('./lib/socketcontrol');
 
 const port = process.env.PORT || 4000;
-// const http = require('http');
-// const server = http.createServer(app);
-// const { Server } = require("socket.io");
-// const io = new Server(server);
+
+const io = app.get('socketio');
+const server = app.get('server');
 
 
-io.on('connection', (socket) => {
-	console.log('connected');
-	socket.on('disconnect', () => {
-		return console.log('disconnect');
-	});
-	socket.on('new msg', async (sendData) => {
-		const receiveTime = await ChannelDAO.sendMsg(sendData.id, sendData.channel, sendData.msg);
-		const receivedData = {
-			id: sendData.id,
-			nick: sendData.nick,
-			channel: sendData.channel,
-			msg: sendData.msg,
-			stime: receiveTime
-		};
-		return io.emit(`update ${receivedData.channel}`, receivedData);
-	});
-	socket.on('read', async (uid, cid) =>{
-		return ChannelDAO.readMsgFromChannel(uid, cid);
-	});
+
+
+io.use((socket, next) => {
+	sessionmiddleware(socket.request, {}, next);
+});
+io.on('connection', async (socket) => {
+	let roomnum = socket.handshake.headers.referer.split('/');
+	roomnum = roomnum[roomnum.length - 1];
+
+	socketcontrol.initialJoinRoom(socket, roomnum);
+
+	socket.on('new msg', async (receiveData) => { socketcontrol.receiveAndSend(io, receiveData, roomnum); });
+	socket.on('read', async (uid) =>{ return await ChannelDAO.readMsgFromChannel(uid, roomnum); });
+	socket.on('disconnect', () => { socket.removeAllListeners(); });
+	socket.on('invite', (targetId) => { socketcontrol.inviteFriend(io, socket, roomnum, targetId); });
+	socket.on('join to', _ => { socketcontrol.initialJoinRoom(socket, roomnum); });
 });
 
 server.listen(port, () => {

@@ -10,7 +10,7 @@ html
              href='/styles/bootstrap.min.css')
         link(rel='stylesheet',
         href='/styles/usermenu.css')
-        link(rel='shortcut icon', href='#')
+        link(rel='shortcut icon')
         script(src='/scripts/bootstrap.min.js', defer)
         script(src='/scripts/popper.min.js')
         script(src='/scripts/jquery-3.5.1.min.js')
@@ -25,12 +25,13 @@ html
                 ul.navbar-nav
                     if !user
                         li.nav-item
-                            a.nav-link(href='/auth/sign_in') 로그인
+                            a.nav-link(href='/auth/sign-in') 로그인
                         li.nav-item
-                            a.nav-link(href='/auth/sign_up') 회원가입
+                            a.nav-link(href='/auth/sign-up') 회원가입
                     if user
                         li.nav-item
-                            a.nav-link(href='/auth/sign_out') 로그 아웃
+                            a.nav-link(href='/auth/sign-out') 로그 아웃
+                            //- need to change. get --> post
                         li.nav-item.position-relative
                             a#user-info(data-toggle="collapse" href="#user-menu" aria-expanded="false" aria-controls="user-menu").nav-link
                                 | 로그인 닉네임: #{user.nick}

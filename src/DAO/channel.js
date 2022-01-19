@@ -17,6 +17,27 @@ const getChannelsByUserId = async (id) =>{
     }
 }
 
+const getChannelInfoById = async (id) =>{
+    try{
+        const sql = 'SELECT * FROM channels WHERE id = $1';
+        const result = await runQuery(sql, [id]);
+        result[0].updatetime = convertDate(result[0].updatetime);
+        return result;
+    } catch(err){
+        return errorAt('getChannelNameById', err);
+    }
+}
+
+const getChannelUnreadById = async (cid, uid) =>{
+    try{
+        const sql = 'SELECT unread FROM channel_users WHERE channel_id = $1 and user_id = $2';
+        const result = await runQuery(sql, [cid, uid]);
+        return result;
+    } catch(err){
+        return errorAt('getChannelUnreadById', err);
+    }
+}
+
 const countChannelsByUserId = async (id) =>{
     try{
         const sql = 'SELECT count(*) as num FROM channel_users WHERE user_id = $1 GROUP BY user_id'; //사용자가 참여 중인 채널의 수를 센다.
@@ -142,6 +163,8 @@ const getMemberFromChannel = async(cid) =>{
 
 module.exports = {
     getChannelsByUserId,
+    getChannelInfoById,
+    getChannelUnreadById,
     countChannelsByUserId,
     createChannel,
     isChannelMember,

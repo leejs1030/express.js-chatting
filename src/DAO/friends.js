@@ -88,19 +88,23 @@ const rejectRequest = async (id1, id2) =>{
     }
 }
 
+const canSendRequest = async (sender, receiver) =>{
+    const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
+    const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
+    const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
+    const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
+    const result =  await runQuery(sqlcan, [sender, receiver]);
+    return !(result[0]);
+}
+
 const newRequest = async (sender, receiver)=>{
     try{
         //새로 요청하기 위해
         if(!(await UserDAO.getById(receiver))){ //상대방이 존재하는지 확인
             return 2; //안 한다면 2리턴. 컨트롤러에서 전송 불가함을 알림.
         }
-        const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
-        const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
-        const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
-        const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
-        //이미 요청 중/친구/블랙인지 확인
-        const canRequest = await runQuery(sqlcan, [sender, receiver]);
-        if(!canRequest[0]){ //만약 요청중/친구/블랙이 아니라면
+        // const canRequest = await canSendRequest(sender, receiver); //이미 요청 중/친구/블랙인지 확인
+        if(await canSendRequest(sender, receiver)){ //만약 요청중/친구/블랙이 아니라면
             const sql = 'INSERT INTO reqlist values($1, $2, now())'; //친구 요청 전송
             //친구 요청 전송 = 요청 리스트에 추가.
             await runQuery(sql, [sender, receiver]);
@@ -114,21 +118,33 @@ const newRequest = async (sender, receiver)=>{
     }
 }
 
+const canAddBlack = async (adder, added) =>{
+    const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2';
+    const result = await runQuery(sql, [adder, added]);
+    return !(result[0]);
+}
+
 const newBlack = async (adder, added)=>{
     try{
         //새로 요청하기 위해
         if(!(await UserDAO.getById(added))){ //상대방이 존재하는지 확인
             return 2; //안 한다면 2리턴. 컨트롤러에서 전송 불가함을 알림.
         }
-        const delFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
-        await runQuery(delFlist, [adder, added]); //해당 유저를 친구 목록에서 삭제
+        // const canBlack = await canAddBlack(adder, added); //이미 요청 중/친구/블랙인지 확인
+        if(await canAddBlack(adder, added)){ //만약 요청중/친구/블랙이 아니라면
+            const delFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
+            await runQuery(delFlist, [adder, added]); //해당 유저를 친구 목록에서 삭제
 
-        const delReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
-        await runQuery(delReqlist, [adder, added]); //해당 유저에게 보낸 요청 취소
+            const delReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
+            await runQuery(delReqlist, [adder, added]); //해당 유저에게 보낸 요청 취소
 
-        const sql = 'INSERT INTO blist values($1, $2, now())'; 
-        await runQuery(sql, [adder, added]); //블랙 리스트 테이블에 추가.
-        return 0;
+            const sql = 'INSERT INTO blist values($1, $2, now())'; 
+            await runQuery(sql, [adder, added]); //블랙 리스트 테이블에 추가.
+            return 0;
+        }
+        else{
+            return 3; //3리턴. 컨트롤러에서 이미 요청 중/친구/블랙으로 인해 전송 불가함을 알림.
+        }
     } catch(err){
         return errorAt('newBlack', err);
     }
@@ -139,7 +155,7 @@ const isFriend = async (id1, id2) =>{
         const sql = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; //친구인지 확인
         //(id1, id2) 형태로 저장되었으므로, (a,b)와 (b,a)를 모두 고려해야함. 두 가지 경우 모두 a와 b가 친구.
         const result = await runQuery(sql, [id1, id2]);
-        return result[0];
+        return (result[0] === undefined ? false : true);
     } catch(err){
         return errorAt('isFriend', err);
     }
@@ -187,6 +203,11 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
         //(uid, id2)와 (id1, uid) 형태가 모두 친구이므로, 각각의 경우에 채널에 속하지 않은 친구를 구함.
         //이후 둘을 UNION하면 채널에 속하지 않은 모든 친구를 구할 수 있음.
         const result = await runQuery(sql, [uid, cid]);
+        result.forEach((value, index, array)=>{
+            // console.log(value.friend_date);
+            array[index].friend_date = convertDate(value.friend_date); //시간 변환
+            // console.log(convertDate(value.friend_date));
+        });
         return result;
     } catch(err){
         return errorAt('getFriendsByIdNotInChannel', err);
@@ -261,7 +282,9 @@ module.exports = {
     getBlacksById,
     allowRequest,
     rejectRequest,
+    canSendRequest,
     newRequest,
+    canAddBlack,
     newBlack,
     isFriend,
     cancelRequest,

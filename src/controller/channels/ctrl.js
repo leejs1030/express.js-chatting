@@ -1,5 +1,7 @@
 const {ChannelDAO, FriendDAO, UserDAO} = require('../../DAO');
+const { getChannelUnreadById } = require('../../DAO/channel');
 const {getAlertScript} = require('../../lib/usefulJS');
+// const {app} = require('../../app');
 
 const createChannel = async (req, res, next) =>{
     try{
@@ -18,7 +20,7 @@ const indexPage = async (req, res, next) =>{
         const {user} = req.session;
         const channelList = await ChannelDAO.getChannelsByUserId(user.id);
         const {num} = await ChannelDAO.countChannelsByUserId(user.id);
-        return res.render('channels/index.pug', {user, channelList, num});
+        return res.render('channels/index.pug', {user, channelList, num, chan: JSON.stringify(channelList)});
     } catch(err){
         return next(err);
     }
@@ -28,9 +30,16 @@ const showChannel = async(req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelId} = req.params;
+        const unread = (await getChannelUnreadById(channelId, user.id))[0].unread
         const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
         const {send_enter} = await UserDAO.getSettingById(user.id);
-        return res.render("channels/chattings.pug", {user, channelId, msglist, send_enter});
+        const channelName = (await ChannelDAO.getChannelInfoById(channelId))[0].name;
+
+        const totalMsg = msglist.length;
+
+        return res.render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
+            initialMsgs: JSON.stringify(msglist),
+            msglist});
     } catch(err){
         return next(err);
     }
@@ -38,13 +47,26 @@ const showChannel = async(req, res, next) =>{
 
 const sendMsg = async(req, res, next) =>{
     try{
-        console.log("컨트롤러1");
+        return; // 현재 사용하지 않음. 소켓 파트로 대체.
+        // /scripts/chattingsockets.js에서 new msg 소켓 보내면, /src/index.js에서 받아서 처리.
         const {content} = req.body;
-        if(content.length > 20000) return res.send(getAlertScript('20000글자 제한 초과!'));
-        // console.log("hi!")
+        if(content.length > 10000 || !content){
+            return res.send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
+        }
         const {user} = req.session;
         const {channelId} = req.params;
-        await ChannelDAO.sendMsg(user.id, channelId, content);
+        const receiveTime = await ChannelDAO.sendMsg(user.id, channelId, content);
+        const io = req.app.get('socketio');
+        let sendData = {
+            id: user.id,
+			nick: user.nick,
+			channel: channelId,
+			msg: content,
+			stime: receiveTime,
+        };
+
+        io.to(sendData.channel).emit(`update`, sendData);
+        return res.status(204).send();
         return res.redirect('back');
     } catch(err){
         return next(err);
@@ -53,10 +75,11 @@ const sendMsg = async(req, res, next) =>{
 
 const inviteFriend = async(req, res, next) =>{
     try{
+        const io = req.app.get('socketio'); io.emit('hello', 'hello');
         const {user} = req.session;
         const {channelId} = req.params;
         const flist = await FriendDAO.getFriendsByIdNotInChannel(user.id, channelId);
-        return res.render('channels/invites.pug', {user, channelId, flist});
+        return res.render('channels/invites.pug', {user, channelId, flist, fids:JSON.stringify(flist)});
     } catch(err) {
         return next(err);
     }
@@ -64,9 +87,21 @@ const inviteFriend = async(req, res, next) =>{
 
 const includeToChannel = async(req, res, next) =>{
     try{
+        return; // 현재 사용하지 않음. 소켓 파트로 대체.
+        // /scripts/invitesockets.js에서 전송하면 /src/index.js에서 받아서 처리.
+        console.log('hello');
         const {user} = req.session;
         const {channelId, targetId} = req.params;
         await FriendDAO.includeToChannel(channelId, targetId);
+        const channelInfo = (await ChannelDAO.getChannelInfoById(channelId))[0];
+        const unread = (await ChannelDAO.getChannelUnreadById(channelId, targetId))[0].unread;
+        const io = req.app.get('socketio');
+        io.to(targetId).emit(`invite`, {
+            cid: channelId,
+            cname: channelInfo.name,
+            cunread: unread,
+            ctime: channelInfo.updatetime,
+        });
         return res.redirect('back');
     } catch(err){
         return next(err);
@@ -95,12 +130,20 @@ const deleteChannel = async(req, res, next) =>{
     }
 }
 
-const memberList = async(req, res, next) =>{
+const memberList = async (req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const memberList = await ChannelDAO.getMemberFromChannel(channelId);
-        res.render('channels/member.pug', {user, channelId, memberList});
+        let memberList = await ChannelDAO.getMemberFromChannel(channelId);
+        for(const member of memberList){
+            if(user.id == member.id){
+                member.canRequest = member.canBlack = false;
+            } else {
+                member.canBlack = await FriendDAO.canAddBlack(user.id, member.id);
+                member.canRequest = await FriendDAO.canSendRequest(user.id, member.id);
+            }
+        }
+        return res.render('channels/member.pug', {user, channelId, memberList, memberListstr: JSON.stringify(memberList)});
     }catch(err){
         return next(err);
     }

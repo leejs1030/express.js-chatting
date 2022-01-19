@@ -7,8 +7,7 @@ const membershipRequired = async(req, res, next) =>{
         const {user} = req.session;
         const result = await ChannelDAO.isChannelMember(channelId, user.id);
         if(result){
-            // return next();
-            next();
+            return next();
         } else {
             return res.send(getAlertScript('속하지 않은 채널은 볼 수 없습니다!'));
         }

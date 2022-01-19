@@ -4,8 +4,14 @@ const errorAt = (name, err) => {
     console.log(err);
     return err;
 };
+const isNumber = (str) =>{
+	let x = parseInt(str);
+	if(isNaN(x)) return false;
+	return true;
+};
 
 module.exports = {
     getAlertScript,
     errorAt,
+    isNumber,
 };

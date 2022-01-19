@@ -10,19 +10,40 @@ block content
         .list-group
             .mb-5
                 | 참여 중인 채널 수: #{num}
-            div.row
+            .row#channel-list
                 each e in channelList
-                    div.row.mb-3.col-12
+                    .row.mb-3.col-12(id=`C${e.id}`)
                         .list-group-item.col-11.h-100
                             a.h1(href=`/channels/${e.id}`) #{e.name}
-                            | (읽지 않은 메시지: #{e.unread})
+                            | (읽지 않은 메시지: 
+                            span(id=`C${e.id}unread`) #{e.unread}
+                            | )
+                            if e.unread == 0
+                                span(id=`C${e.id}NEW`)
+                            else
+                                span.alert.alert-danger(id=`C${e.id}NEW`) NEW!
+                                //- const newbox = document.getElementById(`C${id}NEW`);
+                                //- if(!("alert" in newbox.classList)) newbox.className += ' alert alert-danger';
+                                //- newbox.textContent = "NEW!";
                             .float-right
                                 | 최근 업데이트
                                 br
-                                | #{e.updatetime}
+                                span.time-info(id=`C${e.id}time`) #{e.updatetime}
                         if e.creater == user.id
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-danger.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/delete/${e.id}`) 삭제
+                                //- need to change get --> delete
                         else 
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-warning.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/quit/${e.id}`) 나감
+                                //- need to change get --> delete
+
+
+block scripts
+    script(type='text/javascript').
+        const clist = !{chan};
+        const uid = "#{user.id}";
+
+block references
+    script(src='/socket.io/socket.io.js')
+    script(src='/scripts/channelsockets.js', defer)

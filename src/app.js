@@ -1,15 +1,16 @@
-const express = require('express');
-const morgan = require('morgan');
-const session = require('express-session');
 const controller = require('./controller');
 const { errorHandler } = require('./lib/error-handler');
-const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET } = process.env;
+const express = require('express');
 const app = express();
-
+const morgan = require('morgan');
+const session = require('express-session');
 const http = require('http');
 const server = http.createServer(app);
-// const { Server } = require("socket.io");
 const io = new require("socket.io")(server);
+const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET } = process.env;
+
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
 
 
 app.set('views', `${__dirname}/../views`);
@@ -38,6 +39,8 @@ const sessionmiddleware = session({
 	// cookie: { maxAge: 5 * 1000 },
 });
 
+app.use(cookieParser());
+app.use(csrf({cookie: true}));
 app.use(sessionmiddleware);
 const YEAR = 365 * 24 * 60 * 60 * 1000;
 app.use(function (req, res, next) {

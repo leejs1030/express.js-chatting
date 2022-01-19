@@ -63,7 +63,7 @@ const signUp = async (req, res, next) =>{
         const encryptedPassword = await generatePassword(password);
         await UserDAO.create(id, encryptedPassword, nick);
 
-        return res.redirect('/auth/sign-in');
+        return res.redirect('/auth/sign_in');
     }catch(err){
         return next(err);
     }

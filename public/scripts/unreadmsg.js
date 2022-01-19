@@ -53,7 +53,8 @@ $(msglist).scroll(function(){
         loadMore();
         msglist.scrollTop = msglist.scrollHeight - (height - msglist.scrollTop);
     }
-    if(unread && msglist.scrollTop == msglist.scrollTopMax){
+    if(unread && ((msglist.scrollHeight - msglist.scrollTop - msglist.offsetHeight) <= 1)){
+    // if(unread && msglist.scrollTop == msglist.scrollTopMax){
         unread = 0;
         botbtn.className += 'invisible';
     }
@@ -61,5 +62,5 @@ $(msglist).scroll(function(){
 
 
 botbtn.addEventListener('click', (event) =>{
-    msglist.scrollTop = msglist.scrollTopMax;
+    msglist.scrollTop = msglist.scrollHeight;
 });

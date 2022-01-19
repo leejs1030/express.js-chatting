@@ -1,7 +1,6 @@
 const socket = io();
 const sendbtn = document.getElementById('myPost');
 let txt = document.getElementById('input-msg');
-const botbtn = document.getElementById('botbtn');
 txt.value = '';
 
 const sendNewMsg = async (e) => {
@@ -32,17 +31,19 @@ sendbtn.addEventListener('keydown', function(e){
     }
 });
 
+let unread = 0;
 socket.on(`update`, (receivedData) =>{
     let newMsg = msgElement(clientO, receivedData);
 
-    let clientScrolls = msglist.clientHeight + msglist.scrollTop;
-    let totalScrolls = msglist.scrollHeight;
-    const checkToScroll = totalScrolls - clientScrolls;
+    const needScroll = (msglist.scrollTop == msglist.scrollTopMax);
 
     msglist.appendChild(newMsg);
-    console.log(newMsg);
     
-    if(checkToScroll <= 100) msglist.scrollTop = totalScrolls;
-    else unread++;
+    if(needScroll) msglist.scrollTop = msglist.scrollTopMax;
+    else {
+        unread++;
+        botbtn.className = "";
+        botbtn.children[0].textContent = unread;
+    }
     socket.emit('read', clientO.id);
 });

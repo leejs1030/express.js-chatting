@@ -25,6 +25,7 @@ block scripts
         let readPos = initialMsgs.length;
         let newUnread = 0;
         const msgPerPage = 20;
+        const botbtn = document.getElementById('botbtn');
         const msgElement = (clientO, msg) => {
             //- console.log(msg);
             let newMsg = document.createElement('span');
@@ -52,7 +53,7 @@ block content
     .container.mt-3.position-relative
         .position-absolute(style='right:33px;bottom:3px;z-index:1;')
             button#botbtn.invisible
-                span#count-new-msg
+                span#count-new-msg 0
                 |  메시지
             //- it will use later. scroll-down button. become visible when new message arrive.
         #botScroll.list-group.overflow-scroll

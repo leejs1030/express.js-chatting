@@ -28,7 +28,7 @@ const loadMore = () => { // 맨 처음에 읽지 않은 부분까지, 이후로�
 const insertDivInList = () =>{
     if(inserted) return;
     else if(currentPage * msgPerPage >= insertPos){
-        console.log(msglist.childElementCount - insertPos);
+        // console.log(msglist.childElementCount - insertPos);
         msglist.insertBefore(newMsgLine, msglist.children[msglist.childElementCount - insertPos]);
         //몇 번째에 넣을지 생각. 아래로부터 insertPos번째에 넣을 것.
         msglist.scrollTop = newMsgLine.offsetTop;//그 이후 스크롤 조정
@@ -53,4 +53,13 @@ $(msglist).scroll(function(){
         loadMore();
         msglist.scrollTop = msglist.scrollHeight - (height - msglist.scrollTop);
     }
+    if(unread && msglist.scrollTop == msglist.scrollTopMax){
+        unread = 0;
+        botbtn.className += 'invisible';
+    }
+});
+
+
+botbtn.addEventListener('click', (event) =>{
+    msglist.scrollTop = msglist.scrollTopMax;
 });

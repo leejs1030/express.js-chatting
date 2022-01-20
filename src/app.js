@@ -46,7 +46,7 @@ app.use((req, res, next) => { // 수동적으로 strict하게 redirect
 	}
 });
 app.use(morgan(MODE !== 'prod' ? 'dev' : 'combined'));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true })); // false면 기본 queryString. true면 qs 사용.
 
 
 

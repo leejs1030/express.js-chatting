@@ -36,4 +36,5 @@ block content
                 input#keepSignedIn.form-check-input.mt-2(name='keepSignedIn', type='checkbox', style='width:20px;height:20px;')
                 label.form-check-label(for='keepSignedIn')
                     | 로그인 상태 유지
+            input(type='hidden' name='_csrf' value=csrfToken)
             button.btn.btn-primary(type='submit') Sign In

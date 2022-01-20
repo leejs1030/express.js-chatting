@@ -7,7 +7,7 @@ const signInForm = async (req, res, next) =>{
     try{
         const {user} = req.session;
         if(user) return res.redirect('/');
-        else return res.render('auth/sign-in.pug', {user});
+        else return res.render('auth/sign-in.pug', {user, csrfToken: req.csrfToken()});
     }catch(err){
         return next(err);
     }
@@ -45,7 +45,7 @@ const signIn = async (req, res, next) =>{
 const signUpForm = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        return res.render('auth/sign-up.pug', { user });
+        return res.render('auth/sign-up.pug', { user, csrfToken: req.csrfToken() });
     }catch(err){
         return next(err);
     }

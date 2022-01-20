@@ -12,7 +12,7 @@ const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET } = pr
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 
-
+app.set('case sensitive routing', true);
 app.set('views', `${__dirname}/../views`);
 app.set('view engine', 'pug');
 app.set('socketio', io);

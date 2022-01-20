@@ -1,6 +1,6 @@
 const {Router} = require('express');
 const ctrl = require('./ctrl');
-const router = Router();
+const router = Router({caseSensitive: true});
 router.get('/sign-in', ctrl.signInForm);
 router.post('/sign-in', ctrl.signIn);
 

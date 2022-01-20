@@ -24,7 +24,7 @@
     "socket.io": "^4.4.0"
   },
   "devDependencies": {
-    "curl": "^0.1.4",
-    "nodemon": "^2.0.15"
+    "curl": "0.1.4",
+    "nodemon": "2.0.15"
   }
 }

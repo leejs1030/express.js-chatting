@@ -1,21 +1,11 @@
 const { Router } = require('express');
-const router = Router({caseSensitive: true});
+const router = Router({
+    caseSensitive: true,
+});
 const ctrl = require('./ctrl');
 const { authRequired } = require('../auth/middleware');
 const { membershipRequired, ownRequired } = require('./middleware');
 
-// const {server, io} = require('../../app');
-
-// io.on('connection', (socket) => {
-// 	console.log('a user connected');
-// 	socket.on('disconnect', () => {
-// 		console.log('user disconnected');
-// 	});
-// 	socket.on('new msg', (msg) => {
-// 		console.log(msg);
-// 		io.emit('received', msg);
-// 	});
-// });
 
 router.get('/', authRequired, ctrl.indexPage);
 router.post('/', authRequired, ctrl.createChannel);

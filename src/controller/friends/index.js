@@ -1,7 +1,9 @@
 const { Router } = require('express');
 const { authRequired } = require('../auth/middleware');
-const router = Router({caseSensitive: true});
 const ctrl = require('./ctrl');
+const router = Router({
+    caseSensitive: true,
+});
 
 
 

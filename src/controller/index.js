@@ -4,7 +4,7 @@ const channels = require('./channels');
 const auth = require('./auth');
 const friends = require('./friends');
 const settings = require('./settings');
-const router = Router();
+const router = Router({caseSensitive: true});
 
 router.get('/', ctrl.indexPage);
 router.use('/channels', channels);

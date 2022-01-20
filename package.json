@@ -1,6 +1,6 @@
 {
   "name": "dbterm",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
     "socket.io": "^4.4.0"
   },
   "devDependencies": {
+    "curl": "^0.1.4",
     "nodemon": "2.0.15"
   }
 }

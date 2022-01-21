@@ -7,7 +7,9 @@ const indexPage = async (req, res, next) =>{
         if(user){
             counts = await FriendDAO.getCountsById(user.id); //요청받은 숫자
         }
-        return res.render('index.pug', {user, counts});
+        return res.render('index.pug', {user, counts,
+            csrfToken: req.csrfToken(),
+        });
     }catch(err){
         return next(err);
     }

@@ -6,6 +6,7 @@ block content
             input.form-control.col-8(name='channelName',
                 type='text',
                 placeholder = '채널 이름을 입력해주세요')
+            input(type='hidden' name='_csrf' value=csrfToken)
             input.btn.btn-primary(type = 'submit', value = '채널 생성')
         .list-group
             .mb-5

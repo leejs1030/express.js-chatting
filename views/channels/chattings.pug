@@ -74,6 +74,7 @@ block content
         h2.mb-4
             form(method='post' id='myPost' action='/#')
                 textarea.form-control(name='content' id = 'input-msg' autofocus)
+                input(type='hidden' name='_csrf' value=csrfToken)
                 input.btn.btn-primary.mr-5(type = 'submit' value = 'send' id = 'sendchat')
                 //-  action=`/channels/${channelId}`
     

@@ -5,6 +5,7 @@ block content
         .page-header.ml-4.mr-4.mt-4.mb-4
             h2.mb-4
                 form(method='post')
+                    input(type='hidden' name='_csrf' value=csrfToken)
                     input.form-control(name='targetid',
                         type='text',
                         placeholder = '상대방의 id를 입력해주세요')

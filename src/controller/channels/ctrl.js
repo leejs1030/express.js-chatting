@@ -20,7 +20,8 @@ const indexPage = async (req, res, next) =>{
         const {user} = req.session;
         const channelList = await ChannelDAO.getChannelsByUserId(user.id);
         const {num} = await ChannelDAO.countChannelsByUserId(user.id);
-        return res.render('channels/index.pug', {user, channelList, num, chan: JSON.stringify(channelList)});
+        return res.render('channels/index.pug', {user, channelList, num, chan: JSON.stringify(channelList), 
+            csrfToken: req.csrfToken()});
     } catch(err){
         return next(err);
     }
@@ -39,7 +40,9 @@ const showChannel = async(req, res, next) =>{
 
         return res.render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
             initialMsgs: JSON.stringify(msglist),
-            msglist});
+            msglist,
+            csrfToken: req.csrfToken(),
+        });
     } catch(err){
         return next(err);
     }
@@ -79,7 +82,9 @@ const inviteFriend = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId} = req.params;
         const flist = await FriendDAO.getFriendsByIdNotInChannel(user.id, channelId);
-        return res.render('channels/invites.pug', {user, channelId, flist, fids:JSON.stringify(flist)});
+        return res.render('channels/invites.pug', {user, channelId, flist, fids:JSON.stringify(flist),
+            csrfToken: req.csrfToken(),
+        });
     } catch(err) {
         return next(err);
     }
@@ -143,7 +148,9 @@ const memberList = async (req, res, next) =>{
                 member.canRequest = await FriendDAO.canSendRequest(user.id, member.id);
             }
         }
-        return res.render('channels/member.pug', {user, channelId, memberList, memberListstr: JSON.stringify(memberList)});
+        return res.render('channels/member.pug', {user, channelId, memberList, memberListstr: JSON.stringify(memberList),
+            csrfToken: req.csrfToken(),
+        });
     }catch(err){
         return next(err);
     }

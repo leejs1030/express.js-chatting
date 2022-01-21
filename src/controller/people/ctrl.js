@@ -11,7 +11,7 @@ const indexPage = async (req, res, next) =>{
         const blacklist = await FriendDAO.getBlacksById(user.id);
         const counts = await FriendDAO.getCountsById(user.id);
         console.log(counts);
-        return res.render('./friends/index.pug', {user, reqreceived, reqsent, friendlist, blacklist, counts});
+        return res.render('./people/index.pug', {user, reqreceived, reqsent, friendlist, blacklist, counts});
     } catch(err){
         return next(err);
     }

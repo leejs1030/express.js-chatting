@@ -16,7 +16,7 @@ block content
                         div.mb-4
                             if e.id != user.id
                                 | #{e.id}(#{e.nick})
-                                form.form-check.h3.form-check-inline.float-right.ml-1(method='post' action='/friends')
+                                form.form-check.h3.form-check-inline.float-right.ml-1(method='post' action='/people')
                                     input.invisible(name='targetid' value=`${e.id}` style='width:0px;padding:0px;border:0px;margin:0px')
                                     if e.canRequest
                                         input.btn.btn-primary.mr-1(type = 'submit',

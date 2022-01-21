@@ -14,7 +14,7 @@ block content
                     each e in JSON.parse(flist)
                         div.mb-4(id=`${e.id}`)
                             | #{e.id}(#{e.nick})
-                            button.btn.btn-primary.float-right(href=`/channels/invite/${channelId}/${e.id}` id=`invite${e.id}`) 초대
+                            button.btn.btn-primary.float-right(href=`/channels/${channelId}/invitelist/${e.id}` id=`invite${e.id}`) 초대
                             //- need to change. get --> post
                             br
                             | #{e.friend_date}

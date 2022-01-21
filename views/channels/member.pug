@@ -2,7 +2,6 @@ extends ../layout.pug
 
 block content
     script(type='text/javascript').
-        console.log(!{memberListstr});
     .container.mb-4.mt-3
         h3
             a(href = `/channels/${channelId}`) 채팅으로
@@ -12,7 +11,7 @@ block content
                     | #{user.id}(#{user.nick})
                 div.mb-4.mt-4
                 .list-group-item
-                    each e in memberList
+                    each e in JSON.parse(memberList)
                         div.mb-4
                             if e.id != user.id
                                 | #{e.id}(#{e.nick})

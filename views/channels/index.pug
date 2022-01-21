@@ -33,12 +33,12 @@ block content
                         if e.creater == user.id
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-danger.w-100.h-50.text-center.pt-0.pb-0(id=`C${e.id}del`
-                                href = `javascript:if(confirm("정말 나가시겠습니까?")) window.location.href = "/channels/${e.id}/delete"`) 삭제
+                                href=`/channels/${e.id}/delete` onclick='return confirm("정말 삭제하시겠습니까?");') 삭제
                                 //- need to change get --> delete
                         else 
                             span.col-1.pb-0.pt-0
                                 a.btn.btn-warning.w-100.h-50.text-center.pt-0.pb-0(id=`C${e.id}quit`
-                                href = `javascript:if(confirm("정말 나가시겠습니까?")) window.location.href = "/channels/${e.id}/quit"`) 나감
+                                href=`/channels/${e.id}/quit` onclick='return confirm("정말 나가시겠습니까?");') 나감
                                 //- need to change get --> put
 
 

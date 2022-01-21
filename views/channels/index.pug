@@ -6,12 +6,13 @@ block content
             input.form-control.col-8(name='channelName',
                 type='text',
                 placeholder = '채널 이름을 입력해주세요')
+            input(type='hidden' name='_csrf' value=csrfToken)
             input.btn.btn-primary(type = 'submit', value = '채널 생성')
         .list-group
             .mb-5
                 | 참여 중인 채널 수: #{num}
             .row#channel-list
-                each e in channelList
+                each e in JSON.parse(channelList)
                     .row.mb-3.col-12(id=`C${e.id}`)
                         .list-group-item.col-11.h-100
                             a.h1(href=`/channels/${e.id}`) #{e.name}
@@ -31,17 +32,19 @@ block content
                                 span.time-info(id=`C${e.id}time`) #{e.updatetime}
                         if e.creater == user.id
                             span.col-1.pb-0.pt-0
-                                a.btn.btn-danger.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/delete/${e.id}`) 삭제
+                                a.btn.btn-danger.w-100.h-50.text-center.pt-0.pb-0(id=`C${e.id}del`
+                                href=`/channels/${e.id}/delete` onclick='return confirm("정말 삭제하시겠습니까?");') 삭제
                                 //- need to change get --> delete
                         else 
                             span.col-1.pb-0.pt-0
-                                a.btn.btn-warning.w-100.h-50.text-center.pt-0.pb-0(href = `/channels/quit/${e.id}`) 나감
-                                //- need to change get --> delete
+                                a.btn.btn-warning.w-100.h-50.text-center.pt-0.pb-0(id=`C${e.id}quit`
+                                href=`/channels/${e.id}/quit` onclick='return confirm("정말 나가시겠습니까?");') 나감
+                                //- need to change get --> put
 
 
 block scripts
     script(type='text/javascript').
-        const clist = !{chan};
+        const clist = !{channelList};
         const uid = "#{user.id}";
 
 block references

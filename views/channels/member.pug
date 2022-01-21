@@ -2,7 +2,6 @@ extends ../layout.pug
 
 block content
     script(type='text/javascript').
-        console.log(!{memberListstr});
     .container.mb-4.mt-3
         h3
             a(href = `/channels/${channelId}`) 채팅으로
@@ -12,12 +11,13 @@ block content
                     | #{user.id}(#{user.nick})
                 div.mb-4.mt-4
                 .list-group-item
-                    each e in memberList
+                    each e in JSON.parse(memberList)
                         div.mb-4
                             if e.id != user.id
                                 | #{e.id}(#{e.nick})
-                                form.form-check.h3.form-check-inline.float-right.ml-1(method='post' action='/friends')
-                                    input.invisible(name='targetid' value=`${e.id}` style='width:0px;padding:0px;border:0px;margin:0px')
+                                form.form-check.h3.form-check-inline.float-right.ml-1(method='post' action='/people')
+                                    input(type='hidden' name='targetid' value=`${e.id}` style='width:0px;padding:0px;border:0px;margin:0px')
+                                    input(type='hidden' name='_csrf' value=csrfToken)
                                     if e.canRequest
                                         input.btn.btn-primary.mr-1(type = 'submit',
                                                 name = 'action',

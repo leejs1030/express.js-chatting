@@ -11,14 +11,14 @@ block content
         h5.mb-4
             .page-header.ml-4.mr-4.mt-4.mb-4
                 .list-group-item
-                    each e in flist
+                    each e in JSON.parse(flist)
                         div.mb-4(id=`${e.id}`)
                             | #{e.id}(#{e.nick})
-                            button.btn.btn-primary.float-right(href=`/channels/invite/${channelId}/${e.id}` id=`invite${e.id}`) 초대
+                            button.btn.btn-primary.float-right(href=`/channels/${channelId}/invitelist/${e.id}` id=`invite${e.id}`) 초대
                             //- need to change. get --> post
                             br
                             | #{e.friend_date}
 
 block scripts
     script(type='text/javascript').
-        const friends = !{fids};
+        const friends = !{flist};

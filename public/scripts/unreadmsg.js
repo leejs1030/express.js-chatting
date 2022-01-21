@@ -51,7 +51,7 @@ $(msglist).scroll(function(){
     
     if(position <= 50){
         loadMore();
-        msglist.scrollTop = msglist.scrollHeight - (height - msglist.scrollTop);
+        msglist.scrollTop = msglist.scrollHeight - (height - position);
     }
     if(unread && ((msglist.scrollHeight - msglist.scrollTop - msglist.offsetHeight) <= 1)){
     // if(unread && msglist.scrollTop == msglist.scrollTopMax){

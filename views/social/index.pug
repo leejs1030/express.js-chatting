@@ -29,10 +29,15 @@ block content
                     each e in reqreceived
                         div.mb-4
                             | #{e.sender_id}(#{e.sender_nick})
-                            .float-right
-                                a.btn.btn-primary.mr-2.ml-5(href=`/social/allow/${e.sender_id}`) 수락
-                                //- need to change ???
-                                a.btn.btn-primary(href=`/social/reject/${e.sender_id}`) 거절
+                            span.float-right.form-inline
+                                form(method='post' action='/social/friends').mr-2
+                                    input(type='hidden' name='uid' value=e.sender_id)
+                                    input(type='hidden' name='_csrf' value=csrfToken)
+                                    input.btn.btn-primary(type='submit' value='수락')
+                                //- need to change post
+                                form(method='post' action=`/social/requests/${e.sender_id}?_method=DELETE`)
+                                    input(type='hidden' name='_csrf' value=csrfToken)
+                                    input.btn.btn-primary(type='submit' value='거절')
                                 //- need to change get --> delete
                             br
                             | #{e.req_time}

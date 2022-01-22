@@ -10,7 +10,6 @@ const indexPage = async (req, res, next) =>{
         const friendlist = await SocialDAO.getFriendsById(user.id);
         const blacklist = await SocialDAO.getBlacksById(user.id);
         const counts = await SocialDAO.getCountsById(user.id);
-        console.log(counts);
         return res.render('social/index.pug', {user, reqreceived, reqsent, friendlist, blacklist, counts,
             csrfToken: req.csrfToken(),
         });
@@ -22,7 +21,8 @@ const indexPage = async (req, res, next) =>{
 const allow = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        const {uid} = req.params;
+        // const {uid} = req.params;
+        const {uid} = req.body;
         await SocialDAO.allowRequest(uid, user.id);
         return res.redirect('back');
     } catch(err){
@@ -33,8 +33,9 @@ const allow = async (req, res, next) =>{
 const reject = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        const {uid} = req.params;
-        await SocialDAO.rejectRequest(uid, user.id);
+        const {sender} = req.params;
+        // const {uid} = req.body;
+        await SocialDAO.rejectRequest(sender, user.id);
         return res.redirect('back');
     } catch(err){
         return next(err);

@@ -37,14 +37,6 @@ const inviteFriend = async (io, socket, roomnum, targetId) =>{
     });
 }
 
-const joinRoom = async (io, socket) =>{
-    const temp = socket.request.session;
-    const clist = (await ChannelDAO.getChannelsByUserId(temp.user.id));
-    clist.forEach((e) => {
-        socket.join(String(e.id));
-    });
-}
-
 module.exports = {
     initialJoinRoom,
     receiveAndSend,

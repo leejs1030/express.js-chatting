@@ -8,8 +8,12 @@ const router = Router({
 
 
 router.get('/', authRequired, ctrl.indexPage);
-router.post('/', authRequired, ctrl.requestOrBlack); // 친구 요청 혹은 블랙 추가.
+//router.post('/', authRequired, ctrl.requestOrBlack); // 친구 요청 혹은 블랙 추가.
 //분리하자. /people/requests post와 /people/blacks post로.
+
+router.post('/requests', authRequired, ctrl.request);
+router.post('/blacks', authRequired, ctrl.black);
+
 router.get('/allow/:uid', authRequired, ctrl.allow); // 요청 승인. /people/friends post로. query로 정보 전달. 전달된 정보로 확인.
 router.get('/reject/:uid', authRequired, ctrl.reject); // 요청 거절. /people/requests delete로
 router.get('/cancel/:uid', authRequired, ctrl.cancelRequest); // 요청 취소. /people/requests delete로

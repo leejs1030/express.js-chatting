@@ -11,10 +11,12 @@ block content
                         placeholder = '상대방의 id를 입력해주세요')
                     input.btn.btn-primary.mr-5(type = 'submit',
                             name = 'action',
-                            value = 'request')
+                            value = 'request',
+                            formaction='/social/requests')
                     input.btn.btn-primary.ml-5.float-right(type = 'submit',
                         name = 'action',
-                        value = 'black')
+                        value = 'black',
+                        formaction='/social/blacks')
             
     .container.mb-4
         .page-header.ml-4.mr-4.mt-4.mb-4
@@ -28,9 +30,9 @@ block content
                         div.mb-4
                             | #{e.sender_id}(#{e.sender_nick})
                             .float-right
-                                a.btn.btn-primary.mr-2.ml-5(href=`/people/allow/${e.sender_id}`) 수락
+                                a.btn.btn-primary.mr-2.ml-5(href=`/social/allow/${e.sender_id}`) 수락
                                 //- need to change ???
-                                a.btn.btn-primary(href=`/people/reject/${e.sender_id}`) 거절
+                                a.btn.btn-primary(href=`/social/reject/${e.sender_id}`) 거절
                                 //- need to change get --> delete
                             br
                             | #{e.req_time}
@@ -43,7 +45,7 @@ block content
                         div.mb-4
                             | #{e.receiver_id}(#{e.receiver_nick})
                             .float-right
-                                a.btn.btn-primary.mr-2.ml-5(href=`/people/cancel/${e.receiver_id}`) 취소
+                                a.btn.btn-primary.mr-2.ml-5(href=`/social/cancel/${e.receiver_id}`) 취소
                                 //- need to change get --> delete
                             br
                             | #{e.req_time}
@@ -54,7 +56,7 @@ block content
                     each e in friendlist
                         div.mb-4
                             | #{e.id}(#{e.nick})
-                            a.btn.btn-primary.ml-5.float-right(href=`/people/delete/${e.id}`) 삭제
+                            a.btn.btn-primary.ml-5.float-right(href=`/social/delete/${e.id}`) 삭제
                             //- need to change get --> delete
                             br
                             | #{e.friend_date}
@@ -65,7 +67,7 @@ block content
                     each e in blacklist
                         div.mb-4
                             | #{e.id}(#{e.nick}) 
-                            a.btn.btn-primary.ml-5.float-right(href=`/people/unblack/${e.id}`) 삭제
+                            a.btn.btn-primary.ml-5.float-right(href=`/social/unblack/${e.id}`) 삭제
                             //- need to change get --> delete
                             br
                             | #{e.black_date}

@@ -63,6 +63,64 @@ const requestOrBlack = async (req, res, next) =>{
     }
 };
 
+
+
+
+const request = async (req, res, next) =>{
+    try{
+        const {user} = req.session;
+        console.log(req.body);
+        const {action, targetid} = req.body;
+        if(user.id == targetid) return res.send(getAlertScript('자신에겐 할 수 없습니다!'));
+        let result = await SocialDAO.newRequest(user.id, targetid);
+
+        if(result == 1) return res.send(getAlertScript('이미 요청이 존재하거나, 친구이거나, 블랙리스트인 사용자에게는 요청할 수 없습니다!'));
+        else if(result == 2) return res.send(getAlertScript('찾을 수 없는 id입니다!'));
+        else if(result == 3) return res.send(getAlertScript('이미 블랙되어있는 상대입니다!'));
+        else return res.redirect('back');
+    } catch(err){
+        return next(err);
+    }
+};
+
+
+const black = async (req, res, next) =>{
+    try{
+        const {user} = req.session;
+        console.log(req.body);
+        const {action, targetid} = req.body;
+        if(user.id == targetid) return res.send(getAlertScript('자신에겐 할 수 없습니다!'));
+        let result = await SocialDAO.newBlack(user.id, targetid);
+
+        if(result == 1) return res.send(getAlertScript('이미 요청이 존재하거나, 친구이거나, 블랙리스트인 사용자에게는 요청할 수 없습니다!'));
+        else if(result == 2) return res.send(getAlertScript('찾을 수 없는 id입니다!'));
+        else if(result == 3) return res.send(getAlertScript('이미 블랙되어있는 상대입니다!'));
+        else return res.redirect('back');
+
+    } catch(err){
+        return next(err);
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const cancelRequest = async(req, res, next) =>{
     try{
         const {user} = req.session;
@@ -101,7 +159,9 @@ module.exports = {
     indexPage,
     allow,
     reject,
-    requestOrBlack,
+    // requestOrBlack,
+    request,
+    black,
     cancelRequest,
     deleteFriend,
     unBlack,

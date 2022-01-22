@@ -6,16 +6,16 @@ block content
             h2.mb-4
                 form(method='post')
                     input(type='hidden' name='_csrf' value=csrfToken)
-                    input.form-control(name='targetid',
-                        type='text',
+                    input.form-control(name='targetid'
+                        type='text'
                         placeholder = '상대방의 id를 입력해주세요')
-                    input.btn.btn-primary.mr-5(type = 'submit',
-                            name = 'action',
-                            value = 'request',
+                    input.btn.btn-primary.mr-5(type = 'submit'
+                            name = 'action'
+                            value = 'request'
                             formaction='/social/requests')
-                    input.btn.btn-primary.ml-5.float-right(type = 'submit',
-                        name = 'action',
-                        value = 'black',
+                    input.btn.btn-primary.ml-5.float-right(type = 'submit'
+                        name = 'action'
+                        value = 'black'
                         formaction='/social/blacks')
             
     .container.mb-4
@@ -34,11 +34,9 @@ block content
                                     input(type='hidden' name='uid' value=e.sender_id)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='수락')
-                                //- need to change post
                                 form(method='post' action=`/social/requests/${e.sender_id}?_method=DELETE`)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='거절')
-                                //- need to change get --> delete
                             br
                             | #{e.req_time}
                         

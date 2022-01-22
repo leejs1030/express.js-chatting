@@ -1,7 +1,6 @@
 extends ../layout.pug
 
 block content
-    script(type='text/javascript').
     .container.mb-4.mt-3
         h3
             a(href = `/channels/${channelId}`) 채팅으로
@@ -15,23 +14,21 @@ block content
                         div.mb-4
                             if e.id != user.id
                                 | #{e.id}(#{e.nick})
-                                form.form-check.h3.form-check-inline.float-right.ml-1(method='post' action='/people')
-                                    input(type='hidden' name='targetid' value=`${e.id}` style='width:0px;padding:0px;border:0px;margin:0px')
+
+                                form.form-inline.float-right(method='post')
                                     input(type='hidden' name='_csrf' value=csrfToken)
-                                    if e.canRequest
-                                        input.btn.btn-primary.mr-1(type = 'submit',
-                                                name = 'action',
-                                                value = 'request', id=`req${e.id}`)
-                                    else
-                                        input.btn.btn-primary.mr-1(type = 'submit',
-                                                name = 'action',
-                                                value = 'request', id=`req${e.id}`, disabled)
-                                    if e.canBlack
-                                        input.btn.btn-primary(type = 'submit',
-                                                name = 'action',
-                                                value = 'black', id=`black${e.id}`)
-                                    else
-                                        input.btn.btn-primary.mr-1(type = 'submit',
-                                                name = 'action',
-                                                value = 'black', id=`black${e.id}`, disabled)
+                                    input(type='hidden' name='targetid' value=`${e.id}`)
+                                    input.btn.btn-primary.mr-1(type = 'submit'
+                                            name = 'action'
+                                            value = 'request'
+                                            formaction='/social/requests'
+                                            id=`request${e.id}`)
+                                    input.btn.btn-primary(type = 'submit'
+                                        name = 'action'
+                                        value = 'black'
+                                        formaction='/social/blacks'
+                                        id=`black${e.id}`)
+                                    script(type='text/javascript').
+                                        if(!#{e.canRequest}) document.getElementById('request#{e.id}').className += ' disabled';
+                                        if(!#{e.canBlack}) document.getElementById('black#{e.id}').className += ' disabled';
                                         

@@ -1,4 +1,4 @@
-const {ChannelDAO, FriendDAO, UserDAO} = require('../../DAO');
+const {ChannelDAO, SocialDAO, UserDAO} = require('../../DAO');
 const { getChannelUnreadById } = require('../../DAO/channel');
 const {getAlertScript} = require('../../lib/usefulJS');
 // const {app} = require('../../app');
@@ -78,7 +78,7 @@ const inviteFriend = async(req, res, next) =>{
         const io = req.app.get('socketio'); io.emit('hello', 'hello');
         const {user} = req.session;
         const {channelId} = req.params;
-        const flist = await FriendDAO.getFriendsByIdNotInChannel(user.id, channelId);
+        const flist = await SocialDAO.getFriendsByIdNotInChannel(user.id, channelId);
         return res.render('channels/invites.pug', {user, channelId, flist:JSON.stringify(flist),
             csrfToken: req.csrfToken(),
         });
@@ -94,7 +94,7 @@ const includeToChannel = async(req, res, next) =>{
         console.log('hello');
         const {user} = req.session;
         const {channelId, targetId} = req.params;
-        await FriendDAO.includeToChannel(channelId, targetId);
+        await SocialDAO.includeToChannel(channelId, targetId);
         const channelInfo = (await ChannelDAO.getChannelInfoById(channelId))[0];
         const unread = (await ChannelDAO.getChannelUnreadById(channelId, targetId))[0].unread;
         const io = req.app.get('socketio');
@@ -141,8 +141,8 @@ const memberList = async (req, res, next) =>{
             if(user.id == member.id){
                 member.canRequest = member.canBlack = false;
             } else {
-                member.canBlack = await FriendDAO.canAddBlack(user.id, member.id);
-                member.canRequest = await FriendDAO.canSendRequest(user.id, member.id);
+                member.canBlack = await SocialDAO.canAddBlack(user.id, member.id);
+                member.canRequest = await SocialDAO.canSendRequest(user.id, member.id);
             }
         }
         return res.render('channels/member.pug', {user, channelId, memberList: JSON.stringify(memberList),

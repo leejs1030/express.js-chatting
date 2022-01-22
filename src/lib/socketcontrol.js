@@ -1,5 +1,5 @@
 const {isNumber} = require('../lib/usefulJS');
-const {ChannelDAO, FriendDAO} = require('../DAO');
+const {ChannelDAO, SocialDAO} = require('../DAO');
 
 const initialJoinRoom = async (socket, roomnum) =>{
 	if(isNumber(roomnum)) socket.join(roomnum);
@@ -26,7 +26,7 @@ const receiveAndSend = async (io, receiveData, roomnum) =>{
 }
 
 const inviteFriend = async (io, socket, roomnum, targetId) =>{
-    await FriendDAO.includeToChannel(roomnum, targetId);
+    await SocialDAO.includeToChannel(roomnum, targetId);
     const channelInfo = (await ChannelDAO.getChannelInfoById(roomnum))[0];
     const unread = (await ChannelDAO.getChannelUnreadById(roomnum, targetId))[0].unread;
     io.to(targetId).emit(`invite`, {

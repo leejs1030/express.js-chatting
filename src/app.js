@@ -12,7 +12,6 @@ const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 const connectPgSimple = require('connect-pg-simple');
 let PostgreSqlStore = require('connect-pg-simple')(session);
-const RateLimit = require('express-rate-limit');
 
 const sessionmiddleware = session({
 	secret: SESSION_SECRET,
@@ -23,10 +22,6 @@ const sessionmiddleware = session({
       }),
 	cookie: {maxAge: null},
 	resave: false,
-});
-const limiter = RateLimit({
-	windowMs: 1*60*1000, // 1분
-	max: 5
 });
 const redirecter = (req, res, next) =>{
 	if (req.path.substr(-1) === '/' && req.path.length > 1) {
@@ -57,7 +52,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(csrf({cookie: true}));
 app.use(sessionmiddleware);
-app.use(limiter)
 const YEAR = 365 * 24 * 60 * 60 * 1000;
 app.use(function (req, res, next) {
 	if(req.session.keepSignedIn){

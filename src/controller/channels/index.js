@@ -11,8 +11,8 @@ router.get('/', authRequired, ctrl.indexPage);
 router.post('/', authRequired, ctrl.createChannel);
 router.get('/:channelId', authRequired, membershipRequired, ctrl.showChannel);
 // router.post('/:channelId', authRequired, membershipRequired, ctrl.sendMsg);
-router.get('/:channelId/quit', authRequired, membershipRequired, ctrl.quitChannel); // put 사용하기.
-router.get('/:channelId/delete', authRequired, membershipRequired, ownRequired, ctrl.deleteChannel); // delete 사용하기.
+router.put('/:channelId', authRequired, membershipRequired, ctrl.quitChannel); // put 사용하기.
+router.delete('/:channelId', authRequired, membershipRequired, ownRequired, ctrl.deleteChannel); // delete 사용하기.
 
 router.get('/:channelId/invitelist', authRequired, membershipRequired, ctrl.inviteFriend);
 // router.get('/:channelId/invitelist/:targetId', authRequired, membershipRequired, ctrl.includeToChannel); // put 사용하기.

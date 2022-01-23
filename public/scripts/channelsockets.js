@@ -50,9 +50,10 @@ for(e of clist){
 
 socket.on(`invite`, (channelInfo) => {
     const newChannel = document.createElement('div');
+    console.log(channelInfo);
     newChannel.id = `C${channelInfo.cid}`;
     newChannel.className += ' row mb-3 col-12';
-    newChannel.innerHTML = `<div class="list-group-item col-11 h-100"><a class="h1" href="/channels/${channelInfo.cid}">${channelInfo.cname}</a>(읽지 않은 메시지: <span id="C${channelInfo.cid}unread" class=" text-danger font-weight-bold">${channelInfo.cunread}</span>)<span id="C${channelInfo.cid}NEW"></span><div class="float-right">최근 업데이트<br><span id="C${channelInfo.cid}time">${channelInfo.ctime}</span></div></div><span class="col-1 pb-0 pt-0"><a class="btn btn-warning w-100 h-50 text-center pt-0 pb-0" href="/channels/quit/${channelInfo.cid}">나감</a></span>`
+    newChannel.innerHTML = `<div class='list-group-item col-11 h-100'><a class='h1' href='/channels/${channelInfo.cid}'>${channelInfo.cname}</a>(읽지 않은 메시지: <span id='C${channelInfo.cid}unread' class=' text-danger font-weight-bold'>${channelInfo.cunread}</span>)<span class='alert alert-danger' id='C${channelInfo.cid}NEW'>NEW!</span><div class='float-right'>최근 업데이트<br><span class='time-info' id='C3time'>${channelInfo.ctime}</span></div></div><form class='form-inline float-right col-1' method='POST' action='/channels/${channelInfo.cid}?_method=PUT'><input type='hidden' name='_csrf' value=${csrfToken}><input class='btn btn-warning' type='submit' id='C${channelInfo.cid}quit' onclick='return confirm("정말 나가시겠습니까?");' value='나감'></form>`
     const getPos = binary_search(channelInfo.ctime);
     if(getPos != -1) channelList.insertBefore(newChannel, channelList.childNodes[getPos].nextSibling);
     else channelList.insertBefore(newChannel, channelList.childNodes[0]);

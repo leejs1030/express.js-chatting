@@ -72,7 +72,7 @@ block content
                     //-     | #{e.msg_date}에 전송됨
     .container.hidden-xs.hidden-sm.sticky
         h2.mb-4
-            form(method='post' id='myPost' action='/#')
+            form(method='POST' id='myPost' action='/#')
                 textarea.form-control(name='content' id = 'input-msg' autofocus)
                 input(type='hidden' name='_csrf' value=csrfToken)
                 input.btn.btn-primary.mr-5(type = 'submit' value = 'send' id = 'sendchat')

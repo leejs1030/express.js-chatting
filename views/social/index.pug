@@ -4,7 +4,7 @@ block content
     .container.mb-4
         .page-header.ml-4.mr-4.mt-4.mb-4
             h2.mb-4
-                form(method='post')
+                form(method='POST')
                     input(type='hidden' name='_csrf' value=csrfToken)
                     input.form-control(name='targetid'
                         type='text'
@@ -30,11 +30,11 @@ block content
                         div.mb-4
                             | #{e.sender_id}(#{e.sender_nick})
                             span.float-right.form-inline
-                                form(method='post' action='/social/friends').mr-2
+                                form(method='POST' action='/social/friends').mr-2
                                     input(type='hidden' name='uid' value=e.sender_id)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='수락')
-                                form(method='post' action=`/social/requests/${e.sender_id}?_method=DELETE&me=receiver`)
+                                form(method='POST' action=`/social/requests/${e.sender_id}?_method=DELETE&me=receiver`)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='거절')
                             br

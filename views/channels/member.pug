@@ -15,7 +15,7 @@ block content
                             if e.id != user.id
                                 | #{e.id}(#{e.nick})
 
-                                form.form-inline.float-right(method='post')
+                                form.form-inline.float-right(method='POST')
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input(type='hidden' name='targetid' value=`${e.id}`)
                                     input.btn.btn-primary.mr-1(type = 'submit'

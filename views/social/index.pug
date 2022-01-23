@@ -8,7 +8,7 @@ block content
                     input(type='hidden' name='_csrf' value=csrfToken)
                     input.form-control(name='targetid'
                         type='text'
-                        placeholder = '상대방의 id를 입력해주세요')
+                        placeholder = '상대방의 id를 입력해주세요' autofocus)
                     input.btn.btn-primary.mr-5(type = 'submit'
                             name = 'action'
                             value = 'request'
@@ -34,7 +34,7 @@ block content
                                     input(type='hidden' name='uid' value=e.sender_id)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='수락')
-                                form(method='post' action=`/social/requests/${e.sender_id}?_method=DELETE`)
+                                form(method='post' action=`/social/requests/${e.sender_id}?_method=DELETE&me=receiver`)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='거절')
                             br
@@ -47,8 +47,11 @@ block content
                     each e in reqsent
                         div.mb-4
                             | #{e.receiver_id}(#{e.receiver_nick})
-                            .float-right
-                                a.btn.btn-primary.mr-2.ml-5(href=`/social/cancel/${e.receiver_id}`) 취소
+                            form.form-inline.float-right(method='POST' action=`/social/requests/${e.receiver_id}?_method=DELETE&me=sender`)
+                                input(type='hidden' name='_csrf' value=csrfToken)
+                                input.btn.btn-primary(type='submit' value='취소')
+                            //- .float-right
+                            //-     a.btn.btn-primary.mr-2.ml-5(href=`/social/cancel/${e.receiver_id}`) 취소
                                 //- need to change get --> delete
                             br
                             | #{e.req_time}
@@ -59,7 +62,10 @@ block content
                     each e in friendlist
                         div.mb-4
                             | #{e.id}(#{e.nick})
-                            a.btn.btn-primary.ml-5.float-right(href=`/social/delete/${e.id}`) 삭제
+                            form.form-inline.float-right(method='POST' action=`/social/friends/${e.id}?_method=DELETE`)
+                                input(type='hidden' name='_csrf' value=csrfToken)
+                                input.btn.btn-primary(type = 'submit' value='삭제')
+                            //- a.btn.btn-primary.ml-5.float-right(href=`/social/delete/${e.id}`) 삭제
                             //- need to change get --> delete
                             br
                             | #{e.friend_date}
@@ -70,7 +76,10 @@ block content
                     each e in blacklist
                         div.mb-4
                             | #{e.id}(#{e.nick}) 
-                            a.btn.btn-primary.ml-5.float-right(href=`/social/unblack/${e.id}`) 삭제
+                            form.form-inline.float-right(method='POST' action=`/social/blacks/${e.id}?_method=DELETE`)
+                                input(type='hidden' name='_csrf' value=csrfToken)
+                                input.btn.btn-primary(type='submit' value='삭제')
+                            //- a.btn.btn-primary.ml-5.float-right(href=`/social/unblack/${e.id}`) 삭제
                             //- need to change get --> delete
                             br
                             | #{e.black_date}

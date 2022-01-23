@@ -13,20 +13,23 @@ const router = Router({
 
 // router.get('/allow/:uid', authRequired, ctrl.allow); // 요청 승인. /people/friends post로. query로 정보 전달. 전달된 정보로 확인.
 // router.get('/reject/:uid', authRequired, ctrl.reject); // 요청 거절. /people/requests delete로
-router.get('/cancel/:uid', authRequired, ctrl.cancelRequest); // 요청 취소. /people/requests delete로
-router.get('/delete/:uid', authRequired, ctrl.deleteFriend); // 친구 삭제. /people/friend-lists delete로
-router.get('/unblack/:uid', authRequired, ctrl.unBlack); // 블랙 취소. /people/blakcs delete로.
+// router.get('/cancel/:uid', authRequired, ctrl.cancelRequest); // 요청 취소. /people/requests delete로
+// router.get('/delete/:uid', authRequired, ctrl.deleteFriend); // 친구 삭제. /people/friend-lists delete로
+// router.get('/unblack/:uid', authRequired, ctrl.unBlack); // 블랙 취소. /people/blakcs delete로.
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.get('/', authRequired, ctrl.indexPage);
 
-router.post('/requests', authRequired, ctrl.request);
-router.post('/blacks', authRequired, ctrl.black);
+router.post('/requests', authRequired, ctrl.sendRequest); // 요청 추가
+router.post('/blacks', authRequired, ctrl.addBlack); // 블랙 추가
 
-router.post('/friends', authRequired, ctrl.allow);
-router.delete('/requests/:sender', authRequired, ctrl.reject); // 요청 거절. /people/requests delete로
+router.post('/friends', authRequired, ctrl.allow); // 요청 승인
+router.delete('/requests/:uid', authRequired, ctrl.deleteRequest); // 요청 거절 혹은 취소. 결국 같다.
+
+router.delete('/friends/:friend', authRequired, ctrl.deleteFriend); // 친구 삭제
+router.delete('/blacks/:added', authRequired, ctrl.unBlack); // 블랙 삭제
 
 
 module.exports = router;

@@ -30,48 +30,30 @@ const allow = async (req, res, next) =>{
     };
 }
 
-const reject = async (req, res, next) =>{
+const deleteRequest = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        const {sender} = req.params;
-        // const {uid} = req.body;
-        await SocialDAO.rejectRequest(sender, user.id);
+        const {me} = req.query;
+        const {uid} = req.params;
+        if(me == 'receiver'){
+            console.log(1);
+            await SocialDAO.cancelRequest(uid, user.id);
+        }
+        else if(me == 'sender'){
+            console.log(uid);
+            await SocialDAO.cancelRequest(user.id, uid);
+        }
         return res.redirect('back');
     } catch(err){
         return next(err);
     };
 }
 
-const requestOrBlack = async (req, res, next) =>{
+const sendRequest = async (req, res, next) =>{
     try{
         const {user} = req.session;
         console.log(req.body);
-        const {action, targetid} = req.body;
-        if(user.id == targetid) return res.send(getAlertScript('자신에겐 할 수 없습니다!'));
-        let result = 0;
-        if(action == 'request'){
-            result = await SocialDAO.newRequest(user.id, targetid);
-        }
-        else if(action == 'black'){
-            result = await SocialDAO.newBlack(user.id, targetid);
-        }
-        if(result == 1) return res.send(getAlertScript('이미 요청이 존재하거나, 친구이거나, 블랙리스트인 사용자에게는 요청할 수 없습니다!'));
-        else if(result == 2) return res.send(getAlertScript('찾을 수 없는 id입니다!'));
-        else if(result == 3) return res.send(getAlertScript('이미 블랙되어있는 상대입니다!'));
-        else return res.redirect('back');
-    } catch(err){
-        return next(err);
-    }
-};
-
-
-
-
-const request = async (req, res, next) =>{
-    try{
-        const {user} = req.session;
-        console.log(req.body);
-        const {action, targetid} = req.body;
+        const {targetid} = req.body;
         if(user.id == targetid) return res.send(getAlertScript('자신에겐 할 수 없습니다!'));
         let result = await SocialDAO.newRequest(user.id, targetid);
 
@@ -85,11 +67,11 @@ const request = async (req, res, next) =>{
 };
 
 
-const black = async (req, res, next) =>{
+const addBlack = async (req, res, next) =>{
     try{
         const {user} = req.session;
         console.log(req.body);
-        const {action, targetid} = req.body;
+        const {targetid} = req.body;
         if(user.id == targetid) return res.send(getAlertScript('자신에겐 할 수 없습니다!'));
         let result = await SocialDAO.newBlack(user.id, targetid);
 
@@ -103,41 +85,11 @@ const black = async (req, res, next) =>{
     }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const cancelRequest = async(req, res, next) =>{
-    try{
-        const {user} = req.session;
-        const {uid} = req.params;
-        SocialDAO.cancelRequest(user.id, uid);
-        return res.redirect('back');
-    } catch(err){
-        return next(err);
-    }
-};
-
 const deleteFriend = async(req, res, next) =>{
     try{
         const {user} = req.session;
-        const {uid} = req.params;
-        SocialDAO.deleteFriend(user.id, uid);
+        const {friend} = req.params;
+        SocialDAO.deleteFriend(user.id, friend);
         return res.redirect('back');
     } catch(err){
         return next(err);
@@ -147,8 +99,8 @@ const deleteFriend = async(req, res, next) =>{
 const unBlack = async(req, res, next) =>{
     try{
         const {user} = req.session;
-        const {uid} = req.params;
-        SocialDAO.unBlack(user.id, uid);
+        const {added} = req.params;
+        SocialDAO.unBlack(user.id, added);
         return res.redirect('back');
     } catch(err){
         return next(err);
@@ -159,11 +111,9 @@ const unBlack = async(req, res, next) =>{
 module.exports = {
     indexPage,
     allow,
-    reject,
-    // requestOrBlack,
-    request,
-    black,
-    cancelRequest,
+    deleteRequest,
+    sendRequest,
+    addBlack,
     deleteFriend,
     unBlack,
 };

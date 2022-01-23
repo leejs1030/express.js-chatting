@@ -31,7 +31,9 @@ html
                             a.nav-link(href='/auth/sign-up') 회원가입
                     if user
                         li.nav-item
-                            a.nav-link(href='/auth/sign-out') 로그 아웃
+                            form.col-lg-6(method='post' action='/auth/sign-out')
+                                input(type='hidden' name='_csrf' value=csrfToken)
+                                input.bg-secondary.nav-link.border-0(type='submit' value='로그 아웃')
                             //- need to change. get --> post
                         li.nav-item.position-relative
                             a#user-info(data-toggle="collapse" href="#user-menu" aria-expanded="false" aria-controls="user-menu").nav-link

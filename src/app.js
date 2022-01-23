@@ -10,8 +10,8 @@ const io = new require("socket.io")(server);
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET } = process.env;
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
-const connectPgSimple = require('connect-pg-simple');
 let PostgreSqlStore = require('connect-pg-simple')(session);
+const methodOverride = require('method-override');
 
 const sessionmiddleware = session({
 	secret: SESSION_SECRET,
@@ -31,6 +31,9 @@ app.set('views', `${__dirname}/../views`);
 app.set('view engine', 'pug');
 app.set('socketio', io);
 app.set('server', server);
+
+
+
 app.use('/scripts', express.static(`${__dirname}/../public/scripts`));
 app.use('/styles', express.static(`${__dirname}/../public/styles`));
 app.use((req, res, next) => { // 수동적으로 strict하게 redirect
@@ -47,9 +50,6 @@ app.use((req, res, next) => { // 수동적으로 strict하게 redirect
 });
 app.use(morgan(MODE !== 'prod' ? 'dev' : 'combined'));
 app.use(express.urlencoded({ extended: true })); // false면 기본 queryString. true면 qs 사용.
-
-
-
 app.use(cookieParser());
 app.use(csrf({cookie: true}));
 app.use(sessionmiddleware);
@@ -62,6 +62,7 @@ app.use(function (req, res, next) {
 	}
 	next();
 });
+app.use(methodOverride('_method'));
 app.use('/', controller);
 app.use(errorHandler);
   

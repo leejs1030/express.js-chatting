@@ -31,21 +31,26 @@ block content
                                 br
                                 span.time-info(id=`C${e.id}time`) #{e.updatetime}
                         if e.creater == user.id
-                            span.col-1.pb-0.pt-0
-                                a.btn.btn-danger.w-100.h-50.text-center.pt-0.pb-0(id=`C${e.id}del`
-                                href=`/channels/${e.id}/delete` onclick='return confirm("정말 삭제하시겠습니까?");') 삭제
-                                //- need to change get --> delete
+                            form.form-inline.float-right.col-1(method='POST' action=`/channels/${e.id}?_method=DELETE`)
+                                input(type='hidden' name='_csrf' value=csrfToken)
+                                input.btn.btn-danger(type='submit'
+                                    id=`C${e.id}del`
+                                    onclick='return confirm("정말 삭제하시겠습니까?");'
+                                    value='삭제')
                         else 
-                            span.col-1.pb-0.pt-0
-                                a.btn.btn-warning.w-100.h-50.text-center.pt-0.pb-0(id=`C${e.id}quit`
-                                href=`/channels/${e.id}/quit` onclick='return confirm("정말 나가시겠습니까?");') 나감
-                                //- need to change get --> put
+                            form.form-inline.float-right.col-1(method='POST' action=`/channels/${e.id}?_method=PUT`)
+                                input(type='hidden' name='_csrf' value=csrfToken)
+                                input.btn.btn-warning(type='submit'
+                                    id=`C${e.id}quit`
+                                    onclick='return confirm("정말 나가시겠습니까?");'
+                                    value='나감')
 
 
 block scripts
     script(type='text/javascript').
         const clist = !{channelList};
         const uid = "#{user.id}";
+        const csrfToken = "#{csrfToken}"
 
 block references
     script(src='/socket.io/socket.io.js')

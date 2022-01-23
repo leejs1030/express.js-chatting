@@ -17,9 +17,9 @@ io.use((socket, next) => {
 });
 io.on('connection', async (socket) => {
 	let roomnum = socket.handshake.headers.referer.split('/').filter((i) => i);
-	console.log(roomnum);
+	// console.log(roomnum);
 	if(isChannelURI(roomnum)) roomnum = roomnum[channelPos + 1];
-	console.log(roomnum);
+	// console.log(roomnum);
 
 	socketcontrol.initialJoinRoom(socket, roomnum);
 

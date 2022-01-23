@@ -5,7 +5,7 @@ const getUserConfig = async (req, res, next) =>{
     try {
         const {user} = req.session;
         const info = (await UserDAO.getSettingById(user.id));
-        return res.render('./settings/index.pug', {user, info,
+        return res.render('settings/index.pug', {user, info,
             csrfToken: req.csrfToken(),
         });
     } catch (err) {

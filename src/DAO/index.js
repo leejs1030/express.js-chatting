@@ -1,8 +1,8 @@
 const UserDAO = require('./user');
-const FriendDAO = require('./friends');
+const SocialDAO = require('./social');
 const ChannelDAO = require('./channel');
 
-module.exports = { UserDAO, FriendDAO, ChannelDAO };
+module.exports = { UserDAO, SocialDAO, ChannelDAO };
 
 /*
 다른 코드에 접근하려면 require('~~/DAO');만 하면 됨.

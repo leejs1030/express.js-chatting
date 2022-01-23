@@ -1,6 +1,20 @@
 const {ChannelDAO} = require('../../DAO');
 const {getAlertScript} = require('../../lib/usefulJS');
 
+const doesChannelExist = async(req, res, next) =>{
+    try{
+        const {channelId} = req.params;
+        const result = await ChannelDAO.getChannelInfoById(channelId);
+        if(result instanceof Error){
+            return res.send(getAlertScript('존재하지 않는 채널입니다!'));
+        } else{
+            return next();
+        }
+    } catch(err){
+        console.log(err);
+    }
+}
+
 const membershipRequired = async(req, res, next) =>{
     try{
         const {channelId} = req.params;
@@ -32,4 +46,4 @@ const ownRequired = async(req, res, next) =>{
     }
 };
 
-module.exports = {membershipRequired, ownRequired};
+module.exports = {doesChannelExist, membershipRequired, ownRequired,};

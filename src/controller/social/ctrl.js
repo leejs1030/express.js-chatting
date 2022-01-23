@@ -36,11 +36,9 @@ const deleteRequest = async (req, res, next) =>{
         const {me} = req.query;
         const {uid} = req.params;
         if(me == 'receiver'){
-            console.log(1);
             await SocialDAO.cancelRequest(uid, user.id);
         }
         else if(me == 'sender'){
-            console.log(uid);
             await SocialDAO.cancelRequest(user.id, uid);
         }
         return res.redirect('back');
@@ -52,7 +50,6 @@ const deleteRequest = async (req, res, next) =>{
 const sendRequest = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        console.log(req.body);
         const {targetid} = req.body;
         if(user.id == targetid) return res.send(getAlertScript('자신에겐 할 수 없습니다!'));
         let result = await SocialDAO.newRequest(user.id, targetid);

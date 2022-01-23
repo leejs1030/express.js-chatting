@@ -5,7 +5,17 @@ const router = Router({
 const ctrl = require('./ctrl');
 const { authRequired } = require('../auth/middleware');
 const { doesChannelExist, membershipRequired, ownRequired, } = require('./middleware');
+const { getAlertScript } = require('../../lib/usefulJS');
+const digits = new RegExp('^[0-9]+$')
 
+
+router.param('channelId', (req, res, next, id) =>{
+    if(digits.exec(id)){
+        next();
+    }else{
+        res.send(getAlertScript('적절하지 않은 채널 id입니다! 자연수로 입력해주세요.'))
+    }
+});
 
 router.get('/', authRequired, ctrl.indexPage);
 router.post('/', authRequired, ctrl.createChannel);

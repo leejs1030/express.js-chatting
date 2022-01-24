@@ -1,21 +1,24 @@
 const { getAlertScript } = require("./usefulJS");
 
 const errorHandler = (err, req, res, next) => {
+    const {user} = req.session;
     switch (err.message) {
         case 'BAD_REQUEST':
-            return res.send(getAlertScript('Invalid parameters!'));
+            return res.status(400).send(getAlertScript('Invalid parameters!'));
         case 'UNAUTHORIZED':
-            return res.send(getAlertScript('Login failure!'));
+            return res.status(401).send(getAlertScript('Login failure!'));
         case 'NOT_FOUND':
-            return res.render('error.pug', {
+            return res.status(404).render('error.pug', {
                 errorCode: 404,
                 errorMsg: 'Not Found',
+                user,
             });
         default:
             if (process.env.MODE !== 'prod') console.error('\x1b[31m%s\x1b[0m', err);
-            return res.render('error.pug', {
+            return res.status(500).render('error.pug', {
                 errorCode: 500,
                 errorMsg: 'Internal Server Error',
+                user,
             });
     }
 };

@@ -9,7 +9,7 @@ const createChannel = async (req, res, next) =>{
         const {channelName} = req.body;
         if(!channelName) return res.send(getAlertScript("채널 이름을 입력해주세요!"));
         await ChannelDAO.createChannel(channelName, user.id);
-        return res.redirect('back');
+        return res.redirect(303, 'back');
     } catch(err){
         return next(err);
     }
@@ -115,7 +115,7 @@ const quitChannel = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId} = req.params;
         await ChannelDAO.quitChannel(channelId, user.id);
-        return res.redirect('back');
+        return res.redirect(303, 'back');
     } catch(err){
         return next(err);
     }
@@ -126,7 +126,7 @@ const deleteChannel = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId} = req.params;
         await ChannelDAO.deleteChannel(channelId, user.id);
-        return res.redirect('back');
+        return res.redirect(303, 'back');
     } catch(err){
         return next(err);
     }

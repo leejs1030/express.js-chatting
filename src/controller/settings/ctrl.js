@@ -17,7 +17,7 @@ const postUserConfig = async (req, res, next) =>{
     try {
         const {user} = req.session;
         await UserDAO.setSettingById(user.id, req.body);
-        return res.redirect('/');
+        return res.redirect(303, '/');
     } catch (err) {
         return next(err);
     }

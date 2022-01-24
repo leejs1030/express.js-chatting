@@ -11,10 +11,10 @@ router.param('channelId', isChannelId);
 
 router.get('/', authRequired, ctrl.indexPage);
 router.post('/', authRequired, ctrl.createChannel);
-router.get('/:channelId', authRequired, doesChannelExist, membershipRequired, ctrl.showChannel);
 
-router.put('/:channelId', authRequired, doesChannelExist, membershipRequired, ctrl.quitChannel); // put 사용하기.
-router.delete('/:channelId', authRequired, doesChannelExist, membershipRequired, ownRequired, ctrl.deleteChannel); // delete 사용하기.
+router.get('/:channelId', authRequired, doesChannelExist, membershipRequired, ctrl.showChannel);
+router.put('/:channelId', authRequired, doesChannelExist, membershipRequired, ctrl.quitChannel);
+router.delete('/:channelId', authRequired, doesChannelExist, membershipRequired, ownRequired, ctrl.deleteChannel);
 
 router.get('/:channelId/invitelist', authRequired, doesChannelExist, membershipRequired, ctrl.inviteFriend);
 

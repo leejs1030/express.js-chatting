@@ -35,7 +35,7 @@ const signIn = async (req, res, next) =>{
             nick: user.nick,
         };
         // console.log(req.session);
-        return await res.redirect('/');
+        return res.redirect(303, '/');
     }catch(err){
         return next(err); //에러 객체가 error-handler에 전달됨.
     }
@@ -63,7 +63,7 @@ const signUp = async (req, res, next) =>{
         const encryptedPassword = await generatePassword(password);
         await UserDAO.create(id, encryptedPassword, nick);
 
-        return res.redirect('/auth/sign-in');
+        return res.redirect(303, '/auth/sign-in');
     }catch(err){
         return next(err);
     }
@@ -74,7 +74,7 @@ const signOut = async (req, res, next) =>{
     try{
         req.session.destroy(err => {
             if(err) throw err;
-            else return res.redirect('/');
+            else return res.redirect(303, '/');
         });
     }catch(err){
         return next(err);

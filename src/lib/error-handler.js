@@ -1,4 +1,4 @@
-const getAlertScript = msg => `<script>alert("${msg}");history.back();</script>`;
+const { getAlertScript } = require("./usefulJS");
 
 const errorHandler = (err, req, res, next) => {
     switch (err.message) {

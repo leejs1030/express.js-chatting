@@ -37,4 +37,16 @@ const ownRequired = async(req, res, next) =>{
     }
 };
 
-module.exports = {doesChannelExist, membershipRequired, ownRequired,};
+const digits = new RegExp('^[0-9]+$');
+
+const isChannelId = (req, res, next, id) =>{
+    if(digits.exec(id))
+        next();
+    else res.send(getAlertScript('적절하지 않은 채널 id입니다! 자연수로 입력해주세요.'))
+};
+
+module.exports = {doesChannelExist,
+    membershipRequired,
+    ownRequired,
+    isChannelId,
+};

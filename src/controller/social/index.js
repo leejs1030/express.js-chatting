@@ -26,7 +26,7 @@ router.post('/requests', authRequired, ctrl.sendRequest); // 요청 추가
 router.post('/blacks', authRequired, ctrl.addBlack); // 블랙 추가
 
 router.post('/friends', authRequired, ctrl.allow); // 요청 승인
-router.delete('/requests/:uid', authRequired, ctrl.deleteRequest); // 요청 거절 혹은 취소. 결국 같다.
+router.delete('/requests/:uid', authRequired, ctrl.deleteRequest); // 요청 거절 혹은 취소. 결국 db에서의 작업은 같음.
 
 router.delete('/friends/:friend', authRequired, ctrl.deleteFriend); // 친구 삭제
 router.delete('/blacks/:added', authRequired, ctrl.unBlack); // 블랙 삭제

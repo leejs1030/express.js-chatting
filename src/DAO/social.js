@@ -121,9 +121,13 @@ const newRequest = async (sender, receiver)=>{
 }
 
 const canAddBlack = async (adder, added) =>{
-    const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2';
-    const result = await runQuery(sql, [adder, added]);
-    return !(result[0]);
+    try{
+        const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2';
+        const result = await runQuery(sql, [adder, added]);
+        return (result[0] === undefined);
+    } catch(err){
+        return errorAt('canAddBlack', err);
+    }
 }
 
 const newBlack = async (adder, added)=>{

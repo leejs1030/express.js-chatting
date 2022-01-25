@@ -35,7 +35,7 @@ const getSettingById = async(id) =>{
         return result[0];
     } catch(err){
         return errorAt('getSettingById', err);
-     }
+    }
 }
 
 const setSettingById = async(id, info) =>{
@@ -45,7 +45,7 @@ const setSettingById = async(id, info) =>{
         return await runQuery(sql, [id, send_enter]);
     } catch(err){
         return errorAt('setSettingById', err);
-     }
+    }
 }
 
 module.exports = {

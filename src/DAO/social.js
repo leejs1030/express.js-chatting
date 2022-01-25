@@ -75,6 +75,7 @@ const allowRequest = async (id1, id2) =>{
         //그 요청을 받아들여 친구리스트 테이블에 추가
         await runQuery(sql2, [id1, id2]);
         await commitTransaction();
+        return 0;
     } catch(err){
         await rollBackTransaction();
         return errorAt('allowRequest', err);

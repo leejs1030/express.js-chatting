@@ -42,7 +42,8 @@ const setSettingById = async(id, info) =>{
     try{
         const sql = "UPDATE user_settings SET send_enter = $2 WHERE id = $1";
         let {send_enter} = info;
-        return await runQuery(sql, [id, send_enter]);
+        await runQuery(sql, [id, send_enter]);
+        return 0;
     } catch(err){
         return errorAt('setSettingById', err);
     }

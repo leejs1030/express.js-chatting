@@ -121,7 +121,8 @@ const readMsgFromChannel = async(uid, cid) =>{
     try{
         const sql2 = "UPDATE channel_users SET unread = 0 WHERE channel_id = $1 and user_id = $2"
         //UPDATE문을 사용해 사용자가 해당 채널에 읽지 않은 메시지 수를 0으로 설정.
-        return await runQuery(sql2, [cid, uid]);
+        await runQuery(sql2, [cid, uid]);
+        return 0;
     } catch(err){
         return errorAt('readMsgFromChannel', err);
     }
@@ -153,6 +154,7 @@ const quitChannel = async(cid, uid) =>{
         const sql = "DELETE FROM channel_users WHERE channel_id = $1 and user_id = $2";
         //채널을 나가기.
         await runQuery(sql, [cid, uid]);
+        return 0;
     }catch(err){
         return errorAt('quitChannel', err);
     }
@@ -163,6 +165,7 @@ const deleteChannel = async(cid) =>{
         const sql = "DELETE FROM channels WHERE id = $1";
         //채널을 삭제.
         await runQuery(sql, [cid]);
+        return 0;
     }catch(err){
         return errorAt('deleteChannel', err);
     }

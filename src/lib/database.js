@@ -7,7 +7,8 @@ const runQuery = async (sql, values) =>{
 		const result = await db.any(sql, values);
 		return result;
 	} catch(err) {
-		return console.log(err);
+		console.log(err);
+		throw err;
 	}
 };
 
@@ -16,6 +17,7 @@ const beginTransaction = async () =>{
 		return runQuery('begin transaction;', {});
 	} catch(err){
 		console.log(err);
+		throw err;
 	}
 };
 
@@ -24,6 +26,7 @@ const commitTransaction = async () =>{
 		return runQuery('commit;', {});
 	} catch(err){
 		console.log(err);
+		throw err;
 	}
 };
 
@@ -32,6 +35,7 @@ const rollBackTransaction = async () => {
 		return runQuery('rollback;', {});
 	} catch(err){
 		console.log(err);
+		throw err;
 	}
 }
 

@@ -14,7 +14,7 @@ const getChannelsByUserId = async (id) =>{
         });
         return result;
     } catch(err){
-        return errorAt('getChannelsByUserId', err);
+        throw errorAt('getChannelsByUserId', err);
     }
 };
 
@@ -23,7 +23,7 @@ const getChannelUnreadById = async (cid, uid) =>{
         const sql = 'SELECT unread FROM channel_users WHERE channel_id = $1 and user_id = $2';
         return (await runQuery(sql, [cid, uid]))[0].unread;
     } catch(err){
-        return errorAt('getChannelUnreadById', err);
+        throw errorAt('getChannelUnreadById', err);
     }
 };
 
@@ -38,7 +38,7 @@ const getChannelInfoById = async (cid, uid) =>{
         return result;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getChannelNameById', err);
+        throw errorAt('getChannelNameById', err);
     }
 };
 
@@ -51,7 +51,7 @@ const countChannelsByUserId = async (id) =>{
         if(result[0] === undefined) return 0;
         return result[0].num;
     } catch(err){
-        return errorAt('countChannelsByUserId', err);
+        throw errorAt('countChannelsByUserId', err);
     }
 }
 
@@ -68,7 +68,7 @@ const createChannel = async (channelName, creater) =>{
         return id;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('createChannel', err);
+        throw errorAt('createChannel', err);
     }
 }
 
@@ -79,7 +79,7 @@ const isChannelMember = async(cid, uid) =>{
         const result = await runQuery(sql, [cid, uid]);
         return !(result[0] === undefined);
     } catch(err){
-        return errorAt('isChannelMember', err);
+        throw errorAt('isChannelMember', err);
     }
 };
 
@@ -90,7 +90,7 @@ const isChannelCreater = async(cid, uid) =>{
         const result = await runQuery(sql, [cid, uid]);
         return !(result[0] === undefined);
     } catch(err){
-        return errorAt('isChannelCreater', err);
+        throw errorAt('isChannelCreater', err);
     }
 };
 
@@ -113,7 +113,7 @@ const getMsgFromChannel = async (cid, uid) =>{
         return {msglist: result, unread: unread};
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getMsgFromChannel', err);
+        throw errorAt('getMsgFromChannel', err);
     }
 };
 
@@ -124,7 +124,7 @@ const readMsgFromChannel = async(uid, cid) =>{
         await runQuery(sql2, [cid, uid]);
         return 0;
     } catch(err){
-        return errorAt('readMsgFromChannel', err);
+        throw errorAt('readMsgFromChannel', err);
     }
 }
 
@@ -145,7 +145,7 @@ const sendMsg = async (uid, cid, content) =>{
         return convertDate(result[0].msg_date);
     } catch(err){
         await rollBackTransaction();
-        return errorAt('sendMsg', err);
+        throw errorAt('sendMsg', err);
     }
 }
 
@@ -156,7 +156,7 @@ const quitChannel = async(cid, uid) =>{
         await runQuery(sql, [cid, uid]);
         return 0;
     }catch(err){
-        return errorAt('quitChannel', err);
+        throw errorAt('quitChannel', err);
     }
 }
 
@@ -167,7 +167,7 @@ const deleteChannel = async(cid) =>{
         await runQuery(sql, [cid]);
         return 0;
     }catch(err){
-        return errorAt('deleteChannel', err);
+        throw errorAt('deleteChannel', err);
     }
 }
 
@@ -189,7 +189,7 @@ const getMemberFromChannel = async(cid, uid) =>{
         return result;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getMemberFromChannel', err);
+        throw errorAt('getMemberFromChannel', err);
     }
 }
 

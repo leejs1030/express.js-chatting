@@ -19,7 +19,7 @@ const getReceivedById = async (id)=>{
         });
         return result;
     } catch(err){
-        return errorAt('getReceivedById', err);
+        throw errorAt('getReceivedById', err);
     }
 };
 const getSentById = async (id)=>{
@@ -33,7 +33,7 @@ const getSentById = async (id)=>{
         });
         return result;
     } catch(err) {
-        return errorAt('getSentById', err);
+        throw errorAt('getSentById', err);
     }
 };
 const getFriendsById = async (id)=>{
@@ -47,7 +47,7 @@ const getFriendsById = async (id)=>{
         });
         return result;
     } catch(err) {
-        return errorAt('getFriendsById', err);
+        throw errorAt('getFriendsById', err);
     }
 };
 const getBlacksById = async (id)=>{
@@ -61,7 +61,7 @@ const getBlacksById = async (id)=>{
         });
         return result;
     } catch(err){
-        return errorAt('getBlackById', err);
+        throw errorAt('getBlackById', err);
     }
 };
 const allowRequest = async (id1, id2) =>{
@@ -78,7 +78,7 @@ const allowRequest = async (id1, id2) =>{
         return 0;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('allowRequest', err);
+        throw errorAt('allowRequest', err);
     }
 }
 
@@ -91,7 +91,7 @@ const canSendRequest = async (sender, receiver) =>{
         const result =  await runQuery(sqlcan, [sender, receiver]);
         return (result[0] === undefined);
     } catch(err){
-        return errorAt('canSendRequest', err);
+        throw errorAt('canSendRequest', err);
     }
 }
 
@@ -117,7 +117,7 @@ const newRequest = async (sender, receiver)=>{
         }
     } catch(err){
         await rollBackTransaction();
-        return errorAt('newRequest', err);
+        throw errorAt('newRequest', err);
     }
 }
 
@@ -127,7 +127,7 @@ const canAddBlack = async (adder, added) =>{
         const result = await runQuery(sql, [adder, added]);
         return (result[0] === undefined);
     } catch(err){
-        return errorAt('canAddBlack', err);
+        throw errorAt('canAddBlack', err);
     }
 }
 
@@ -157,7 +157,7 @@ const newBlack = async (adder, added)=>{
         }
     } catch(err){
         await rollBackTransaction();
-        return errorAt('newBlack', err);
+        throw errorAt('newBlack', err);
     }
 }
 
@@ -168,7 +168,7 @@ const isFriend = async (id1, id2) =>{
         const result = await runQuery(sql, [id1, id2]);
         return !(result[0] === undefined);
     } catch(err){
-        return errorAt('isFriend', err);
+        throw errorAt('isFriend', err);
     }
 }
 
@@ -178,7 +178,7 @@ const cancelRequest = async (sender, receiver) =>{
         await runQuery(sql, [sender, receiver]);
         return 0;
     } catch(err) {
-        return errorAt('cancelRequest', err);
+        throw errorAt('cancelRequest', err);
     }
 }
 
@@ -189,7 +189,7 @@ const deleteFriend = async(id1, id2) =>{
         await runQuery(sql, [id1, id2]);
         return 0;
     } catch(err){
-        return errorAt('deleteFriend', err);
+        throw errorAt('deleteFriend', err);
     }
 }
 
@@ -199,7 +199,7 @@ const unBlack = async(adder, added) =>{
         await runQuery(sql, [adder, added]);
         return 0;
     } catch(err){
-        return errorAt('unBlack', err);
+        throw errorAt('unBlack', err);
     }
 }
 
@@ -222,7 +222,7 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
         });
         return result;
     } catch(err){
-        return errorAt('getFriendsByIdNotInChannel', err);
+        throw errorAt('getFriendsByIdNotInChannel', err);
     }
 }
 
@@ -240,7 +240,7 @@ const includeToChannel = async(cid, uid) =>{
         return 0;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('includeToChannel', err);
+        throw errorAt('includeToChannel', err);
     }
 }
 
@@ -267,7 +267,7 @@ const getSocialsById = async (id) =>{
         return result;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getSocialsById', err);
+        throw errorAt('getSocialsById', err);
     }
 }
 

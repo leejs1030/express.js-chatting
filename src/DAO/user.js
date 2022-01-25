@@ -7,7 +7,7 @@ const getById = async (id) => {
         const result =  await runQuery(sql, [id]); //id를 기준으로 유저의 정보 확인.
         return result[0]; //없으면 undefined. 아니면 해당 유저에 대한 오브젝트가 제대로 나옴.
     } catch(err){
-       return errorAt('getById', err);
+       throw errorAt('getById', err);
     }
 };
 
@@ -24,7 +24,7 @@ const createUser = async (id, encryptedPassword, nick) =>{
         return true;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('createUser', err);
+        throw errorAt('createUser', err);
     }
 }
 
@@ -34,7 +34,7 @@ const getSettingById = async(id) =>{
         const result = await runQuery(sql, [id]);
         return result[0];
     } catch(err){
-        return errorAt('getSettingById', err);
+        throw errorAt('getSettingById', err);
     }
 }
 
@@ -45,7 +45,7 @@ const setSettingById = async(id, info) =>{
         await runQuery(sql, [id, send_enter]);
         return 0;
     } catch(err){
-        return errorAt('setSettingById', err);
+        throw errorAt('setSettingById', err);
     }
 }
 

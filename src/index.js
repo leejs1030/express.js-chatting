@@ -9,15 +9,18 @@ const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET, MODE } = pr
 const io = app.get('socketio');
 const server = app.get('server');
 
-
+const channelPos = 2;
+const isChannelURI = (URI) => (URI[channelPos] == 'channels');
 
 
 io.use((socket, next) => {
 	sessionmiddleware(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET)(socket.request, {}, next);
 });
 io.on('connection', async (socket) => {
-	let roomnum = socket.handshake.headers.referer.split('/');
-	roomnum = roomnum[roomnum.length - 1];
+	let roomnum = socket.handshake.headers.referer.split('/').filter((i) => i);
+	// console.log(roomnum);
+	if(isChannelURI(roomnum)) roomnum = roomnum[channelPos + 1];
+	// console.log(roomnum);
 
 	socketcontrol.initialJoinRoom(socket, roomnum);
 

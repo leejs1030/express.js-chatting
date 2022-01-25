@@ -13,15 +13,12 @@ const { keepSignIn, sessionmiddleware, redirecter } = require('./middleware');
 
 
 
-
-
 app.set('strict routing', true); // 왜? 제대로 동작하지 않음.
 app.set('case sensitive routing', true);
 app.set('views', `${__dirname}/../views`);
 app.set('view engine', 'pug');
 app.set('socketio', io);
 app.set('server', server);
-
 
 app.use('/scripts', express.static(`${__dirname}/../public/scripts`));
 app.use('/styles', express.static(`${__dirname}/../public/styles`));
@@ -33,6 +30,7 @@ app.use(cookieParser());
 app.use(csrf({cookie: true}));
 app.use(sessionmiddleware(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET));
 app.use(keepSignIn);
+app.use(methodOverride('_method'));
 app.use('/', controller);
 app.use(errorHandler);
   

@@ -78,16 +78,6 @@ const allowRequest = async (id1, id2) =>{
     }
 }
 
-const rejectRequest = async (id1, id2) =>{
-    try{
-        const sql1 = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2';
-        //친구 요청 거절
-        await runQuery(sql1, [id1, id2]);
-    } catch(err){
-        return errorAt('rejectRequest', err);
-    }
-}
-
 const canSendRequest = async (sender, receiver) =>{
     const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
     const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
@@ -281,7 +271,6 @@ module.exports = {
     getFriendsById,
     getBlacksById,
     allowRequest,
-    rejectRequest,
     canSendRequest,
     newRequest,
     canAddBlack,

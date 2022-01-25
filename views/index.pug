@@ -25,9 +25,12 @@ block buttons
                 //- | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             .col-2
             .col-3
-                a.btn.btn-info.mr-2.col-10.text-center(href='/friends') 친구 목록
+                a.btn.btn-info.mr-2.col-10.text-center(href='/social') 친구 목록
                 .well.col-10.text-center(style='background-color:#e2e3e5;')
                     | 받은 요청: #{counts.received}
+
+block page_title
+    | 회원가입/로그인을 하신 뒤 서비스를 이용하실 수 있습니다.
 
 //- block scripts
 //-     script(defer, type = 'text/javascript').

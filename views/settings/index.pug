@@ -11,7 +11,8 @@ block scripts
 
 block content
     .container.mb-4
-        form.col(method='post')
+        form.col(method='POST')
+            input(type='hidden' name='_csrf' value=csrfToken)
             .form-check.h3
                 input#send-enter.form-check-input.mt-2(name='send_enter', type='checkbox', style='width:20px;height:20px;', value='true')
                 input#send-enter-hidden(type='hidden', name='send_enter', value='false')

@@ -16,7 +16,7 @@ block buttons
 
 block content
     .container.mb-4
-        form.col-lg-6(method='post')
+        form.col-lg-6(method='POST')
             .input-group.mb-2
                 .input-group-prepend
                     span.input-group-text#username-addon Id
@@ -37,4 +37,4 @@ block content
                 label.form-check-label(for='keepSignedIn')
                     | 로그인 상태 유지
             input(type='hidden' name='_csrf' value=csrfToken)
-            button.btn.btn-primary(type='submit') Sign In
+            input#sign-in.btn.btn-primary(type='submit' value='Sign In')

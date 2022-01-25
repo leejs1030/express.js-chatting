@@ -175,6 +175,7 @@ const cancelRequest = async (sender, receiver) =>{
     try{
         const sql = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2'; //친구 요청 취소
         await runQuery(sql, [sender, receiver]);
+        return 0;
     } catch(err) {
         return errorAt('cancelRequest', err);
     }
@@ -235,6 +236,7 @@ const includeToChannel = async(cid, uid) =>{
         const sql = 'INSERT INTO channel_users values($1, $2, $3)';
         await runQuery(sql, [cid, uid, num]);//해당 채널에 해당 유저를 추가하며, 읽지 않은 메시지 수를 num으로 설정.
         await commitTransaction();
+        return 0;
     } catch(err){
         await rollBackTransaction();
         return errorAt('includeToChannel', err);

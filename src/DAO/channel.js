@@ -15,28 +15,31 @@ const getChannelsByUserId = async (id) =>{
     } catch(err){
         return errorAt('getChannelsByUserId', err);
     }
-}
-
-const getChannelInfoById = async (id) =>{
-    try{
-        const sql = 'SELECT * FROM channels WHERE id = $1';
-        const result = await runQuery(sql, [id]);
-        result[0].updatetime = convertDate(result[0].updatetime);
-        return result;
-    } catch(err){
-        return errorAt('getChannelNameById', err);
-    }
-}
+};
 
 const getChannelUnreadById = async (cid, uid) =>{
     try{
         const sql = 'SELECT unread FROM channel_users WHERE channel_id = $1 and user_id = $2';
-        const result = await runQuery(sql, [cid, uid]);
-        return result;
+        return (await runQuery(sql, [cid, uid]))[0].unread;
     } catch(err){
         return errorAt('getChannelUnreadById', err);
     }
-}
+};
+
+const getChannelInfoById = async (cid, uid) =>{
+    try{
+        await beginTransaction();
+        const sql1 = 'SELECT * FROM channels WHERE id = $1';
+        const result = (await runQuery(sql1, [cid]))[0];
+        if(uid !== undefined) result.unread = (await getChannelUnreadById(cid, uid));
+        await commitTransaction();
+        result.updatetime = convertDate(result.updatetime);
+        return result;
+    } catch(err){
+        return errorAt('getChannelNameById', err);
+    }
+};
+
 
 const countChannelsByUserId = async (id) =>{
     try{

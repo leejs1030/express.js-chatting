@@ -28,13 +28,12 @@ const indexPage = async (req, res, next) =>{
 
 const showChannel = async(req, res, next) =>{
     try{
-        // 변경 필요
         const {user} = req.session;
         const {channelId} = req.params;
-        const unread = (await ChannelDAO.getChannelUnreadById(channelId, user.id))[0].unread
         const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
+		const unread = msglist.length;
         const {send_enter} = await UserDAO.getSettingById(user.id);
-        const channelName = (await ChannelDAO.getChannelInfoById(channelId))[0].name;
+        const channelName = (await ChannelDAO.getChannelInfoById(channelId)).name;
 
         return res.status(200).render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
             initialMsgs: JSON.stringify(msglist),
@@ -94,8 +93,8 @@ const includeToChannel = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId, targetId} = req.params;
         await SocialDAO.includeToChannel(channelId, targetId);
-        const channelInfo = (await ChannelDAO.getChannelInfoById(channelId))[0];
-        const unread = (await ChannelDAO.getChannelUnreadById(channelId, targetId))[0].unread;
+        const channelInfo = (await ChannelDAO.getChannelInfoById(channelId));
+        const unread = (await ChannelDAO.getChannelInfoById(channelId, targetId)).unread;
         const io = req.app.get('socketio');
         io.to(targetId).emit(`invite`, {
             cid: channelId,

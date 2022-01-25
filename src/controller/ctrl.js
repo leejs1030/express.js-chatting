@@ -15,15 +15,7 @@ const indexPage = async (req, res, next) =>{
     }
 };
 
-const eeee = async(req, res, next )=>{
-    try{
-        throw new Error('NOT_FOUND');
-    }catch(err){
-        return next(err);
-    }
-}
-
 
 module.exports = {
-    indexPage, eeee,
+    indexPage,
 };

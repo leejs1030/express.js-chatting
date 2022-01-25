@@ -7,7 +7,7 @@ const createChannel = async (req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelName} = req.body;
-        if(!channelName) return res.send(getAlertScript("채널 이름을 입력해주세요!"));
+        if(!channelName) return res.status(400).send(getAlertScript("채널 이름을 입력해주세요!"));
         await ChannelDAO.createChannel(channelName, user.id);
         return res.redirect(303, 'back');
     } catch(err){
@@ -20,7 +20,7 @@ const indexPage = async (req, res, next) =>{
         const {user} = req.session;
         const channelList = await ChannelDAO.getChannelsByUserId(user.id);
         const {num} = await ChannelDAO.countChannelsByUserId(user.id);
-        return res.render('channels/index.pug', {user, num, channelList: JSON.stringify(channelList), 
+        return res.status(200).render('channels/index.pug', {user, num, channelList: JSON.stringify(channelList), 
             csrfToken: req.csrfToken()});
     } catch(err){
         return next(err);
@@ -36,7 +36,7 @@ const showChannel = async(req, res, next) =>{
         const {send_enter} = await UserDAO.getSettingById(user.id);
         const channelName = (await ChannelDAO.getChannelInfoById(channelId))[0].name;
 
-        return res.render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
+        return res.status(200).render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
             initialMsgs: JSON.stringify(msglist),
             csrfToken: req.csrfToken(),
         });
@@ -51,7 +51,7 @@ const sendMsg = async(req, res, next) =>{
         // /scripts/chattingsockets.js에서 new msg 소켓 보내면, /src/index.js에서 받아서 처리.
         const {content} = req.body;
         if(content.length > 10000 || !content){
-            return res.send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
+            return res.status(400).send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
         }
         const {user} = req.session;
         const {channelId} = req.params;
@@ -66,8 +66,7 @@ const sendMsg = async(req, res, next) =>{
         };
 
         io.to(sendData.channel).emit(`update`, sendData);
-        return res.status(204).send();
-        return res.redirect('back');
+        return res.redirect(303, 'back');
     } catch(err){
         return next(err);
     }
@@ -79,7 +78,7 @@ const inviteFriend = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId} = req.params;
         const flist = await SocialDAO.getFriendsByIdNotInChannel(user.id, channelId);
-        return res.render('channels/invites.pug', {user, channelId, flist:JSON.stringify(flist),
+        return res.status(200).render('channels/invites.pug', {user, channelId, flist:JSON.stringify(flist),
             csrfToken: req.csrfToken(),
         });
     } catch(err) {
@@ -104,7 +103,7 @@ const includeToChannel = async(req, res, next) =>{
             cunread: unread,
             ctime: channelInfo.updatetime,
         });
-        return res.redirect('back');
+        return res.redirect(303, 'back');
     } catch(err){
         return next(err);
     }
@@ -145,7 +144,7 @@ const memberList = async (req, res, next) =>{
                 member.canRequest = await SocialDAO.canSendRequest(user.id, member.id);
             }
         }
-        return res.render('channels/member.pug', {user, channelId, memberList: JSON.stringify(memberList),
+        return res.status(200).render('channels/member.pug', {user, channelId, memberList: JSON.stringify(memberList),
             csrfToken: req.csrfToken(),
         });
     }catch(err){

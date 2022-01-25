@@ -1,5 +1,4 @@
 const {ChannelDAO, SocialDAO, UserDAO} = require('../../DAO');
-const { getChannelUnreadById } = require('../../DAO/channel');
 const {getAlertScript} = require('../../lib/usefulJS');
 // const {app} = require('../../app');
 
@@ -29,9 +28,10 @@ const indexPage = async (req, res, next) =>{
 
 const showChannel = async(req, res, next) =>{
     try{
+        // 변경 필요
         const {user} = req.session;
         const {channelId} = req.params;
-        const unread = (await getChannelUnreadById(channelId, user.id))[0].unread
+        const unread = (await ChannelDAO.getChannelUnreadById(channelId, user.id))[0].unread
         const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
         const {send_enter} = await UserDAO.getSettingById(user.id);
         const channelName = (await ChannelDAO.getChannelInfoById(channelId))[0].name;

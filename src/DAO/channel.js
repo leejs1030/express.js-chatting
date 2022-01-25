@@ -1,6 +1,7 @@
 const { convertDate } = require('../lib/convertDate');
 const {runQuery, beginTransaction, commitTransaction} = require('../lib/database');
 const {errorAt} = require('../lib/usefulJS');
+const { canAddBlack, canSendRequest } = require('./social');
 
 const getChannelsByUserId = async (id) =>{
     try{
@@ -173,8 +174,8 @@ const getMemberFromChannel = async(cid, uid) =>{
             if(uid == member.id){
                 member.canRequest = member.canBlack = false;
             } else {
-                member.canBlack = await SocialDAO.canAddBlack(user.id, member.id);
-                member.canRequest = await SocialDAO.canSendRequest(user.id, member.id);
+                member.canBlack = await canAddBlack(uid, member.id);
+                member.canRequest = await canSendRequest(uid, member.id); //SocialDAO.
             }
         }
         commitTransaction();

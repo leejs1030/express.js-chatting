@@ -88,7 +88,7 @@ const isChannelCreater = async(cid, uid) =>{
         const sql = "SELECT * FROM channels WHERE id = $1 and creater = $2";
         //채널 생성자인지 확인.
         const result = await runQuery(sql, [cid, uid]);
-        return result[0];
+        return !(result[0] === undefined);
     } catch(err){
         return errorAt('isChannelCreater', err);
     }

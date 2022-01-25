@@ -1,9 +1,10 @@
 require('./env');
-const {app, sessionmiddleware} = require('./app');
+const {app} = require('./app');
 const {ChannelDAO} = require('./DAO');
 const socketcontrol = require('./lib/socketcontrol');
-
+const { sessionmiddleware } = require('./middleware');
 const port = process.env.PORT || 4000;
+const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET, MODE } = process.env;
 
 const io = app.get('socketio');
 const server = app.get('server');
@@ -13,7 +14,7 @@ const isChannelURI = (URI) => (URI[channelPos] == 'channels');
 
 
 io.use((socket, next) => {
-	sessionmiddleware(socket.request, {}, next);
+	sessionmiddleware(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET)(socket.request, {}, next);
 });
 io.on('connection', async (socket) => {
 	let roomnum = socket.handshake.headers.referer.split('/').filter((i) => i);

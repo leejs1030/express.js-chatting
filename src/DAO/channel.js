@@ -154,11 +154,21 @@ const deleteChannel = async(cid) =>{
     }
 }
 
-const getMemberFromChannel = async(cid) =>{
+const getMemberFromChannel = async(cid, uid) =>{
     try{
+        beginTransaction();
         const sql = 'SELECT user_id as id, nick FROM channel_users join users on id = user_id ' +
         'WHERE channel_id = $1';
         const result = await runQuery(sql, [cid]);
+        for(const member of result){
+            if(uid == member.id){
+                member.canRequest = member.canBlack = false;
+            } else {
+                member.canBlack = await SocialDAO.canAddBlack(user.id, member.id);
+                member.canRequest = await SocialDAO.canSendRequest(user.id, member.id);
+            }
+        }
+        commitTransaction();
         return result;
     } catch(err){
         return errorAt('getMemberFromChannel', err);

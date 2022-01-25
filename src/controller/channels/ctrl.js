@@ -136,15 +136,8 @@ const memberList = async (req, res, next) =>{
         //변경 필요
         const {user} = req.session;
         const {channelId} = req.params;
-        let memberList = await ChannelDAO.getMemberFromChannel(channelId);
-        for(const member of memberList){
-            if(user.id == member.id){
-                member.canRequest = member.canBlack = false;
-            } else {
-                member.canBlack = await SocialDAO.canAddBlack(user.id, member.id);
-                member.canRequest = await SocialDAO.canSendRequest(user.id, member.id);
-            }
-        }
+        let memberList = await ChannelDAO.getMemberFromChannel(channelId, user.id);
+        
         return res.status(200).render('channels/member.pug', {user, channelId, memberList: JSON.stringify(memberList),
             csrfToken: req.csrfToken(),
         });

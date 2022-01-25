@@ -2,6 +2,11 @@ const session = require('express-session');
 const PostgreSqlStore = require('connect-pg-simple')(session);
 
 
+const setCookieHeader = (req, res, next) =>{
+	res.setHeader('Set-Cookie', 'secure; httpOnly');
+    next();
+};
+
 const sessionmiddleware = (DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET) => session({
 	secret: SESSION_SECRET,
 	resave: false,
@@ -24,7 +29,6 @@ const redirecter = (req, res, next) =>{
 	}
 };
 
-
 const YEAR = 365 * 24 * 60 * 60 * 1000;
 const keepSignIn = (req, res, next) => {
     if(req.session.keepSignedIn){
@@ -36,6 +40,7 @@ const keepSignIn = (req, res, next) => {
 }
 
 module.exports = {
+	setCookieHeader,
     sessionmiddleware,
     redirecter,
     keepSignIn,

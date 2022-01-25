@@ -6,7 +6,7 @@ const http = require('http');
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET } = process.env;
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
-const { keepSignIn, sessionmiddleware, redirecter } = require('./middleware');
+const { keepSignIn, sessionmiddleware, redirecter, setCookieHeader } = require('./middleware');
 const methodOverride = require('method-override');
 
 const app = express();
@@ -23,6 +23,8 @@ app.set('server', server);
 app.use('/scripts', express.static(`${__dirname}/../public/scripts`));
 app.use('/styles', express.static(`${__dirname}/../public/styles`));
 
+
+app.use(setCookieHeader);
 app.use(redirecter);
 app.use(morgan(MODE !== 'prod' ? 'dev' : 'combined'));
 app.use(express.urlencoded({ extended: false }));

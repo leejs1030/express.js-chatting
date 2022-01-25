@@ -11,20 +11,21 @@ const getById = async (id) => {
     }
 };
 
-const create = async (id, password, nick) => {
+const createUser = async (id, encryptedPassword, nick) =>{
     try{
-        const sql = 'INSERT INTO users values($1, $2, $3)'; //id, password, nick을 받아서 유저 테이블에 삽입.
-        //새로운 유저가 등록되는 회원 가입 과정.
+        beginTransaction();
+        const isExist = await UserDAO.getById(id);
+        if(isExist) return false;
+        const sql = 'INSERT INTO users values($1, $2, $3)'; // id, password, nick을 받아서 유저 테이블에 삽입.
         const sql2 = 'INSERT INTO user_settings values($1)';
-        await beginTransaction();
-        await runQuery(sql, [id, password, nick]);
+        await runQuery(sql, [id, encryptedPassword, nick]);
         await runQuery(sql2, [id]);
-        await commitTransaction();
+        commitTransaction();
         return true;
     } catch(err){
-        return errorAt('create', err);
-     }
-};
+        return errorAt('createUser', err);
+    }
+}
 
 const getSettingById = async(id) =>{
     try{
@@ -48,7 +49,7 @@ const setSettingById = async(id, info) =>{
 
 module.exports = {
     getById,
-    create,
+    createUser,
     getSettingById,
     setSettingById,
 };    

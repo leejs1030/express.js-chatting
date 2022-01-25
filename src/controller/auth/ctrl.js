@@ -7,7 +7,7 @@ const signInForm = async (req, res, next) =>{
     try{
         const {user} = req.session;
         if(user) return res.redirect('/');
-        else return res.render('auth/sign-in.pug', {user, csrfToken: req.csrfToken()});
+        else return res.status(200).render('auth/sign-in.pug', {user, csrfToken: req.csrfToken()});
     }catch(err){
         return next(err);
     }
@@ -45,7 +45,7 @@ const signIn = async (req, res, next) =>{
 const signUpForm = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        return res.render('auth/sign-up.pug', { user, csrfToken: req.csrfToken() });
+        return res.status(200).render('auth/sign-up.pug', { user, csrfToken: req.csrfToken() });
     }catch(err){
         return next(err);
     }
@@ -58,7 +58,7 @@ const signUp = async (req, res, next) =>{
         if(!id || id > 20 || !password || !nick || nick > 20) throw new Error('BAD_REQUEST');
         const isExist = await UserDAO.getById(id);
         if(isExist) {
-            return res.send(getAlertScript("이미 존재하는 ID입니다!"));
+            return res.status(400).send(getAlertScript("이미 존재하는 ID입니다!"));
         }
         const encryptedPassword = await generatePassword(password);
         await UserDAO.create(id, encryptedPassword, nick);

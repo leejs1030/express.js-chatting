@@ -19,7 +19,7 @@ const membershipRequired = async(req, res, next) =>{
         const {user} = req.session;
         const result = await ChannelDAO.isChannelMember(channelId, user.id);
         if(result) return next();
-        else return res.status(401).send(getAlertScript('속하지 않은 채널입니다!'));
+        else return res.status(403).send(getAlertScript('속하지 않은 채널입니다!'));
     } catch(err){
         return console.log(err);
     }
@@ -31,7 +31,7 @@ const ownRequired = async(req, res, next) =>{
         const {user} = req.session;
         const result = await ChannelDAO.isChannelCreater(channelId, user.id);
         if(result) return next();
-        else return res.status(401).send(getAlertScript('관리자만이 접근할 수 있습니다!'));
+        else return res.status(403).send(getAlertScript('관리자만이 접근할 수 있습니다!'));
     } catch(err){
         return console.log(err);
     }
@@ -42,7 +42,7 @@ const digits = new RegExp('^[0-9]+$');
 const isChannelId = (req, res, next, id) =>{
     if(digits.exec(id))
         next();
-    else res.send(getAlertScript('적절하지 않은 채널 id입니다! 자연수로 입력해주세요.'))
+    else res.status(400).send(getAlertScript('적절하지 않은 채널 id입니다! 자연수로 입력해주세요.'))
 };
 
 module.exports = {doesChannelExist,

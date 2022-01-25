@@ -77,7 +77,7 @@ const isChannelMember = async(cid, uid) =>{
         const sql = "SELECT * FROM channel_users WHERE channel_id = $1 and user_id = $2";
         //채널 멤버인지 확인.
         const result = await runQuery(sql, [cid, uid]);
-        return result[0];
+        return !(result[0] === undefined);
     } catch(err){
         return errorAt('isChannelMember', err);
     }

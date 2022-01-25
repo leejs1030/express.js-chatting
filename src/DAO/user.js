@@ -1,4 +1,4 @@
-const {runQuery, beginTransaction, commitTransaction} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction, rollBackTransaction} = require('../lib/database');
 const {errorAt} = require('../lib/usefulJS');
 
 const getById = async (id) => {
@@ -13,16 +13,17 @@ const getById = async (id) => {
 
 const createUser = async (id, encryptedPassword, nick) =>{
     try{
-        beginTransaction();
+        await beginTransaction();
         const isExist = await getById(id);
         if(isExist) return false;
         const sql = 'INSERT INTO users values($1, $2, $3)'; // id, password, nick을 받아서 유저 테이블에 삽입.
         const sql2 = 'INSERT INTO user_settings values($1)';
         await runQuery(sql, [id, encryptedPassword, nick]);
         await runQuery(sql2, [id]);
-        commitTransaction();
+        await commitTransaction();
         return true;
     } catch(err){
+        await rollBackTransaction();
         return errorAt('createUser', err);
     }
 }

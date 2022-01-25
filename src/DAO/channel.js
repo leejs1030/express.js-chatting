@@ -1,5 +1,5 @@
 const { convertDate } = require('../lib/convertDate');
-const {runQuery, beginTransaction, commitTransaction} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction, rollBackTransaction} = require('../lib/database');
 const {errorAt} = require('../lib/usefulJS');
 const { canAddBlack, canSendRequest } = require('./social');
 
@@ -37,6 +37,7 @@ const getChannelInfoById = async (cid, uid) =>{
         result.updatetime = convertDate(result.updatetime);
         return result;
     } catch(err){
+        await rollBackTransaction();
         return errorAt('getChannelNameById', err);
     }
 };
@@ -66,6 +67,7 @@ const createChannel = async (channelName, creater) =>{
         await commitTransaction();
         return id;
     } catch(err){
+        await rollBackTransaction();
         return errorAt('createChannel', err);
     }
 }
@@ -110,6 +112,7 @@ const getMsgFromChannel = async (cid, uid) =>{
         await commitTransaction();
         return {msglist: result, unread: unread};
     } catch(err){
+        await rollBackTransaction();
         return errorAt('getMsgFromChannel', err);
     }
 };
@@ -140,6 +143,7 @@ const sendMsg = async (uid, cid, content) =>{
         await commitTransaction();
         return convertDate(result[0].msg_date);
     } catch(err){
+        await rollBackTransaction();
         return errorAt('sendMsg', err);
     }
 }
@@ -166,7 +170,7 @@ const deleteChannel = async(cid) =>{
 
 const getMemberFromChannel = async(cid, uid) =>{
     try{
-        beginTransaction();
+        await beginTransaction();
         const sql = 'SELECT user_id as id, nick FROM channel_users join users on id = user_id ' +
         'WHERE channel_id = $1';
         const result = await runQuery(sql, [cid]);
@@ -178,9 +182,10 @@ const getMemberFromChannel = async(cid, uid) =>{
                 member.canRequest = await canSendRequest(uid, member.id); //SocialDAO.
             }
         }
-        commitTransaction();
+        await commitTransaction();
         return result;
     } catch(err){
+        await rollBackTransaction();
         return errorAt('getMemberFromChannel', err);
     }
 }

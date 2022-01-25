@@ -1,5 +1,5 @@
 const { convertDate } = require('../lib/convertDate');
-const {runQuery, beginTransaction, commitTransaction} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction, rollBackTransaction} = require('../lib/database');
 const UserDAO = require('./user.js');
 const {errorAt} = require('../lib/usefulJS');
 
@@ -76,6 +76,7 @@ const allowRequest = async (id1, id2) =>{
         await runQuery(sql2, [id1, id2]);
         await commitTransaction();
     } catch(err){
+        await rollBackTransaction();
         return errorAt('allowRequest', err);
     }
 }
@@ -110,6 +111,7 @@ const newRequest = async (sender, receiver)=>{
             return 1; //1리턴. 컨트롤러에서 이미 요청 중/친구/블랙으로 인해 전송 불가함을 알림.
         }
     } catch(err){
+        await rollBackTransaction();
         return errorAt('newRequest', err);
     }
 }
@@ -141,9 +143,11 @@ const newBlack = async (adder, added)=>{
             return 0;
         }
         else{
+            await commitTransaction();
             return 3; //3리턴. 컨트롤러에서 이미 요청 중/친구/블랙으로 인해 전송 불가함을 알림.
         }
     } catch(err){
+        await rollBackTransaction();
         return errorAt('newBlack', err);
     }
 }
@@ -224,6 +228,7 @@ const includeToChannel = async(cid, uid) =>{
         await runQuery(sql, [cid, uid, num]);//해당 채널에 해당 유저를 추가하며, 읽지 않은 메시지 수를 num으로 설정.
         await commitTransaction();
     } catch(err){
+        await rollBackTransaction();
         return errorAt('includeToChannel', err);
     }
 }
@@ -250,6 +255,7 @@ const getSocialsById = async (id) =>{
         };
         return result;
     } catch(err){
+        await rollBackTransaction();
         return errorAt('getSocialsById', err);
     }
 }

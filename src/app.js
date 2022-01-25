@@ -10,6 +10,7 @@ const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET } = pr
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 const { keepSignIn, sessionmiddleware, redirecter } = require('./middleware');
+const methodOverride = require('method-override');
 
 
 

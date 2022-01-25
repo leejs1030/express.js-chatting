@@ -54,6 +54,7 @@ const signUpForm = async (req, res, next) =>{
 //GET /
 const signUp = async (req, res, next) =>{
     try{
+        // 변경 필요.
         const {id, password, nick} = req.body;
         if(!id || id > 20 || !password || !nick || nick > 20) throw new Error('BAD_REQUEST');
         const isExist = await UserDAO.getById(id);

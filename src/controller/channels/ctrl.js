@@ -133,6 +133,7 @@ const deleteChannel = async(req, res, next) =>{
 
 const memberList = async (req, res, next) =>{
     try{
+        //변경 필요
         const {user} = req.session;
         const {channelId} = req.params;
         let memberList = await ChannelDAO.getMemberFromChannel(channelId);

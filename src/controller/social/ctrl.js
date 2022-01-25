@@ -5,12 +5,7 @@ const {getAlertScript} = require('../../lib/usefulJS');
 const indexPage = async (req, res, next) =>{
     try{
         const {user} = req.session;
-        // 변경 필요
-        const reqreceived = await SocialDAO.getReceivedById(user.id);
-        const reqsent = await SocialDAO.getSentById(user.id);
-        const friendlist = await SocialDAO.getFriendsById(user.id);
-        const blacklist = await SocialDAO.getBlacksById(user.id);
-        const counts = await SocialDAO.getCountsById(user.id);
+        const {reqreceived, reqsent, friendlist, blacklist, counts} = await SocialDAO.getSocialsById(user.id);
         return res.status(200).render('social/index.pug', {user, reqreceived, reqsent, friendlist, blacklist, counts,
             csrfToken: req.csrfToken(),
         });

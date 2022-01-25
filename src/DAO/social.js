@@ -82,12 +82,16 @@ const allowRequest = async (id1, id2) =>{
 }
 
 const canSendRequest = async (sender, receiver) =>{
-    const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
-    const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
-    const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
-    const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
-    const result =  await runQuery(sqlcan, [sender, receiver]);
-    return !(result[0]);
+    try{
+        const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
+        const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
+        const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
+        const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
+        const result =  await runQuery(sqlcan, [sender, receiver]);
+        return (result[0] === undefined);
+    } catch(err){
+        return errorAt('canSendRequest', err);
+    }
 }
 
 const newRequest = async (sender, receiver)=>{

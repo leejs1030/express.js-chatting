@@ -14,7 +14,7 @@ const getById = async (id) => {
 const createUser = async (id, encryptedPassword, nick) =>{
     try{
         beginTransaction();
-        const isExist = await UserDAO.getById(id);
+        const isExist = await getById(id);
         if(isExist) return false;
         const sql = 'INSERT INTO users values($1, $2, $3)'; // id, password, nick을 받아서 유저 테이블에 삽입.
         const sql2 = 'INSERT INTO user_settings values($1)';

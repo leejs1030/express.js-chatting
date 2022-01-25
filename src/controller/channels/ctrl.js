@@ -51,7 +51,7 @@ const sendMsg = async(req, res, next) =>{
         // /scripts/chattingsockets.js에서 new msg 소켓 보내면, /src/index.js에서 받아서 처리.
         const {content} = req.body;
         if(content.length > 10000 || !content){
-            return res.status(400).send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
+            return res.status(409).send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
         }
         const {user} = req.session;
         const {channelId} = req.params;

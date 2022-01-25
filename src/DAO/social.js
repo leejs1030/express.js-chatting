@@ -241,7 +241,7 @@ const countReceivedById = async (id)=>{
         const result = await getReceivedById(id);
         return result.length;
     } catch(err){
-        return errorAt('getReceivedById', err);
+        return errorAt('countReceivedById', err);
     }
 };
 const countSentById = async(id) => {

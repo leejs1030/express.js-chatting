@@ -165,7 +165,7 @@ const isFriend = async (id1, id2) =>{
         const sql = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; //친구인지 확인
         //(id1, id2) 형태로 저장되었으므로, (a,b)와 (b,a)를 모두 고려해야함. 두 가지 경우 모두 a와 b가 친구.
         const result = await runQuery(sql, [id1, id2]);
-        return (result[0] === undefined ? false : true);
+        return !(result[0] === undefined);
     } catch(err){
         return errorAt('isFriend', err);
     }

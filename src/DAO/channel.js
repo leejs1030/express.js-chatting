@@ -48,8 +48,8 @@ const countChannelsByUserId = async (id) =>{
         const sql = 'SELECT count(*) as num FROM channel_users WHERE user_id = $1 GROUP BY user_id'; //사용자가 참여 중인 채널의 수를 센다.
         //aggregate
         const result = await runQuery(sql, [id]);
-        if(!result[0]) return {num: 0};
-        return result[0];
+        if(result[0] === undefined) return 0;
+        return result[0].num;
     } catch(err){
         return errorAt('countChannelsByUserId', err);
     }

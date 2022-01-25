@@ -18,7 +18,7 @@ const indexPage = async (req, res, next) =>{
     try{
         const {user} = req.session;
         const channelList = await ChannelDAO.getChannelsByUserId(user.id);
-        const {num} = await ChannelDAO.countChannelsByUserId(user.id);
+        const num = await ChannelDAO.countChannelsByUserId(user.id);
         return res.status(200).render('channels/index.pug', {user, num, channelList: JSON.stringify(channelList), 
             csrfToken: req.csrfToken()});
     } catch(err){

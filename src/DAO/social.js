@@ -1,5 +1,5 @@
 const { convertDate } = require('../lib/convertDate');
-const {runQuery} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction} = require('../lib/database');
 const UserDAO = require('./user.js');
 const {errorAt} = require('../lib/usefulJS');
 
@@ -66,6 +66,7 @@ const getBlacksById = async (id)=>{
 };
 const allowRequest = async (id1, id2) =>{
     try{
+        await beginTransaction();
         const sql1 = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2';
         //친구 요청 수락하기 위해, 요청리스트 테이블에서 요청을 지우고
         //조건: delete
@@ -73,6 +74,7 @@ const allowRequest = async (id1, id2) =>{
         const sql2 = 'INSERT INTO flist values($1, $2, now())';
         //그 요청을 받아들여 친구리스트 테이블에 추가
         await runQuery(sql2, [id1, id2]);
+        await commitTransaction();
     } catch(err){
         return errorAt('allowRequest', err);
     }
@@ -122,14 +124,16 @@ const newBlack = async (adder, added)=>{
         }
         // const canBlack = await canAddBlack(adder, added); //이미 요청 중/친구/블랙인지 확인
         if(await canAddBlack(adder, added)){ //만약 요청중/친구/블랙이 아니라면
+            await beginTransaction();
+
             const delFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
             await runQuery(delFlist, [adder, added]); //해당 유저를 친구 목록에서 삭제
-
             const delReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
             await runQuery(delReqlist, [adder, added]); //해당 유저에게 보낸 요청 취소
-
             const sql = 'INSERT INTO blist values($1, $2, now())'; 
             await runQuery(sql, [adder, added]); //블랙 리스트 테이블에 추가.
+
+            await commitTransaction();
             return 0;
         }
         else{
@@ -219,14 +223,6 @@ const includeToChannel = async(cid, uid) =>{
 }
 
 
-const countReceivedById = async (id)=>{
-    try{
-        const result = await getReceivedById(id);
-        return result.length;
-    } catch(err){
-        return errorAt('getReceivedById', err);
-    }
-};
 const getCountsById = async (id) =>{
     try{
         let result = {
@@ -238,6 +234,14 @@ const getCountsById = async (id) =>{
         return result;
     } catch(err){
         return errorAt('getCountsById', err);
+    }
+};
+const countReceivedById = async (id)=>{
+    try{
+        const result = await getReceivedById(id);
+        return result.length;
+    } catch(err){
+        return errorAt('getReceivedById', err);
     }
 };
 const countSentById = async(id) => {

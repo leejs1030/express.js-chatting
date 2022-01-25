@@ -1,5 +1,5 @@
 const { convertDate } = require('../lib/convertDate');
-const {runQuery} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction} = require('../lib/database');
 const {errorAt} = require('../lib/usefulJS');
 
 const getChannelsByUserId = async (id) =>{
@@ -52,12 +52,14 @@ const countChannelsByUserId = async (id) =>{
 
 const createChannel = async (channelName, creater) =>{
     try{
+        await beginTransaction();
         const sqlchannel = 'INSERT INTO channels values(DEFAULT, $1, $2, now()) RETURNING id;'
         //채널을 생성하고, 해당 채널의 id를 반환.
         const {id} = (await runQuery(sqlchannel, [channelName, creater]))[0];
         const sqlchanuser = 'INSERT INTO channel_users values($1, $2, 0)';
         //해당 채널의 id를 이용해서, 생성한 사람을 멤버로 추가.
         await runQuery(sqlchanuser, [id, creater]);
+        await commitTransaction();
         return id;
     } catch(err){
         return errorAt('createChannel', err);
@@ -114,6 +116,7 @@ const readMsgFromChannel = async(uid, cid) =>{
 
 const sendMsg = async (uid, cid, content) =>{
     try{
+        await beginTransaction();
         const msgSql = "INSERT INTO msg values($1, $2, now(), $3) RETURNING msg_date";
         //현재 체널에 메시지를 보내고, 보낸 시간을 기록.
         const result = await runQuery(msgSql, [uid, cid, content]);
@@ -124,6 +127,7 @@ const sendMsg = async (uid, cid, content) =>{
         const unReadSql = "UPDATE channel_users SET unread = unread + 1 WHERE user_id <> $1 and channel_id = $2";
         //UPDATE문으로 메시지를 보낸 채널의 다른 유저들의 읽지 않은 메시지 수를 1씩 증가시킴.
         await runQuery(unReadSql, [uid, cid]);
+        await commitTransaction();
         return convertDate(result[0].msg_date);
     } catch(err){
         return errorAt('sendMsg', err);

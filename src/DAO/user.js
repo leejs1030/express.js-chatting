@@ -1,4 +1,4 @@
-const {runQuery} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction} = require('../lib/database');
 const {errorAt} = require('../lib/usefulJS');
 
 const getById = async (id) => {
@@ -16,8 +16,11 @@ const create = async (id, password, nick) => {
         const sql = 'INSERT INTO users values($1, $2, $3)'; //id, password, nick을 받아서 유저 테이블에 삽입.
         //새로운 유저가 등록되는 회원 가입 과정.
         const sql2 = 'INSERT INTO user_settings values($1)';
+        await beginTransaction();
         await runQuery(sql, [id, password, nick]);
-        return await runQuery(sql2, [id]);
+        await runQuery(sql2, [id]);
+        await commitTransaction();
+        return true;
     } catch(err){
         return errorAt('create', err);
      }

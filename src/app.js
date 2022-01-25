@@ -1,18 +1,17 @@
 const controller = require('./controller');
 const { errorHandler } = require('./lib/error-handler');
 const express = require('express');
-const app = express();
 const morgan = require('morgan');
 const http = require('http');
-const server = http.createServer(app);
-const io = new require("socket.io")(server);
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET } = process.env;
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 const { keepSignIn, sessionmiddleware, redirecter } = require('./middleware');
 const methodOverride = require('method-override');
 
-
+const app = express();
+const server = http.createServer(app);
+const io = new require("socket.io")(server);
 
 app.set('strict routing', true); // 왜? 제대로 동작하지 않음.
 app.set('case sensitive routing', true);

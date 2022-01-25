@@ -30,8 +30,7 @@ const showChannel = async(req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
-		const unread = msglist.length;
+        const {msglist, unread} = await ChannelDAO.getMsgFromChannel(channelId, user.id);
         const {send_enter} = await UserDAO.getSettingById(user.id);
         const channelName = (await ChannelDAO.getChannelInfoById(channelId)).name;
 

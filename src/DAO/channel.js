@@ -93,6 +93,9 @@ const isChannelCreater = async(cid, uid) =>{
 
 const getMsgFromChannel = async (cid, uid) =>{
     try{
+        //변경 필요
+        await beginTransaction();
+
         const sql = "SELECT id, nick, content as msg, msg_date FROM msg JOIN users on id = sender WHERE channel_id = $1 "
         + "ORDER BY msg_date asc";
         //해당 채널에 있는 모든 메시지를 시간 오름차순으로 정렬한 것을 가져옴.
@@ -100,8 +103,11 @@ const getMsgFromChannel = async (cid, uid) =>{
         result.forEach((value, index, array)=>{
             array[index].msg_date = convertDate(value.msg_date);
         });
-        readMsgFromChannel(uid, cid);
-        return result;
+        const unread = await getChannelUnreadById(cid, uid);
+        await readMsgFromChannel(uid, cid);
+
+        await commitTransaction();
+        return {msglist: result, unread: unread};
     } catch(err){
         return errorAt('getMsgFromChannel', err);
     }

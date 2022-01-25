@@ -22,14 +22,14 @@ io.on('connection', async (socket) => {
 
 	socketcontrol.initialJoinRoom(socket, roomnum); // 처음 소켓에 접속하면 접속 채널 등의 정보를 통해 적절한 room에 넣어줌.
 
-	socket.on('new msg', async (receiveData) => { socketcontrol.receiveAndSend(io, receiveData, roomnum); });
+	socket.on('new msg', async (receiveData) => { return await socketcontrol.receiveAndSend(io, receiveData, roomnum); });
 	// 새 메시지를 누가 보내면, 서버에서 받아서 다른 사람들에게 전달. db도 수정함.
 	socket.on('read', async (uid) =>{ return await ChannelDAO.readMsgFromChannel(uid, roomnum); });
 	// 새 메시지를 읽으면, db에 읽었음을 확인.
-	socket.on('disconnect', () => { socket.removeAllListeners(); });
-	socket.on('invite', (targetId) => { socketcontrol.inviteFriend(io, socket, roomnum, targetId); });
+	socket.on('disconnect', async () => { return await socket.removeAllListeners(); });
+	socket.on('invite', async (targetId) => { return await socketcontrol.inviteFriend(io, socket, roomnum, targetId); });
 	// 다른 사람을 채널에 초대 요청을 누가 보내면, 서버에서 받아서 해당 사람에게 알려줌.
-	socket.on('join to', _ => { socketcontrol.initialJoinRoom(socket, roomnum); });
+	socket.on('join to', async () => { return await socketcontrol.initialJoinRoom(socket, roomnum); });
 	// 새 채널에 초대받았다면, 새로운 룸에 접속시키기 위해서(해당 룸의 메시지를 봐야 하므로) 사용.
 });
 

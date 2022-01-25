@@ -19,7 +19,7 @@ const getReceivedById = async (id)=>{
         });
         return result;
     } catch(err){
-        return errorAt('getReceivedById', err);
+        throw errorAt('getReceivedById', err);
     }
 };
 const getSentById = async (id)=>{
@@ -33,7 +33,7 @@ const getSentById = async (id)=>{
         });
         return result;
     } catch(err) {
-        return errorAt('getSentById', err);
+        throw errorAt('getSentById', err);
     }
 };
 const getFriendsById = async (id)=>{
@@ -47,7 +47,7 @@ const getFriendsById = async (id)=>{
         });
         return result;
     } catch(err) {
-        return errorAt('getFriendsById', err);
+        throw errorAt('getFriendsById', err);
     }
 };
 const getBlacksById = async (id)=>{
@@ -61,7 +61,7 @@ const getBlacksById = async (id)=>{
         });
         return result;
     } catch(err){
-        return errorAt('getBlackById', err);
+        throw errorAt('getBlackById', err);
     }
 };
 const allowRequest = async (id1, id2) =>{
@@ -75,19 +75,24 @@ const allowRequest = async (id1, id2) =>{
         //그 요청을 받아들여 친구리스트 테이블에 추가
         await runQuery(sql2, [id1, id2]);
         await commitTransaction();
+        return 0;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('allowRequest', err);
+        throw errorAt('allowRequest', err);
     }
 }
 
 const canSendRequest = async (sender, receiver) =>{
-    const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
-    const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
-    const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
-    const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
-    const result =  await runQuery(sqlcan, [sender, receiver]);
-    return !(result[0]);
+    try{
+        const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
+        const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
+        const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
+        const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
+        const result =  await runQuery(sqlcan, [sender, receiver]);
+        return (result[0] === undefined);
+    } catch(err){
+        throw errorAt('canSendRequest', err);
+    }
 }
 
 const newRequest = async (sender, receiver)=>{
@@ -112,14 +117,18 @@ const newRequest = async (sender, receiver)=>{
         }
     } catch(err){
         await rollBackTransaction();
-        return errorAt('newRequest', err);
+        throw errorAt('newRequest', err);
     }
 }
 
 const canAddBlack = async (adder, added) =>{
-    const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2';
-    const result = await runQuery(sql, [adder, added]);
-    return !(result[0]);
+    try{
+        const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2';
+        const result = await runQuery(sql, [adder, added]);
+        return (result[0] === undefined);
+    } catch(err){
+        throw errorAt('canAddBlack', err);
+    }
 }
 
 const newBlack = async (adder, added)=>{
@@ -148,7 +157,7 @@ const newBlack = async (adder, added)=>{
         }
     } catch(err){
         await rollBackTransaction();
-        return errorAt('newBlack', err);
+        throw errorAt('newBlack', err);
     }
 }
 
@@ -157,9 +166,9 @@ const isFriend = async (id1, id2) =>{
         const sql = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; //친구인지 확인
         //(id1, id2) 형태로 저장되었으므로, (a,b)와 (b,a)를 모두 고려해야함. 두 가지 경우 모두 a와 b가 친구.
         const result = await runQuery(sql, [id1, id2]);
-        return (result[0] === undefined ? false : true);
+        return !(result[0] === undefined);
     } catch(err){
-        return errorAt('isFriend', err);
+        throw errorAt('isFriend', err);
     }
 }
 
@@ -167,8 +176,9 @@ const cancelRequest = async (sender, receiver) =>{
     try{
         const sql = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2'; //친구 요청 취소
         await runQuery(sql, [sender, receiver]);
+        return 0;
     } catch(err) {
-        return errorAt('cancelRequest', err);
+        throw errorAt('cancelRequest', err);
     }
 }
 
@@ -179,7 +189,7 @@ const deleteFriend = async(id1, id2) =>{
         await runQuery(sql, [id1, id2]);
         return 0;
     } catch(err){
-        return errorAt('deleteFriend', err);
+        throw errorAt('deleteFriend', err);
     }
 }
 
@@ -189,7 +199,7 @@ const unBlack = async(adder, added) =>{
         await runQuery(sql, [adder, added]);
         return 0;
     } catch(err){
-        return errorAt('unBlack', err);
+        throw errorAt('unBlack', err);
     }
 }
 
@@ -212,7 +222,7 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
         });
         return result;
     } catch(err){
-        return errorAt('getFriendsByIdNotInChannel', err);
+        throw errorAt('getFriendsByIdNotInChannel', err);
     }
 }
 
@@ -227,9 +237,10 @@ const includeToChannel = async(cid, uid) =>{
         const sql = 'INSERT INTO channel_users values($1, $2, $3)';
         await runQuery(sql, [cid, uid, num]);//해당 채널에 해당 유저를 추가하며, 읽지 않은 메시지 수를 num으로 설정.
         await commitTransaction();
+        return 0;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('includeToChannel', err);
+        throw errorAt('includeToChannel', err);
     }
 }
 
@@ -256,7 +267,7 @@ const getSocialsById = async (id) =>{
         return result;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getSocialsById', err);
+        throw errorAt('getSocialsById', err);
     }
 }
 

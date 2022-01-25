@@ -14,7 +14,7 @@ const getChannelsByUserId = async (id) =>{
         });
         return result;
     } catch(err){
-        return errorAt('getChannelsByUserId', err);
+        throw errorAt('getChannelsByUserId', err);
     }
 };
 
@@ -23,7 +23,7 @@ const getChannelUnreadById = async (cid, uid) =>{
         const sql = 'SELECT unread FROM channel_users WHERE channel_id = $1 and user_id = $2';
         return (await runQuery(sql, [cid, uid]))[0].unread;
     } catch(err){
-        return errorAt('getChannelUnreadById', err);
+        throw errorAt('getChannelUnreadById', err);
     }
 };
 
@@ -38,7 +38,7 @@ const getChannelInfoById = async (cid, uid) =>{
         return result;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getChannelNameById', err);
+        throw errorAt('getChannelNameById', err);
     }
 };
 
@@ -48,10 +48,10 @@ const countChannelsByUserId = async (id) =>{
         const sql = 'SELECT count(*) as num FROM channel_users WHERE user_id = $1 GROUP BY user_id'; //사용자가 참여 중인 채널의 수를 센다.
         //aggregate
         const result = await runQuery(sql, [id]);
-        if(!result[0]) return {num: 0};
-        return result[0];
+        if(result[0] === undefined) return 0;
+        return result[0].num;
     } catch(err){
-        return errorAt('countChannelsByUserId', err);
+        throw errorAt('countChannelsByUserId', err);
     }
 }
 
@@ -68,7 +68,7 @@ const createChannel = async (channelName, creater) =>{
         return id;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('createChannel', err);
+        throw errorAt('createChannel', err);
     }
 }
 
@@ -77,9 +77,9 @@ const isChannelMember = async(cid, uid) =>{
         const sql = "SELECT * FROM channel_users WHERE channel_id = $1 and user_id = $2";
         //채널 멤버인지 확인.
         const result = await runQuery(sql, [cid, uid]);
-        return result[0];
+        return !(result[0] === undefined);
     } catch(err){
-        return errorAt('isChannelMember', err);
+        throw errorAt('isChannelMember', err);
     }
 };
 
@@ -88,9 +88,9 @@ const isChannelCreater = async(cid, uid) =>{
         const sql = "SELECT * FROM channels WHERE id = $1 and creater = $2";
         //채널 생성자인지 확인.
         const result = await runQuery(sql, [cid, uid]);
-        return result[0];
+        return !(result[0] === undefined);
     } catch(err){
-        return errorAt('isChannelCreater', err);
+        throw errorAt('isChannelCreater', err);
     }
 };
 
@@ -113,7 +113,7 @@ const getMsgFromChannel = async (cid, uid) =>{
         return {msglist: result, unread: unread};
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getMsgFromChannel', err);
+        throw errorAt('getMsgFromChannel', err);
     }
 };
 
@@ -121,9 +121,10 @@ const readMsgFromChannel = async(uid, cid) =>{
     try{
         const sql2 = "UPDATE channel_users SET unread = 0 WHERE channel_id = $1 and user_id = $2"
         //UPDATE문을 사용해 사용자가 해당 채널에 읽지 않은 메시지 수를 0으로 설정.
-        return await runQuery(sql2, [cid, uid]);
+        await runQuery(sql2, [cid, uid]);
+        return 0;
     } catch(err){
-        return errorAt('readMsgFromChannel', err);
+        throw errorAt('readMsgFromChannel', err);
     }
 }
 
@@ -144,7 +145,7 @@ const sendMsg = async (uid, cid, content) =>{
         return convertDate(result[0].msg_date);
     } catch(err){
         await rollBackTransaction();
-        return errorAt('sendMsg', err);
+        throw errorAt('sendMsg', err);
     }
 }
 
@@ -153,8 +154,9 @@ const quitChannel = async(cid, uid) =>{
         const sql = "DELETE FROM channel_users WHERE channel_id = $1 and user_id = $2";
         //채널을 나가기.
         await runQuery(sql, [cid, uid]);
+        return 0;
     }catch(err){
-        return errorAt('quitChannel', err);
+        throw errorAt('quitChannel', err);
     }
 }
 
@@ -163,8 +165,9 @@ const deleteChannel = async(cid) =>{
         const sql = "DELETE FROM channels WHERE id = $1";
         //채널을 삭제.
         await runQuery(sql, [cid]);
+        return 0;
     }catch(err){
-        return errorAt('deleteChannel', err);
+        throw errorAt('deleteChannel', err);
     }
 }
 
@@ -186,7 +189,7 @@ const getMemberFromChannel = async(cid, uid) =>{
         return result;
     } catch(err){
         await rollBackTransaction();
-        return errorAt('getMemberFromChannel', err);
+        throw errorAt('getMemberFromChannel', err);
     }
 }
 

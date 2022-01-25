@@ -27,7 +27,15 @@ const commitTransaction = async () =>{
 	}
 };
 
-module.exports = { runQuery, beginTransaction, commitTransaction };
+const rollBackTransaction = async () => {
+	try {
+		return runQuery('rollback;', {});
+	} catch(err){
+		console.log(err);
+	}
+}
+
+module.exports = { runQuery, beginTransaction, commitTransaction, rollBackTransaction };
 
 
 

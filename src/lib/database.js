@@ -11,7 +11,31 @@ const runQuery = async (sql, values) =>{
 	}
 };
 
-module.exports = { runQuery };
+const beginTransaction = async () =>{
+	try{
+		return runQuery('begin transaction;', {});
+	} catch(err){
+		console.log(err);
+	}
+};
+
+const commitTransaction = async () =>{
+	try{
+		return runQuery('commit;', {});
+	} catch(err){
+		console.log(err);
+	}
+};
+
+const rollBackTransaction = async () => {
+	try {
+		return runQuery('rollback;', {});
+	} catch(err){
+		console.log(err);
+	}
+}
+
+module.exports = { runQuery, beginTransaction, commitTransaction, rollBackTransaction };
 
 
 

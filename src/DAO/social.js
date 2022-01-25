@@ -1,5 +1,5 @@
 const { convertDate } = require('../lib/convertDate');
-const {runQuery} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction, rollBackTransaction} = require('../lib/database');
 const UserDAO = require('./user.js');
 const {errorAt} = require('../lib/usefulJS');
 
@@ -66,6 +66,7 @@ const getBlacksById = async (id)=>{
 };
 const allowRequest = async (id1, id2) =>{
     try{
+        await beginTransaction();
         const sql1 = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2';
         //친구 요청 수락하기 위해, 요청리스트 테이블에서 요청을 지우고
         //조건: delete
@@ -73,7 +74,9 @@ const allowRequest = async (id1, id2) =>{
         const sql2 = 'INSERT INTO flist values($1, $2, now())';
         //그 요청을 받아들여 친구리스트 테이블에 추가
         await runQuery(sql2, [id1, id2]);
+        await commitTransaction();
     } catch(err){
+        await rollBackTransaction();
         return errorAt('allowRequest', err);
     }
 }
@@ -90,7 +93,9 @@ const canSendRequest = async (sender, receiver) =>{
 const newRequest = async (sender, receiver)=>{
     try{
         //새로 요청하기 위해
+        await beginTransaction();
         if(!(await UserDAO.getById(receiver))){ //상대방이 존재하는지 확인
+            await commitTransaction();
             return 2; //안 한다면 2리턴. 컨트롤러에서 전송 불가함을 알림.
         }
         // const canRequest = await canSendRequest(sender, receiver); //이미 요청 중/친구/블랙인지 확인
@@ -98,12 +103,15 @@ const newRequest = async (sender, receiver)=>{
             const sql = 'INSERT INTO reqlist values($1, $2, now())'; //친구 요청 전송
             //친구 요청 전송 = 요청 리스트에 추가.
             await runQuery(sql, [sender, receiver]);
+            await commitTransaction();
             return 0; //0리턴. 컨트롤러에서 정상 처리.
         }
         else{
+            await commitTransaction();
             return 1; //1리턴. 컨트롤러에서 이미 요청 중/친구/블랙으로 인해 전송 불가함을 알림.
         }
     } catch(err){
+        await rollBackTransaction();
         return errorAt('newRequest', err);
     }
 }
@@ -116,26 +124,30 @@ const canAddBlack = async (adder, added) =>{
 
 const newBlack = async (adder, added)=>{
     try{
+        await beginTransaction();
         //새로 요청하기 위해
         if(!(await UserDAO.getById(added))){ //상대방이 존재하는지 확인
+            await commitTransaction();
             return 2; //안 한다면 2리턴. 컨트롤러에서 전송 불가함을 알림.
         }
-        // const canBlack = await canAddBlack(adder, added); //이미 요청 중/친구/블랙인지 확인
-        if(await canAddBlack(adder, added)){ //만약 요청중/친구/블랙이 아니라면
+        else if(await canAddBlack(adder, added)){ //만약 요청중/친구/블랙이 아니라면
+
             const delFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
             await runQuery(delFlist, [adder, added]); //해당 유저를 친구 목록에서 삭제
-
             const delReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
             await runQuery(delReqlist, [adder, added]); //해당 유저에게 보낸 요청 취소
-
             const sql = 'INSERT INTO blist values($1, $2, now())'; 
             await runQuery(sql, [adder, added]); //블랙 리스트 테이블에 추가.
+
+            await commitTransaction();
             return 0;
         }
         else{
+            await commitTransaction();
             return 3; //3리턴. 컨트롤러에서 이미 요청 중/친구/블랙으로 인해 전송 불가함을 알림.
         }
     } catch(err){
+        await rollBackTransaction();
         return errorAt('newBlack', err);
     }
 }
@@ -206,6 +218,7 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
 
 const includeToChannel = async(cid, uid) =>{
     try{
+        await beginTransaction();
         let num = (await runQuery('SELECT count(*) as num FROM msg GROUP BY channel_id HAVING channel_id = $1',[cid]))[0];
         // 초대하고자하는 채널의 메시지 개수를 불러옴.
         if(!num) num = 1; //만약 메시지가 0개라면, num이 undefined가 나옴. 이 때는 읽지않은 메시지를 1로 설정.
@@ -213,63 +226,46 @@ const includeToChannel = async(cid, uid) =>{
         else num = num.num; //0개가 아니라면, num은 object로 나옴. 오브젝트에 포함된 메시지의 개수를 그대로 num으로 사용.
         const sql = 'INSERT INTO channel_users values($1, $2, $3)';
         await runQuery(sql, [cid, uid, num]);//해당 채널에 해당 유저를 추가하며, 읽지 않은 메시지 수를 num으로 설정.
+        await commitTransaction();
     } catch(err){
+        await rollBackTransaction();
         return errorAt('includeToChannel', err);
     }
 }
 
-
-const countReceivedById = async (id)=>{
+const getSocialsById = async (id) =>{
     try{
-        const result = await getReceivedById(id);
-        return result.length;
-    } catch(err){
-        return errorAt('getReceivedById', err);
-    }
-};
-const getCountsById = async (id) =>{
-    try{
-        let result = {
-            received: await countReceivedById(id),
-            sent: await countSentById(id),
-            friends: await countFriendsById(id),
-            blacks: await countBlacksById(id),
+        await beginTransaction();
+        const reqreceived = await getReceivedById(id);
+        const reqsent = await getSentById(id);
+        const friendlist = await getFriendsById(id);
+        const blacklist = await getBlacksById(id);
+        await commitTransaction();
+        const result = {
+            reqreceived: reqreceived,
+            reqsent: reqsent,
+            friendlist: friendlist,
+            blacklist: blacklist,
+            counts: {
+                received: reqreceived.length,
+                sent: reqsent.length,
+                friends: friendlist.length,
+                blacks: blacklist.length,
+            },
         };
         return result;
     } catch(err){
-        return errorAt('getCountsById', err);
+        await rollBackTransaction();
+        return errorAt('getSocialsById', err);
     }
-};
-const countSentById = async(id) => {
-    try{
-        const result = await getSentById(id);
-        return result.length;
-    } catch(err){
-        return errorAt('countSentById', err);
-    }
-};
-const countFriendsById = async (id)=>{
-    try{
-        const result = await getFriendsById(id);
-        return result.length;
-    } catch(err) {
-        return errorAt('countFriendsById', err);
-    }
-};
-const countBlacksById = async (id)=>{
-    try{
-        const result = await getBlacksById(id);
-        return result.length;
-    } catch(err) {
-        return errorAt('countBlacksById', err);
-    }
-};
+}
 
 module.exports = {
     getReceivedById,
     getSentById,
     getFriendsById,
     getBlacksById,
+    getSocialsById,
     allowRequest,
     canSendRequest,
     newRequest,
@@ -281,5 +277,4 @@ module.exports = {
     unBlack,
     getFriendsByIdNotInChannel,
     includeToChannel,
-    getCountsById,
 };

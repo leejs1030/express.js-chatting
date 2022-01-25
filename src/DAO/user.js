@@ -1,4 +1,4 @@
-const {runQuery} = require('../lib/database');
+const {runQuery, beginTransaction, commitTransaction, rollBackTransaction} = require('../lib/database');
 const {errorAt} = require('../lib/usefulJS');
 
 const getById = async (id) => {
@@ -11,17 +11,22 @@ const getById = async (id) => {
     }
 };
 
-const create = async (id, password, nick) => {
+const createUser = async (id, encryptedPassword, nick) =>{
     try{
-        const sql = 'INSERT INTO users values($1, $2, $3)'; //id, password, nick을 받아서 유저 테이블에 삽입.
-        //새로운 유저가 등록되는 회원 가입 과정.
+        await beginTransaction();
+        const isExist = await getById(id);
+        if(isExist) return false;
+        const sql = 'INSERT INTO users values($1, $2, $3)'; // id, password, nick을 받아서 유저 테이블에 삽입.
         const sql2 = 'INSERT INTO user_settings values($1)';
-        await runQuery(sql, [id, password, nick]);
-        return await runQuery(sql2, [id]);
+        await runQuery(sql, [id, encryptedPassword, nick]);
+        await runQuery(sql2, [id]);
+        await commitTransaction();
+        return true;
     } catch(err){
-        return errorAt('create', err);
-     }
-};
+        await rollBackTransaction();
+        return errorAt('createUser', err);
+    }
+}
 
 const getSettingById = async(id) =>{
     try{
@@ -45,7 +50,7 @@ const setSettingById = async(id, info) =>{
 
 module.exports = {
     getById,
-    create,
+    createUser,
     getSettingById,
     setSettingById,
 };    

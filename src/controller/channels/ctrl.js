@@ -1,5 +1,4 @@
 const {ChannelDAO, SocialDAO, UserDAO} = require('../../DAO');
-const { getChannelUnreadById } = require('../../DAO/channel');
 const {getAlertScript} = require('../../lib/usefulJS');
 // const {app} = require('../../app');
 
@@ -31,10 +30,9 @@ const showChannel = async(req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const unread = (await getChannelUnreadById(channelId, user.id))[0].unread
-        const msglist = await ChannelDAO.getMsgFromChannel(channelId, user.id);
+        const {msglist, unread} = await ChannelDAO.getMsgFromChannel(channelId, user.id);
         const {send_enter} = await UserDAO.getSettingById(user.id);
-        const channelName = (await ChannelDAO.getChannelInfoById(channelId))[0].name;
+        const channelName = (await ChannelDAO.getChannelInfoById(channelId)).name;
 
         return res.status(200).render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
             initialMsgs: JSON.stringify(msglist),
@@ -94,8 +92,8 @@ const includeToChannel = async(req, res, next) =>{
         const {user} = req.session;
         const {channelId, targetId} = req.params;
         await SocialDAO.includeToChannel(channelId, targetId);
-        const channelInfo = (await ChannelDAO.getChannelInfoById(channelId))[0];
-        const unread = (await ChannelDAO.getChannelUnreadById(channelId, targetId))[0].unread;
+        const channelInfo = (await ChannelDAO.getChannelInfoById(channelId));
+        const unread = (await ChannelDAO.getChannelInfoById(channelId, targetId)).unread;
         const io = req.app.get('socketio');
         io.to(targetId).emit(`invite`, {
             cid: channelId,
@@ -135,15 +133,8 @@ const memberList = async (req, res, next) =>{
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        let memberList = await ChannelDAO.getMemberFromChannel(channelId);
-        for(const member of memberList){
-            if(user.id == member.id){
-                member.canRequest = member.canBlack = false;
-            } else {
-                member.canBlack = await SocialDAO.canAddBlack(user.id, member.id);
-                member.canRequest = await SocialDAO.canSendRequest(user.id, member.id);
-            }
-        }
+        let memberList = await ChannelDAO.getMemberFromChannel(channelId, user.id);
+        
         return res.status(200).render('channels/member.pug', {user, channelId, memberList: JSON.stringify(memberList),
             csrfToken: req.csrfToken(),
         });

@@ -56,12 +56,12 @@ const signUp = async (req, res, next) =>{
     try{
         const {id, password, nick} = req.body;
         if(!id || id > 20 || !password || !nick || nick > 20) throw new Error('BAD_REQUEST');
-        const isExist = await UserDAO.getById(id);
-        if(isExist) return res.status(400).send(getAlertScript("이미 존재하는 ID입니다!"));
         const encryptedPassword = await generatePassword(password);
-        await UserDAO.create(id, encryptedPassword, nick);
 
-        return res.redirect(303, '/auth/sign-in');
+        const result = await UserDAO.createUser(id, encryptedPassword, nick);
+        if(result === false) return res.status(400).send(getAlertScript("이미 존재하는 ID입니다!"));
+        else if(result === true) return res.redirect(303, '/auth/sign-in');
+        else throw err;
     }catch(err){
         return next(err);
     }

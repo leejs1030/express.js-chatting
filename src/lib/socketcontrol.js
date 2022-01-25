@@ -26,13 +26,13 @@ const receiveAndSend = async (io, receiveData, roomnum) =>{
 }
 
 const inviteFriend = async (io, socket, roomnum, targetId) =>{
+    // 변경 필요
     await SocialDAO.includeToChannel(roomnum, targetId);
-    const channelInfo = (await ChannelDAO.getChannelInfoById(roomnum))[0];
-    const unread = (await ChannelDAO.getChannelUnreadById(roomnum, targetId))[0].unread;
+    const channelInfo = (await ChannelDAO.getChannelInfoById(roomnum, targetId));
     io.to(targetId).emit(`invite`, {
         cid: roomnum,
         cname: channelInfo.name,
-        cunread: unread,
+        cunread: channelInfo.unread,
         ctime: channelInfo.updatetime,
     });
 }

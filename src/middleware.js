@@ -3,18 +3,21 @@ const PostgreSqlStore = require('connect-pg-simple')(session);
 
 
 const setCookieHeader = (req, res, next) =>{
-	res.setHeader('Set-Cookie', 'secure; httpOnly');
+	res.setHeader('Set-Cookie', 'SameSite=None; secure; httpOnly');
     next();
 };
 
-const sessionmiddleware = (DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET) => session({
+const sessionmiddleware = (DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET, PROTOCOL) => session({
 	secret: SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
 	store : new PostgreSqlStore({
         conString: `postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`
-      }),
-	cookie: {maxAge: null},
+	}),
+	cookie: {maxAge: null,
+		secure: (PROTOCOL === 'https'), //https라면 secure한 쿠키 사용. 아니라면 그냥 사용.
+		httpOnly: true,
+	},
 	resave: false,
 });
 

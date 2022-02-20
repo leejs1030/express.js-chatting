@@ -1,6 +1,6 @@
 const { convertDate } = require('../lib/convertDate');
 const {runQuery, beginTransaction, commitTransaction, rollBackTransaction} = require('../lib/database');
-const UserDAO = require('./user.js');
+const {getById} = require('./user.js');
 const {errorAt} = require('../lib/usefulJS');
 
 
@@ -12,7 +12,6 @@ const getReceivedById = async (id)=>{
         'WHERE reqlist.receiver = $1 AND ' + 
         'users.id not in (SELECT added FROM blist WHERE adder = $1)';
         //받은 요청 확인. 단, 내가 차단한 상대로부터 들어온 요청은 보이지 않음.
-        //조건: JOIN, nested subquery
         const result = await runQuery(sql, [id]);
         result.forEach((value, index, array)=>{
             array[index].req_time = convertDate(value.req_time); //시간 변환
@@ -54,7 +53,6 @@ const getBlacksById = async (id)=>{
     try{
         const sql = 'SELECT blist.added as id, nick, black_date FROM blist, users WHERE users.id = blist.added and blist.adder = $1';
         //블랙 확인
-        //조건: cartesian product
         const result = await runQuery(sql, [id]);
         result.forEach((value, index, array)=>{
             array[index].black_date = convertDate(value.black_date);
@@ -66,18 +64,17 @@ const getBlacksById = async (id)=>{
 };
 const allowRequest = async (id1, id2) =>{
     try{
-        await beginTransaction();
+        await beginTransaction(); // 연속적인 쿼리가 테이블을 변형시킴. 꼭 필요.
         const sql1 = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2';
         //친구 요청 수락하기 위해, 요청리스트 테이블에서 요청을 지우고
-        //조건: delete
         await runQuery(sql1, [id1, id2]);
         const sql2 = 'INSERT INTO flist values($1, $2, now())';
         //그 요청을 받아들여 친구리스트 테이블에 추가
         await runQuery(sql2, [id1, id2]);
-        await commitTransaction();
+        await commitTransaction(); // 정상
         return 0;
     } catch(err){
-        await rollBackTransaction();
+        await rollBackTransaction(); // 롤백
         throw errorAt('allowRequest', err);
     }
 }
@@ -95,16 +92,14 @@ const canSendRequest = async (sender, receiver) =>{
     }
 }
 
-const newRequest = async (sender, receiver)=>{
+const newRequest = async (sender, receiver)=>{ //새로운 친구 요청을 만들기 위해
     try{
-        //새로 요청하기 위해
-        await beginTransaction();
-        if(!(await UserDAO.getById(receiver))){ //상대방이 존재하는지 확인
+        await beginTransaction(); // 연속적인 쿼리.
+        if(!(await getById(receiver))){ //상대방이 존재하는지 확인
             await commitTransaction();
             return 2; //안 한다면 2리턴. 컨트롤러에서 전송 불가함을 알림.
         }
-        // const canRequest = await canSendRequest(sender, receiver); //이미 요청 중/친구/블랙인지 확인
-        if(await canSendRequest(sender, receiver)){ //만약 요청중/친구/블랙이 아니라면
+        if(await canSendRequest(sender, receiver)){ //만약 요청중/친구/블랙이 아니라면 전송 가능. canSendRequest가 true 리턴.
             const sql = 'INSERT INTO reqlist values($1, $2, now())'; //친구 요청 전송
             //친구 요청 전송 = 요청 리스트에 추가.
             await runQuery(sql, [sender, receiver]);
@@ -121,25 +116,24 @@ const newRequest = async (sender, receiver)=>{
     }
 }
 
-const canAddBlack = async (adder, added) =>{
+const canAddBlack = async (adder, added) =>{ // 블랙 추가 가능한지 확인
     try{
-        const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2';
+        const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2'; //이미 블랙했는지 확인
         const result = await runQuery(sql, [adder, added]);
-        return (result[0] === undefined);
+        return (result[0] === undefined); // undefined가 나오면, 블랙한 적 없는 것이므로, 추가 가능.
     } catch(err){
         throw errorAt('canAddBlack', err);
     }
 }
 
-const newBlack = async (adder, added)=>{
+const newBlack = async (adder, added)=>{ //새로 블랙하기 위해
     try{
-        await beginTransaction();
-        //새로 요청하기 위해
-        if(!(await UserDAO.getById(added))){ //상대방이 존재하는지 확인
+        await beginTransaction(); // 연속적인 쿼리.
+        if(!(await getById(added))){ //상대방이 존재하는지 확인
             await commitTransaction();
             return 2; //안 한다면 2리턴. 컨트롤러에서 전송 불가함을 알림.
         }
-        else if(await canAddBlack(adder, added)){ //만약 요청중/친구/블랙이 아니라면
+        else if(await canAddBlack(adder, added)){ //만약 블랙이 가능하다면 추가 가능. canAddBlack가 true 리턴.
 
             const delFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
             await runQuery(delFlist, [adder, added]); //해당 유저를 친구 목록에서 삭제
@@ -153,7 +147,7 @@ const newBlack = async (adder, added)=>{
         }
         else{
             await commitTransaction();
-            return 3; //3리턴. 컨트롤러에서 이미 요청 중/친구/블랙으로 인해 전송 불가함을 알림.
+            return 3; //3리턴. 컨트롤러에서 이미 블랙됨으로 인해 전송 불가함을 알림.
         }
     } catch(err){
         await rollBackTransaction();
@@ -166,7 +160,7 @@ const isFriend = async (id1, id2) =>{
         const sql = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; //친구인지 확인
         //(id1, id2) 형태로 저장되었으므로, (a,b)와 (b,a)를 모두 고려해야함. 두 가지 경우 모두 a와 b가 친구.
         const result = await runQuery(sql, [id1, id2]);
-        return !(result[0] === undefined);
+        return !(result[0] === undefined); //친구라면 존재하므로 정상적인 값이 나올 것. 아니라면 undefined가 나올 것.
     } catch(err){
         throw errorAt('isFriend', err);
     }
@@ -203,7 +197,7 @@ const unBlack = async(adder, added) =>{
     }
 }
 
-const getFriendsByIdNotInChannel = async(uid, cid) =>{
+const getFriendsByIdNotInChannel = async(uid, cid) =>{ // 유저(uid)의 친구 중 채널(cid)에 속하지 않은 친구의 리스트를 구함.
     try{
         const sql = 'SELECT id1 as id, nick, friend_date FROM flist join users on users.id = flist.id1 WHERE id2 = $1 and ' +
         'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2)'
@@ -216,9 +210,7 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
         //이후 둘을 UNION하면 채널에 속하지 않은 모든 친구를 구할 수 있음.
         const result = await runQuery(sql, [uid, cid]);
         result.forEach((value, index, array)=>{
-            // console.log(value.friend_date);
             array[index].friend_date = convertDate(value.friend_date); //시간 변환
-            // console.log(convertDate(value.friend_date));
         });
         return result;
     } catch(err){
@@ -226,13 +218,13 @@ const getFriendsByIdNotInChannel = async(uid, cid) =>{
     }
 }
 
-const includeToChannel = async(cid, uid) =>{
+const includeToChannel = async(cid, uid) =>{ //친구(uid)를 채널(cid)에 초대(포함시킴)
     try{
-        await beginTransaction();
+        await beginTransaction(); // 연속적인 쿼리
         let num = (await runQuery('SELECT count(*) as num FROM msg GROUP BY channel_id HAVING channel_id = $1',[cid]))[0];
         // 초대하고자하는 채널의 메시지 개수를 불러옴.
         if(!num) num = 1; //만약 메시지가 0개라면, num이 undefined가 나옴. 이 때는 읽지않은 메시지를 1로 설정.
-        //새로운 채널임을 확인하게 만들고자 0이 아니라 1로 설정함.
+        // 실제 읽지 않은 메시지 수는 0개이나, 새로운 채널임을 확인하게 만들고자 0이 아니라 1로 설정함.
         else num = num.num; //0개가 아니라면, num은 object로 나옴. 오브젝트에 포함된 메시지의 개수를 그대로 num으로 사용.
         const sql = 'INSERT INTO channel_users values($1, $2, $3)';
         await runQuery(sql, [cid, uid, num]);//해당 채널에 해당 유저를 추가하며, 읽지 않은 메시지 수를 num으로 설정.
@@ -244,9 +236,9 @@ const includeToChannel = async(cid, uid) =>{
     }
 }
 
-const getSocialsById = async (id) =>{
+const getSocialsById = async (id) =>{ // social탭에서 사용할 다양한 것들에 대한 정보를 불러옴.
     try{
-        await beginTransaction();
+        await beginTransaction(); // 연속적인 쿼리.
         const reqreceived = await getReceivedById(id);
         const reqsent = await getSentById(id);
         const friendlist = await getFriendsById(id);

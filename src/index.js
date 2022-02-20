@@ -1,24 +1,25 @@
-require('./env');
-const {app} = require('./app');
-const {ChannelDAO} = require('./DAO');
-const socketcontrol = require('./lib/socketcontrol');
-const { sessionmiddleware } = require('./middleware');
-const port = process.env.PORT || 4000;
-const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET, MODE } = process.env;
+require('./env'); // 환경변수
+const {app} = require('./app'); // app
+const {ChannelDAO} = require('./DAO'); // dao
+const socketcontrol = require('./lib/socketcontrol'); // socket
+const { sessionmiddleware } = require('./middleware'); // session middleware. 소켓에서도 세션 확인하고자 사용.
+// 세션을 소켓에서 사용하여, id 위조의 가능성을 차단함.
+const port = process.env.PORT || 4000; // 포트(환경변수 사용)
+const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET, MODE } = process.env; // 환경변수
 
-const io = app.get('socketio');
-const server = app.get('server');
+const io = app.get('socketio'); // 소켓
+const server = app.get('server'); // 서버
 
-const channelPos = 2;
-const isChannelURI = (URI) => (URI[channelPos] == 'channels');
+const channelPos = 2; // URI에서 "channels"가 등장하는 위치.
+const isChannelURI = (URI) => (URI[channelPos] == 'channels'); // 채널 URI인지 확인하기.
 
 
 io.use((socket, next) => {
-	sessionmiddleware(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET)(socket.request, {}, next);
+	sessionmiddleware(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET)(socket.request, {}, next); // 소켓에서 세션 사용.
 });
 io.on('connection', async (socket) => {
-	let roomnum = socket.handshake.headers.referer.split('/').filter((i) => i);
-	if(isChannelURI(roomnum)) roomnum = roomnum[channelPos + 1];
+	let roomnum = socket.handshake.headers.referer.split('/').filter((i) => i); // 주소를 /단위로 끊어서 리스트로 저장.
+	if(isChannelURI(roomnum)) roomnum = roomnum[channelPos + 1]; // 만약 채널 URI라면, roomnum을 스칼라 값(채널 ID)으로 설정.
 
 	socketcontrol.initialJoinRoom(socket, roomnum); // 처음 소켓에 접속하면 접속 채널 등의 정보를 통해 적절한 room에 넣어줌.
 

@@ -1,24 +1,12 @@
 const {ChannelDAO, SocialDAO, UserDAO} = require('../../DAO');
 const {getAlertScript} = require('../../lib/usefulJS');
-// const {app} = require('../../app');
 
-const createChannel = async (req, res, next) =>{
+// GET /
+const indexPage = async (req, res, next) =>{ // 채널 목록을 보여주는 기본 페이지 렌더링
     try{
         const {user} = req.session;
-        const {channelName} = req.body;
-        if(!channelName) return res.status(400).send(getAlertScript("채널 이름을 입력해주세요!"));
-        await ChannelDAO.createChannel(channelName, user.id);
-        return res.redirect(303, 'back');
-    } catch(err){
-        return next(err);
-    }
-}
-
-const indexPage = async (req, res, next) =>{
-    try{
-        const {user} = req.session;
-        const channelList = await ChannelDAO.getChannelsByUserId(user.id);
-        const num = await ChannelDAO.countChannelsByUserId(user.id);
+        const channelList = await ChannelDAO.getChannelsByUserId(user.id); // 채널 목록
+        const num = channelList.length; // 채널 개수
         return res.status(200).render('channels/index.pug', {user, num, channelList: JSON.stringify(channelList), 
             csrfToken: req.csrfToken()});
     } catch(err){
@@ -26,16 +14,31 @@ const indexPage = async (req, res, next) =>{
     }
 };
 
-const showChannel = async(req, res, next) =>{
+// POST /
+const createChannel = async (req, res, next) =>{ // 채널을 만듦
+    try{
+        const {user} = req.session;
+        const {channelName} = req.body;
+        let cname = channelName.trim();
+        if(!cname) return res.status(400).send(getAlertScript("채널 이름을 입력해주세요!")); // 채널 이름이 없으면 Bad Request
+        await ChannelDAO.createChannel(cname, user.id); // 채널 생성 쿼리
+        return res.redirect(303, 'back'); // 성공. 303 See Other
+    } catch(err){
+        return next(err);
+    }
+}
+
+// GET /:channelId
+const showChannel = async(req, res, next) =>{ // 특정 채널을 보여줌.
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const {msglist, unread} = await ChannelDAO.getMsgFromChannel(channelId, user.id);
-        const {send_enter} = await UserDAO.getSettingById(user.id);
-        const channelName = (await ChannelDAO.getChannelInfoById(channelId)).name;
+        const {msglist, unread} = await ChannelDAO.getMsgFromChannel(channelId, user.id); // 메시지 불러오기
+        const {send_enter} = await UserDAO.getSettingById(user.id); // 설정값에서 엔터로 전송할지 여부 불러오기
+        const channelName = (await ChannelDAO.getChannelInfoById(channelId)).name; // 채널 이름 불러오기
 
         return res.status(200).render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
-            initialMsgs: JSON.stringify(msglist),
+            initialMsgs: JSON.stringify(msglist), // 직렬화
             csrfToken: req.csrfToken(),
         });
     } catch(err){
@@ -43,7 +46,62 @@ const showChannel = async(req, res, next) =>{
     }
 };
 
-const sendMsg = async(req, res, next) =>{
+// PUT /:channelId
+const quitChannel = async(req, res, next) =>{ // 채널 나가기
+    try{
+        const {user} = req.session;
+        const {channelId} = req.params;
+        await ChannelDAO.quitChannel(channelId, user.id);
+        return res.redirect(303, 'back');
+    } catch(err){
+        return next(err);
+    }
+}
+
+// DELETE /:channelId
+const deleteChannel = async(req, res, next) =>{ // 채널 지우기
+    try{
+        const {user} = req.session;
+        const {channelId} = req.params;
+        await ChannelDAO.deleteChannel(channelId, user.id);
+        return res.redirect(303, 'back');
+    } catch(err){
+        return next(err);
+    }
+}
+
+// GET /:channelId/invitelist
+const inviteFriend = async(req, res, next) =>{ // 친구를 초대하기 위한 페이지를 렌더링.
+    // 초대 가능한 친구의 리스트가 보임.
+    try{
+        const {user} = req.session;
+        const {channelId} = req.params;
+        const flist = await SocialDAO.getFriendsByIdNotInChannel(user.id, channelId); // 친구들 중 채널에 속하지 않은 친구의 리스트
+        // 이들을 초대 가능.
+        return res.status(200).render('channels/invites.pug', {user, channelId, flist:JSON.stringify(flist), // 직렬화
+            csrfToken: req.csrfToken(),
+        });
+    } catch(err) {
+        return next(err);
+    }
+}
+
+// GET /:channelId/members
+const memberList = async (req, res, next) =>{ // 채널에 속한 멤버 목록 불러오기
+    try{
+        const {user} = req.session;
+        const {channelId} = req.params;
+        let memberList = await ChannelDAO.getMemberFromChannel(channelId, user.id);
+        
+        return res.status(200).render('channels/member.pug', {user, channelId, memberList: JSON.stringify(memberList), // 직렬화
+            csrfToken: req.csrfToken(),
+        });
+    }catch(err){
+        return next(err);
+    }
+}
+
+const sendMsg = async(req, res, next) =>{ // 메시지 보내기. 미사용.
     try{
         return; // 현재 사용하지 않음. 소켓 파트로 대체.
         // /scripts/chattingsockets.js에서 new msg 소켓 보내면, /src/index.js에서 받아서 처리.
@@ -70,21 +128,7 @@ const sendMsg = async(req, res, next) =>{
     }
 }
 
-const inviteFriend = async(req, res, next) =>{
-    try{
-        const io = req.app.get('socketio'); io.emit('hello', 'hello');
-        const {user} = req.session;
-        const {channelId} = req.params;
-        const flist = await SocialDAO.getFriendsByIdNotInChannel(user.id, channelId);
-        return res.status(200).render('channels/invites.pug', {user, channelId, flist:JSON.stringify(flist),
-            csrfToken: req.csrfToken(),
-        });
-    } catch(err) {
-        return next(err);
-    }
-}
-
-const includeToChannel = async(req, res, next) =>{
+const includeToChannel = async(req, res, next) =>{ // 초대하기. 미사용.
     try{
         return; // 현재 사용하지 않음. 소켓 파트로 대체.
         // /scripts/invitesockets.js에서 전송하면 /src/index.js에서 받아서 처리.
@@ -107,50 +151,16 @@ const includeToChannel = async(req, res, next) =>{
     }
 }
 
-const quitChannel = async(req, res, next) =>{
-    try{
-        const {user} = req.session;
-        const {channelId} = req.params;
-        await ChannelDAO.quitChannel(channelId, user.id);
-        return res.redirect(303, 'back');
-    } catch(err){
-        return next(err);
-    }
-}
 
-const deleteChannel = async(req, res, next) =>{
-    try{
-        const {user} = req.session;
-        const {channelId} = req.params;
-        await ChannelDAO.deleteChannel(channelId, user.id);
-        return res.redirect(303, 'back');
-    } catch(err){
-        return next(err);
-    }
-}
-
-const memberList = async (req, res, next) =>{
-    try{
-        const {user} = req.session;
-        const {channelId} = req.params;
-        let memberList = await ChannelDAO.getMemberFromChannel(channelId, user.id);
-        
-        return res.status(200).render('channels/member.pug', {user, channelId, memberList: JSON.stringify(memberList),
-            csrfToken: req.csrfToken(),
-        });
-    }catch(err){
-        return next(err);
-    }
-}
 
 module.exports = {
-    createChannel,
     indexPage,
+    createChannel,
     showChannel,
-    sendMsg,
-    inviteFriend,
-    includeToChannel,
     quitChannel,
     deleteChannel,
-    memberList
+    inviteFriend,
+    memberList,
+    sendMsg,
+    includeToChannel,
 }

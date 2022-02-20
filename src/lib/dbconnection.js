@@ -1,8 +1,8 @@
-const pg = require("pg");
+// const pg = require("pg"); // postgresql 연동용. 더 이상 쓰지 않음.
 
-const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env;
+const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env; // 환경 변수
 // require("dotenv").config();
-const pgp = require("pg-promise")();
+const pgp = require("pg-promise")(); // postgresql 연동용.
 
 // console.log(process.env.DB_HOST);
 // console.log(process.env.DB_PORT);
@@ -27,7 +27,7 @@ const pgp = require("pg-promise")();
 // });
 
 
-const connectionString = `postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
-const db = pgp(connectionString);
+const connectionString = `postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`; // db 연결용 string
+const db = pgp(connectionString); // db 연결
 
-module.exports = {pgp, db};
+module.exports = {pgp, db}; // export함. 쿼리 하거나 할 때 쓸 것.

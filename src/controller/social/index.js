@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { authRequired } = require('../auth/middleware');
+const { authRequired } = require('../auth/middleware'); // 로그인이 되어있는지 확인하기 위한 미들웨어
 const ctrl = require('./ctrl');
 const router = Router({
     caseSensitive: true,
@@ -18,9 +18,8 @@ const router = Router({
 // router.get('/unblack/:uid', authRequired, ctrl.unBlack); // 블랙 취소. /people/blakcs delete로.
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-router.get('/', authRequired, ctrl.indexPage);
+router.get('/', authRequired, ctrl.indexPage); // /socials의 기본 페이지. 로그인 필요.
 
 router.post('/requests', authRequired, ctrl.sendRequest); // 요청 추가
 router.post('/blacks', authRequired, ctrl.addBlack); // 블랙 추가

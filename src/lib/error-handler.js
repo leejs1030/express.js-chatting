@@ -1,6 +1,6 @@
 const { getAlertScript } = require("./usefulJS");
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => { // 적절한 에러 코드와 함께 보내기
     const {user} = req.session;
     switch (err.message) {
         case 'BAD_REQUEST':

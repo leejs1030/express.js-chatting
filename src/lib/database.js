@@ -2,9 +2,9 @@ const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env;
 const {pgp, db} = require('./dbconnection');
 
 
-const runQuery = async (sql, values) =>{
+const runQuery = async (sql, values) =>{ // 쿼리와 값을 받아서 결과를 리턴함
 	try{
-		const result = await db.any(sql, values);
+		const result = await db.any(sql, values); // sql 인젝션 방지
 		return result;
 	} catch(err) {
 		console.log(err);
@@ -12,7 +12,7 @@ const runQuery = async (sql, values) =>{
 	}
 };
 
-const beginTransaction = async () =>{
+const beginTransaction = async () =>{ // 트랜잭션용
 	try{
 		return runQuery('begin transaction;', {});
 	} catch(err){
@@ -21,7 +21,7 @@ const beginTransaction = async () =>{
 	}
 };
 
-const commitTransaction = async () =>{
+const commitTransaction = async () =>{ // 트랜잭션용
 	try{
 		return runQuery('commit;', {});
 	} catch(err){
@@ -30,7 +30,7 @@ const commitTransaction = async () =>{
 	}
 };
 
-const rollBackTransaction = async () => {
+const rollBackTransaction = async () => { // 트랜잭션용
 	try {
 		return runQuery('rollback;', {});
 	} catch(err){

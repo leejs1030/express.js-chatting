@@ -21,7 +21,7 @@ const sessionmiddleware = (DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_
 	resave: false,
 });
 
-const redirecter = (req, res, next) =>{
+const redirecter = (req, res, next) =>{ // /로 끝나면 리더렉션
 	if (req.path.substr(-1) === '/' && req.path.length > 1) {
 		const query = req.url.slice(req.path.length);
 		const safepath = req.path.slice(0, -1).replace(/\/+/g, '/');
@@ -33,7 +33,7 @@ const redirecter = (req, res, next) =>{
 };
 
 const YEAR = 365 * 24 * 60 * 60 * 1000;
-const keepSignIn = (req, res, next) => {
+const keepSignIn = (req, res, next) => { // 만약 자동로그인 설정했다면, 세션 유효 기간을 현 시점으로부터 1년으로 갱신함.
     if(req.session.keepSignedIn){
         req.session.resave = true;
         req.session.cookie.expires = new Date(Date.now() + YEAR);

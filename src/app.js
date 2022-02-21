@@ -4,7 +4,7 @@ const express = require('express');
 const morgan = require('morgan');
 // const http = require('http');
 // const https = require('https');
-const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, MODE, SESSION_SECRET, PROTOCOL, SSL_KEY, SSL_CERT } = process.env;
+const { MODE, SESSION_SECRET, PROTOCOL, SSL_KEY, SSL_CERT } = process.env;
 const http = require(PROTOCOL); //PROTOCOL이 http라면 http로, https라면 https로 실행한다.
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
@@ -36,7 +36,7 @@ app.use(redirecter); // 맨 뒤에 / 가 온다면, 아예 링크가 동작하�
 app.use(morgan(MODE !== 'prod' ? 'dev' : 'combined')); // 로그를 남겨주는 미들웨어
 app.use(express.urlencoded({ extended: false })); // nested 쿼리 지원 X. 나중에 필요해지면 변경하는 것도 좋을 듯.
 app.use(cookieParser()); // 쿠키-세션을 위함
-app.use(sessionmiddleware(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET, PROTOCOL)); // 쿠키-세션을 위함
+app.use(sessionmiddleware(SESSION_SECRET, PROTOCOL)); // 쿠키-세션을 위함
 app.use(keepSignIn); //로그인 상테 유지를 위한 미들웨어. 세션의 값을 보고 세션 유지 기한을 연장할지 말지 선택.
 app.use(csrf({cookie: true})); // 보안상의 이유로 csrf 토큰 사용.
 app.use(methodOverride('_method')); // GET/POST 이외의 메소드를 사용하기 위한 미들웨어

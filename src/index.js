@@ -5,7 +5,7 @@ const socketcontrol = require('./lib/socketcontrol'); // socket
 const { sessionmiddleware } = require('./middleware'); // session middleware. 소켓에서도 세션 확인하고자 사용.
 // 세션을 소켓에서 사용하여, id 위조의 가능성을 차단함.
 const port = process.env.PORT || 4000; // 포트(환경변수 사용)
-const { DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET, MODE } = process.env; // 환경변수
+const { SESSION_SECRET, PROTOCOL } = process.env; // 환경변수
 
 const io = app.get('socketio'); // 소켓
 const server = app.get('server'); // 서버
@@ -15,7 +15,7 @@ const isChannelURI = (URI) => (URI[channelPos] == 'channels'); // 채널 URI인�
 
 
 io.use((socket, next) => {
-	sessionmiddleware(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, SESSION_SECRET)(socket.request, {}, next); // 소켓에서 세션 사용.
+	sessionmiddleware(SESSION_SECRET, PROTOCOL)(socket.request, {}, next); // 소켓에서 세션 사용.
 });
 io.on('connection', async (socket) => {
 	let roomnum = socket.handshake.headers.referer.split('/').filter((i) => i); // 주소를 /단위로 끊어서 리스트로 저장.

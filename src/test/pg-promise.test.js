@@ -16,34 +16,24 @@ describe('Studying pg-promise API with reference documents', async () =>{
         expect(res2).to.be(true);
     });
 
-    it('Test for db.tx (transaction)', async () =>{
-        const result = await db.none('UPDATE test SET money = 10000, debt = 30000 WHERE id = $1', ['lee']);
+    it('Test for db.tx (transaction)', async () =>{ // transaction 공부를 위함.
         let a = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 초기 값
         await db.tx('fail transaction', async (t) =>{
             await t.query('UPDATE test SET money = money - 1000 WHERE id = $1', ['lee']);
-            await t.query('fdijadlfsadflksaofi'); // 문제 발생. 롤백
+            await t.query('fdijadlfsadflksaofi'); await t.query('fdijadlfsadflksaofi'); await t.query('fdijadlfsadflksaofi'); await t.query('fdijadlfsadflksaofi'); await t.query('fdijadlfsadflksaofi'); await t.query('fdijadlfsadflksaofi'); await t.query('fdijadlfsadflksaofi'); await t.query('fdijadlfsadflksaofi');// 문제 발생. 롤백
             await t.query('UPDATE test SET debt = debt - 1000 WHERE id = $1', ['lee']);
         })
-        .then(data => {
-            console.log("commit!"); expect(true).to.be(false);
-        })
-        .catch(err => {
-            console.log("rollback!"); expect(false).to.be(false);
-        })
+        .then(data => {expect(1).to.be(2);})
+        .catch(err => { console.log("rollback!"); })
         let b = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 롤백이므로 무변화
         await db.tx('success transaction', async (t) =>{ // 정상 수행
             await t.query('UPDATE test SET money = money- 1000 WHERE id = $1', ['lee']);
             await t.query('UPDATE test SET debt = debt - 1000 WHERE id = $1', ['lee']);
         })
-        .then(data => {
-            console.log("commit!"); expect(true).to.be(true);
-        })
-        .catch(err => {
-            console.log("rollback!"); expect(false).to.be(true);
-        })
         let c = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 정상이므로 바뀌었음
-        expect(a.money).to.be(b.money); expect(a.debt).to.be(b.debt);
+        // const result = await db.any('UPDATE test SET money = 10000, debt = 30000 WHERE id = $1', ['lee']);
         expect(a.money - 1000).to.be(c.money); expect(a.debt - 1000).to.be(c.debt);
+        expect(a.money).to.be(b.money); expect(a.debt).to.be(b.debt);
     });
 
     it('Test for db.one vs db.any', async () =>{

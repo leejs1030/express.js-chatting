@@ -22,13 +22,13 @@ const io = new require("socket.io")(server);
 
 app.set('strict routing', true); // 맨 뒤에 / 오는 것 방지용
 app.set('case sensitive routing', true); // 대소문자를 구분하기 위함
-app.set('views', `${__dirname}/../views`); // 뷰 엔진용
+app.set('views', `${__dirname}/../../views`); // 뷰 엔진용
 app.set('view engine', 'pug'); // 뷰 엔진용
 app.set('socketio', io); // index.js에서 사용
 app.set('server', server); // index.js에서 사용
 
-app.use('/scripts', express.static(`${__dirname}/../public/scripts`)); // js 경로.
-app.use('/styles', express.static(`${__dirname}/../public/styles`)); // css 경로.
+app.use('/scripts', express.static(`${__dirname}/../../public/scripts`)); // js 경로.
+app.use('/styles', express.static(`${__dirname}/../../public/styles`)); // css 경로.
 
 
 app.use(setCookieHeader); // 보안적 이유로 쿠키 헤더 설정하는 미들웨어

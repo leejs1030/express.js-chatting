@@ -1,5 +1,9 @@
 const {UserDAO} = require('../../main/DAO');
+const expect = require('expect.js');
 
-test('two plus two is four', () => {
-    expect(2 + 2).toBe(4);
+describe('Test UserDAO', async ()=>{
+    it('finding user by using id', async ()=>{
+        const user = await UserDAO.getById("admin");
+        expect(user.nick).to.equal("관리자");
+    });
 });

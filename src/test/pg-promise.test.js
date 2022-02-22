@@ -17,27 +17,63 @@ describe('Studying pg-promise API with reference documents', async () =>{
     });
 
     it('Test for db.tx (transaction)', async () =>{
+        const result = await db.none('UPDATE test SET money = 10000, debt = 30000 WHERE id = $1', ['lee']);
         let a = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 초기 값
         await db.tx('fail transaction', async (t) =>{
-            t.query('UPDATE test SET money = money - 1000 WHERE id = $1', ['lee']);
-            t.query('fdijadlfsadflksaofi'); // 문제 발생. 롤백
-            t.query('UPDATE test SET debt = debt - 1000 WHERE id = $1', ['lee']);
-        });
+            await t.query('UPDATE test SET money = money - 1000 WHERE id = $1', ['lee']);
+            await t.query('fdijadlfsadflksaofi'); // 문제 발생. 롤백
+            await t.query('UPDATE test SET debt = debt - 1000 WHERE id = $1', ['lee']);
+        })
+        .then(data => {
+            console.log("commit!"); expect(true).to.be(false);
+        })
+        .catch(err => {
+            console.log("rollback!"); expect(false).to.be(false);
+        })
         let b = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 롤백이므로 무변화
-        await db.tx('success transaction', async (t) =>{
-            t.query('UPDATE test SET money = money- 1000 WHERE id = $1', ['lee']);
-            t.query('UPDATE test SET debt = debt - 1000 WHERE id = $1', ['lee']);
-        });// 정상 수행
+        await db.tx('success transaction', async (t) =>{ // 정상 수행
+            await t.query('UPDATE test SET money = money- 1000 WHERE id = $1', ['lee']);
+            await t.query('UPDATE test SET debt = debt - 1000 WHERE id = $1', ['lee']);
+        })
+        .then(data => {
+            console.log("commit!"); expect(true).to.be(true);
+        })
+        .catch(err => {
+            console.log("rollback!"); expect(false).to.be(true);
+        })
         let c = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 정상이므로 바뀌었음
         expect(a.money).to.be(b.money); expect(a.debt).to.be(b.debt);
         expect(a.money - 1000).to.be(c.money); expect(a.debt - 1000).to.be(c.debt);
     });
 
-    it('Test for db.one vs db.any', async() =>{
-        let one = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']);
-        let any = await db.any('SELECT money, debt FROM test WHERE id = $1', ['lee']);
-        expect(one).to.a(typeof({}));
-        expect(any).to.a(typeof([]));
-        expect(any[0]).to.a(typeof({}));
-    })
+    it('Test for db.one vs db.any', async () =>{
+        let one = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 하나의 객체
+        let any = await db.any('SELECT money, debt FROM test WHERE id = $1', ['lee']); // (객체의) 배열
+        expect(one).to.a(typeof({})); // 하나의 객체
+        expect(any).to.a(typeof([])); // 배열
+        expect(any[0]).to.a(typeof({})); // 객채의 배열
+    });
+
+    it('Test for return Value', async () => {
+        try{
+            await db.none('DELETE FROM test WHERE id = $1', ['jfdsaijfa']);
+            await db.none('INSERT INTO test VALUES($1, $2, $3)', ['jfdsaijfa', 0, 1000]);
+            await db.none('DELETE FROM test WHERE id = $1', ['jfdsaijfa']);
+            expect(true).to.be(true);
+        } catch(err){
+            expect(false).to.be(true);
+        }
+        try{
+            await db.one('SELECT * FROM users WHERE id = $1', ['admin']);
+            await db.any('SELECT * FROM users');
+            expect(true).to.be(true);
+        } catch(err){
+            expect(false).to.be(true);
+        }
+        
+        await db.one('SELECT * FROM users WHERE id = $1', ['asdf']).then(data => {console.log("why can?"); expect(true).to.be(false);})
+        .catch(err => {console.log("no return for one!");expect(false).to.be(false);});
+        
+    });
+
 });

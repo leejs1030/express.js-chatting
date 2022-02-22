@@ -1,3 +1,4 @@
 {
-    "mochaExplorer.files": "src/test/**/*.js"
+    "mochaExplorer.files": "src/test/**/*.js",
+    "mochaExplorer.require": "dotenv/config"
 }

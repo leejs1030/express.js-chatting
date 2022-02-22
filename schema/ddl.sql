@@ -16,7 +16,7 @@ create table user_settings( -- 유저의 설정 값을 저장하는 테이블
     id varchar(20),
     send_enter boolean NOT NULL DEFAULT TRUE, -- 엔터로 전송 여부 설정
     primary key(id),
-    foreign key (id) references users(id)
+    foreign key (id) references users(id) ON DELETE CASCADE
 );
 
 create table reqlist( -- 요청 리스트
@@ -24,8 +24,8 @@ create table reqlist( -- 요청 리스트
     receiver varchar(20), -- 받은 이
     req_time timestamp, -- 전송 시간
     primary key(sender, receiver),
-    foreign key (sender) references users(id),
-    foreign key (receiver) references users(id)
+    foreign key (sender) references users(id) ON DELETE CASCADE,
+    foreign key (receiver) references users(id) ON DELETE CASCADE
 );
 
 create table flist( -- 친구 리스트
@@ -34,8 +34,8 @@ create table flist( -- 친구 리스트
     -- id1과 id2는 친구. 순서는 무관하게 취급해야함. 순서 무관성에 대한 것은 DAO에서 생각함.
     friend_date timestamp, -- 맺은 날짜
     primary key(id1, id2),
-    foreign key (id1) references users(id),
-    foreign key (id2) references users(id)
+    foreign key (id1) references users(id) ON DELETE CASCADE,
+    foreign key (id2) references users(id) ON DELETE CASCADE
 );
 
 create table blist(
@@ -45,8 +45,8 @@ create table blist(
     -- added는 자신이 블랙 당했는지 확인할 수 없어야
     black_date timestamp,
     primary key(adder, added),
-    foreign key (adder) references users(id),
-    foreign key (added) references users(id)
+    foreign key (adder) references users(id) ON DELETE CASCADE,
+    foreign key (added) references users(id) ON DELETE CASCADE
 );
 
 create table channels(
@@ -64,7 +64,7 @@ create table channel_users( -- 채널에 속한 유저를 관리
     unread numeric(8, 0) NOT NULL, -- 해당 유저가 읽지 않은 메시지 수
     primary key(channel_id, user_id),
     foreign key (channel_id) references channels(id) ON DELETE CASCADE,
-    foreign key (user_id) references users(id)
+    foreign key (user_id) references users(id) ON DELETE CASCADE
 );
 
 create table msg(
@@ -74,7 +74,7 @@ create table msg(
     content varchar(20000) NOT NULL, -- 메시지 내용
     -- 메시지의 primary key는 일단 없음. 위의 모든 내용을 중복시키는 것이 아마도 완전히 불가능하진 않을 것?
     -- 만약 필요하다면 channel_id에서 했듯이 SERIAL를 사용해야할 것.
-    foreign key (sender) references users(id),
+    foreign key (sender) references users(id) ON DELETE SET NULL,
     foreign key (channel_id) references channels(id) ON DELETE CASCADE
 );
 
@@ -91,12 +91,12 @@ ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFE
 
 CREATE INDEX "IDX_session_expire" ON "session" ("expire");
 
--- insert into users values('admin', 'admin', '관리자');
--- insert into users values('subadmin', 'subadmin', '부관리자');
+insert into users values('admin', 'admin', '관리자');
+insert into users values('subadmin', 'subadmin', '부관리자');
 -- insert into users values('u001', 'u001', '사용자001');
 
--- INSERT INTO flist values('admin', 'subadmin', now());
--- INSERT INTO flist values('admin', 'u001', now());
+INSERT INTO flist values('admin', 'subadmin', now());
+INSERT INTO flist values('admin', 'u001', now());
 
 -- INSERT INTO channels values(DEFAULT, 'test channel 1', 'admin', now());
 -- INSERT INTO channel_users values(1, 'admin', 0);

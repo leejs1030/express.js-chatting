@@ -18,12 +18,13 @@ const initialJoinRoom = async (socket, roomnum) =>{
     }
 }
 
-const receiveAndSend = async (io, receiveData, roomnum) =>{
+const receiveAndSend = async (io, socket, receiveData, roomnum) =>{
     try{
-        const receiveTime = await ChannelDAO.sendMsg(receiveData.id, roomnum, receiveData.msg);
+        const {user} = socket.request.session;
+        const receiveTime = await ChannelDAO.sendMsg(user.id, roomnum, receiveData.msg);
         const sendData = {
-            id: receiveData.id,
-            nick: receiveData.nick,
+            id: user.id,
+            nick: user.nick,
             channel: roomnum,
             msg: receiveData.msg,
             msg_date: receiveTime,
@@ -37,6 +38,8 @@ const receiveAndSend = async (io, receiveData, roomnum) =>{
 
 const inviteFriend = async (io, socket, roomnum, targetId) =>{
     try{
+        if(!(await SocialDAO.isFriend(socket.request.session.user.id, targetId))) throw new Error("User can only invite their friends.");
+        if(await ChannelDAO.isChannelMember(roomnum, targetId)) throw new Error("You can't invite who is already in channel.");
         await ChannelDAO.includeToChannel(roomnum, targetId);
         const channelInfo = (await ChannelDAO.getChannelInfoById(roomnum, targetId));
         io.to(targetId).emit(`invite`, {

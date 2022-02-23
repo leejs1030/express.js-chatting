@@ -47,7 +47,7 @@ const getChannelInfoById = async (cid, uid) =>{ //채널 정보 불러오기
 
 const countChannelsByUserId = async (id) =>{
     try{
-        const sql = 'SELECT count(*) as num FROM channel_users WHERE user_id = $1 GROUP BY user_id'; //사용자가 참여 중인 채널의 수를 센다.
+        const sql = 'SELECT count(*)::int as num FROM channel_users WHERE user_id = $1 GROUP BY user_id'; //사용자가 참여 중인 채널의 수를 센다.
         const result = await runQuery(sql, [id]);
         if(result[0] === undefined) return 0; //참여 중인 게 없으면 0
         return result[0].num; // 있으면 리턴

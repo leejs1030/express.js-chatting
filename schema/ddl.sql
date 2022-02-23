@@ -61,7 +61,7 @@ create table channels(
 create table channel_users( -- 채널에 속한 유저를 관리
     channel_id integer NOT NULL, -- 채널 id
     user_id varchar(20) NOT NULL, -- 유저 id
-    unread numeric(8, 0) NOT NULL, -- 해당 유저가 읽지 않은 메시지 수
+    unread int NOT NULL, -- 해당 유저가 읽지 않은 메시지 수
     primary key(channel_id, user_id),
     foreign key (channel_id) references channels(id) ON DELETE CASCADE,
     foreign key (user_id) references users(id) ON DELETE CASCADE

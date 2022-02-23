@@ -193,6 +193,45 @@ const getMemberFromChannel = async(cid, uid) =>{
     }
 }
 
+const includeToChannel = async(cid, uid) =>{ //친구(uid)를 채널(cid)에 초대(포함시킴)
+    try{
+        await beginTransaction(); // 연속적인 쿼리
+        let num = (await runQuery('SELECT count(*) as num FROM msg GROUP BY channel_id HAVING channel_id = $1',[cid]))[0];
+        // 초대하고자하는 채널의 메시지 개수를 불러옴.
+        if(!num) num = 1; //만약 메시지가 0개라면, num이 undefined가 나옴. 이 때는 읽지않은 메시지를 1로 설정.
+        // 실제 읽지 않은 메시지 수는 0개이나, 새로운 채널임을 확인하게 만들고자 0이 아니라 1로 설정함.
+        else num = num.num; //0개가 아니라면, num은 object로 나옴. 오브젝트에 포함된 메시지의 개수를 그대로 num으로 사용.
+        const sql = 'INSERT INTO channel_users values($1, $2, $3)';
+        await runQuery(sql, [cid, uid, num]);//해당 채널에 해당 유저를 추가하며, 읽지 않은 메시지 수를 num으로 설정.
+        await commitTransaction();
+        return 0;
+    } catch(err){
+        await rollBackTransaction();
+        throw errorAt('includeToChannel', err);
+    }
+}
+
+const getFriendsByIdNotInChannel = async(uid, cid) =>{ // 유저(uid)의 친구 중 채널(cid)에 속하지 않은 친구의 리스트를 구함.
+    try{
+        const sql = 'SELECT id1 as id, nick, friend_date FROM flist join users on users.id = flist.id1 WHERE id2 = $1 and ' +
+        'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2)'
+        +' UNION '+
+        'SELECT id2 as id, nick, friend_date FROM flist join users on users.id = flist.id2 WHERE id1 = $1 and ' +
+        'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2)';
+        //채널에 있지 않은 친구들의 목록을 불러 옴.
+        //친구는 (id1, id2)의 형태로 저장. 초대를 보내고자하는 유저는 uid.
+        //(uid, id2)와 (id1, uid) 형태가 모두 친구이므로, 각각의 경우에 채널에 속하지 않은 친구를 구함.
+        //이후 둘을 UNION하면 채널에 속하지 않은 모든 친구를 구할 수 있음.
+        const result = await runQuery(sql, [uid, cid]);
+        result.forEach((value, index, array)=>{
+            array[index].friend_date = convertDate(value.friend_date); //시간 변환
+        });
+        return result;
+    } catch(err){
+        throw errorAt('getFriendsByIdNotInChannel', err);
+    }
+}
+
 module.exports = {
     getChannelsByUserId,
     getChannelInfoById,
@@ -206,5 +245,7 @@ module.exports = {
     quitChannel,
     deleteChannel,
     getMemberFromChannel,
-    readMsgFromChannel
+    readMsgFromChannel,
+    includeToChannel,
+    getFriendsByIdNotInChannel,
 };

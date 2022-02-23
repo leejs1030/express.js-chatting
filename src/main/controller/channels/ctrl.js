@@ -76,7 +76,7 @@ const inviteFriend = async(req, res, next) =>{ // 친구를 초대하기 위한 
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const flist = await SocialDAO.getFriendsByIdNotInChannel(user.id, channelId); // 친구들 중 채널에 속하지 않은 친구의 리스트
+        const flist = await ChannelDAO.getFriendsByIdNotInChannel(user.id, channelId); // 친구들 중 채널에 속하지 않은 친구의 리스트
         // 이들을 초대 가능.
         return res.status(200).render('channels/invites.pug', {user, channelId, flist:JSON.stringify(flist), // 직렬화
             csrfToken: req.csrfToken(),
@@ -135,7 +135,7 @@ const includeToChannel = async(req, res, next) =>{ // 초대하기. 미사용.
         console.log('hello');
         const {user} = req.session;
         const {channelId, targetId} = req.params;
-        await SocialDAO.includeToChannel(channelId, targetId);
+        await ChannelDAO.includeToChannel(channelId, targetId);
         const channelInfo = (await ChannelDAO.getChannelInfoById(channelId));
         const unread = (await ChannelDAO.getChannelInfoById(channelId, targetId)).unread;
         const io = req.app.get('socketio');

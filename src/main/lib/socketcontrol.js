@@ -37,7 +37,7 @@ const receiveAndSend = async (io, receiveData, roomnum) =>{
 
 const inviteFriend = async (io, socket, roomnum, targetId) =>{
     try{
-        await SocialDAO.includeToChannel(roomnum, targetId);
+        await ChannelDAO.includeToChannel(roomnum, targetId);
         const channelInfo = (await ChannelDAO.getChannelInfoById(roomnum, targetId));
         io.to(targetId).emit(`invite`, {
             cid: roomnum,

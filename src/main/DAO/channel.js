@@ -6,7 +6,7 @@ const { canAddBlack, canSendRequest } = require('./social');
 const getChannelsByUserId = async (id) =>{
     try{
         const sql = 'SELECT id, name, unread, updatetime, creater FROM channel_users join channels ON id = channel_id WHERE user_id = $1 '
-        +'ORDER BY updatetime desc';
+        +'ORDER BY updatetime DESC';
         //사용자가 참여 중인 채널들을 모두 불러온다. 업데이트 시간 내림차순. 최근 게 제일 처음에 오도록.
         const result = await runQuery(sql, [id]);
         result.forEach((value, index, array)=>{
@@ -100,7 +100,7 @@ const getMsgFromChannel = async (cid, uid) =>{
         await beginTransaction(); // 트랜잭션 시작. 여러 개의 쿼리. 데이터 변경 있음(읽은 것으로 설정.) 필요.
 
         const sql = "SELECT id, nick, content as msg, msg_date FROM msg JOIN users on id = sender WHERE channel_id = $1 "
-        + "ORDER BY msg_date asc";
+        + "ORDER BY msg_date ASC";
         //해당 채널에 있는 모든 메시지를 시간 오름차순으로 정렬한 것을 가져옴.
         const result = await runQuery(sql, [cid]);
         result.forEach((value, index, array)=>{
@@ -175,7 +175,7 @@ const getMemberFromChannel = async(cid, uid) =>{
     try{
         await beginTransaction();
         const sql = 'SELECT user_id as id, nick FROM channel_users join users on id = user_id ' +
-        'WHERE channel_id = $1';
+        'WHERE channel_id = $1 ORDER BY nick ASC';
         const result = await runQuery(sql, [cid]); // 채널에 속한 유저들을 모두 가져 옴.
         for(const member of result){
             if(uid == member.id){
@@ -213,11 +213,12 @@ const includeToChannel = async(cid, uid) =>{ //친구(uid)를 채널(cid)에 초
 
 const getFriendsByIdNotInChannel = async(uid, cid) =>{ // 유저(uid)의 친구 중 채널(cid)에 속하지 않은 친구의 리스트를 구함.
     try{
-        const sql = 'SELECT id1 as id, nick, friend_date FROM flist join users on users.id = flist.id1 WHERE id2 = $1 and ' +
+        const sql = '(SELECT id1 as id, nick, friend_date FROM flist join users on users.id = flist.id1 WHERE id2 = $1 and ' +
         'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2)'
         +' UNION '+
         'SELECT id2 as id, nick, friend_date FROM flist join users on users.id = flist.id2 WHERE id1 = $1 and ' +
-        'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2)';
+        'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2))'
+        +' ORDER BY nick ASC';
         //채널에 있지 않은 친구들의 목록을 불러 옴.
         //친구는 (id1, id2)의 형태로 저장. 초대를 보내고자하는 유저는 uid.
         //(uid, id2)와 (id1, uid) 형태가 모두 친구이므로, 각각의 경우에 채널에 속하지 않은 친구를 구함.

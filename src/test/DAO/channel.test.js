@@ -1,12 +1,11 @@
 const {ChannelDAO} = require('../../main/DAO');
 const expect = require('expect.js');
-const { getChannelInfoById } = require('../../main/DAO/channel');
 
 describe('Test ChannelDAO', async () => {
     it('Test getting Channel Info related to user', async () =>{
         let uid = 'subadmin'
         const channels = await ChannelDAO.getChannelsByUserId(uid);
-        expect(channels).to.be.a(typeof([]));
+        expect(Array.isArray(channels)).equal(true);
         for await (const e of channels) {
             expect(e.id).a(typeof(1));
             expect(e.id).greaterThan(0);

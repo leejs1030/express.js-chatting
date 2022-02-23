@@ -30,6 +30,7 @@ const createChannel = async (req, res, next) =>{ // 채널을 만듦
 
 // GET /:channelId
 const showChannel = async(req, res, next) =>{ // 특정 채널을 보여줌.
+    // more than one DAO
     try{
         const {user} = req.session;
         const {channelId} = req.params;

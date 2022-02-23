@@ -33,10 +33,13 @@ const showChannel = async(req, res, next) =>{ // 특정 채널을 보여줌.
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const {msglist, unread} = await ChannelDAO.getMsgFromChannel(channelId, user.id); // 메시지 불러오기
+        let {msglist, unread} = await ChannelDAO.getMsgFromChannel(channelId, user.id); // 메시지 불러오기
         const {send_enter} = await UserDAO.getSettingById(user.id); // 설정값에서 엔터로 전송할지 여부 불러오기
         const channelName = (await ChannelDAO.getChannelInfoById(channelId)).name; // 채널 이름 불러오기
-
+        unread = (unread < msglist.length) ? unread : msglist.length; // 채널에 처음 초대 받으면, 메시지가 없어도 1로 뜬다.
+        // 채널을 로드하는 과정에서, 메시지를 1개로 인식하고, 로드할 수 없는 상황에서도 계속 메시지를 로드 시도한다.
+        // 그 과정에서 무한 루프에 빠져, 페이지가 로드되지 않는다.
+        // 따라서, unread보다 msglist.length가 더 작으면, unread를 갱신한다. 이러면 실제 메시지 개수와 잘 맞게 된다.
         return res.status(200).render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
             initialMsgs: JSON.stringify(msglist), // 직렬화
             csrfToken: req.csrfToken(),

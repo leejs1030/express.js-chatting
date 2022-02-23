@@ -24,10 +24,11 @@ describe('Test ChannelDAO', async () => {
     });
     
     it('Test create/deleting channel', async() =>{
-        const firstid = await ChannelDAO.createChannel('temp', 'subadmin');
-        const secondid = await ChannelDAO.createChannel('temp', 'subadmin');
-        await ChannelDAO.deleteChannel(firstid);
-        await ChannelDAO.deleteChannel(secondid);
+        let firstid, secondid;
+        try{firstid = await ChannelDAO.createChannel('temp', 'subadmin');}
+        finally{await ChannelDAO.deleteChannel(firstid);}
+        try{secondid = await ChannelDAO.createChannel('temp', 'subadmin');}
+        finally{await ChannelDAO.deleteChannel(secondid);}
         expect(firstid).a(typeof(1));
         expect(firstid + 1).equal(secondid);
     });
@@ -37,8 +38,11 @@ describe('Test ChannelDAO', async () => {
         expect(num).a(typeof(1));
         expect(num).within(0, Infinity);
         let cid = await ChannelDAO.createChannel('fdsa', 'subadmin');
-        expect(num + 1).equal(await ChannelDAO.countChannelsByUserId('subadmin'));
-        await ChannelDAO.deleteChannel(cid);
+        try{
+            expect(num + 1).equal(await ChannelDAO.countChannelsByUserId('subadmin'));
+        } finally{
+            await ChannelDAO.deleteChannel(cid);
+        }
         expect(num).equal(await ChannelDAO.countChannelsByUserId('subadmin'));
     });
 
@@ -97,16 +101,17 @@ describe('Test ChannelDAO', async () => {
             cid = await ChannelDAO.createChannel('temp', subadmin.id);
             let friendlist = await ChannelDAO.getFriendsByIdNotInChannel(subadmin.id, cid);
             expect(friendlist.length).within(0, Infinity);
-            friendlist.forEach(async e => {
+            for (e of friendlist){
+                console.log(e);
                 expect(e.id).a('string');
                 expect(e.nick).a('string');
                 expect(e.friend_date).a('string');
                 await ChannelDAO.includeToChannel(cid, e.id);
-            })
+            };
             friendlist = await ChannelDAO.getFriendsByIdNotInChannel(subadmin.id, cid);
             expect(friendlist.length).equal(0);
         } finally{
-            await ChannelDAO.deleteChannel(cid)
+            await ChannelDAO.deleteChannel(cid);
         }
     })
 });

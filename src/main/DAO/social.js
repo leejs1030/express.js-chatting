@@ -62,15 +62,15 @@ const getBlacksById = async (id)=>{
         throw errorAt('getBlackById', err);
     }
 };
-const allowRequest = async (id1, id2) =>{
+const allowRequest = async (sender, receiver) =>{
     try{
         await beginTransaction(); // 연속적인 쿼리가 테이블을 변형시킴. 꼭 필요.
         const sql1 = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2';
         //친구 요청 수락하기 위해, 요청리스트 테이블에서 요청을 지우고
-        await runQuery(sql1, [id1, id2]);
+        await runQuery(sql1, [sender, receiver]);
         const sql2 = 'INSERT INTO flist values($1, $2, now())';
         //그 요청을 받아들여 친구리스트 테이블에 추가
-        await runQuery(sql2, [id1, id2]);
+        await runQuery(sql2, [sender, receiver]);
         await commitTransaction(); // 정상
         return 0;
     } catch(err){
@@ -79,14 +79,15 @@ const allowRequest = async (id1, id2) =>{
     }
 }
 
-const canSendRequest = async (sender, receiver) =>{
+const canSendRequest = async (sender, receiver) =>{ // 친구 요청을 보낼 수 있는지 확인
     try{
-        const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)';
-        const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)';
-        const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)';
-        const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq;
+        const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; // 친구이거나
+        const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)'; // 블랙 충이거나
+        const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)'; // 요청 중인지
+        const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq; //확인한다
         const result =  await runQuery(sqlcan, [sender, receiver]);
-        return (result[0] === undefined);
+        return (result[0] === undefined); // 만약 해당 된다면, undefiend가 아니므로 false. --> 요청 불가
+        // 해당 사항이 없다면, 요청 가능.
     } catch(err){
         throw errorAt('canSendRequest', err);
     }

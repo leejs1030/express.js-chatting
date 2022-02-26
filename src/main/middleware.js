@@ -1,5 +1,6 @@
 const session = require('express-session');
 const PostgreSqlStore = require('connect-pg-simple')(session);
+const db = require('./lib/dbconnection');
 
 
 const setCookieHeader = (req, res, next) =>{
@@ -11,7 +12,7 @@ const sessionmiddleware = (SESSION_SECRET, PROTOCOL) => session({
 	secret: SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
-	store : new PostgreSqlStore({ pgPromise: require('./lib/dbconnection').db, }),
+	store : new PostgreSqlStore({ pgPromise: db, }),
 	cookie: {maxAge: null,
 		secure: (PROTOCOL === 'https'), //https라면 secure한 쿠키 사용. 아니라면 그냥 사용.
 		httpOnly: true,

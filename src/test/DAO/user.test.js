@@ -1,7 +1,7 @@
 const {UserDAO} = require('../../main/DAO');
 const {verifyPassword} = require('../../main/lib/passwords');
 const expect = require('expect.js');
-const {db} = require('../../main/lib/dbconnection');
+const db = require('../../main/lib/dbconnection');
 
 describe('Test UserDAO', async ()=>{
     it('Find/Create user by using id', async ()=>{

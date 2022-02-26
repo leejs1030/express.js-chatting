@@ -21,7 +21,7 @@ describe('Test UserDAO', async ()=>{
             expect(success).to.be(false);
         } finally{
             await db.none('DELETE FROM users WHERE id = $1', tempuser.id);
-            expect(await UserDAO.getById(tempuser.id)).equal(undefined);
+            expect(await UserDAO.getById(tempuser.id)).equal(null);
         }
 
         success = await UserDAO.createUser(admin.id, admin.pass, admin.nick);

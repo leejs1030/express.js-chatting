@@ -10,7 +10,7 @@ const getById = async (id, task = db) => { // task를 위한 호출을 생각하
     } catch(err){
         if(err.name === 'QueryResultError' && err.code === queryResultErrorCode.noData) // 쿼리 결과 오류(리턴값 없음의 경우)
             return null; // 없으니까 null. 아니면 해당 유저에 대한 오브젝트가 제대로 나옴.
-        else return errorAt('getById', err);
+        else throw errorAt('getById', err);
     }
 };
 
@@ -32,17 +32,17 @@ const getSettingById = async (id, task = db) =>{ // 유저의 설정 값을 불�
     try{
         return await task.one('SELECT * FROM user_settings WHERE id = $1', [id]);
     } catch(err){
-        return errorAt('getSettingById', err);
+        throw errorAt('getSettingById', err);
     }
 }
 
 const setSettingById = async(id, info, task = db) =>{ // 유저의 설정 값을 업데이트함.
     try{
-        await task.none('UPDATE user_settings SET send_enter = ${info.send_enter} WHERE id = ${id}', {id, info});
+        await task.none('UPDATE user_settingsd SET send_enter = ${info.send_enter} WHERE id = ${id}', {id, info});
         // 설정 값이 여러 개가 필요하게 될 경우, []보다는 {}이 더 유용할 것. 따라서 미리 그렇게 함.
         return 0;
     } catch(err){
-        return errorAt('setSettingById', err);
+        throw errorAt('setSettingById', err);
     }
 }
 

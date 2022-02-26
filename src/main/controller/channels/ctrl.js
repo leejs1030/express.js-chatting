@@ -67,7 +67,7 @@ const deleteChannel = async(req, res, next) =>{ // 채널 지우기
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        await ChannelDAO.deleteChannel(channelId, user.id);
+        await ChannelDAO.deleteChannel(channelId);
         return res.redirect(303, 'back');
     } catch(err){
         return next(err);

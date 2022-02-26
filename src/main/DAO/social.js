@@ -2,7 +2,6 @@ const db = require('../lib/dbconnection');
 const { convertDate } = require('../lib/convertDate');
 const {getById} = require('./user.js');
 const {errorAt} = require('../lib/usefulJS');
-const {queryResultErrorCode} = require('pg-promise').errors;
 
 
 
@@ -78,11 +77,9 @@ const canSendRequest = async (sender, receiver, task = db) =>{ // 친구 요청�
         const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)'; // 블랙 충이거나
         const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)'; // 요청 중인지
         const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq; //확인한다
-        await task.many(sqlcan, [sender, receiver]);
-        return false; // 만약 해당 된다면, 오류가 나지 않아서 해당 구문이 실행됨.
+        const ret = (await task.any(sqlcan, [sender, receiver])); // 리턴 값은 Array
+        return (ret.length == 0); // 길이가 0 = 해당사항 없음 = 요청 가능 => true
     } catch(err){
-        if(err.name === 'QueryResultError' && err.code === queryResultErrorCode.noData) // 위에 해당 사항이 없어 오류가 났다면
-            return true; // 정상적으로 요청 가능
         throw errorAt('canSendRequest', err);
     }
 }

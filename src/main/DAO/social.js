@@ -13,7 +13,7 @@ const getReceivedById = async (id, task = db)=>{
         'users.id not in (SELECT added FROM blist WHERE adder = $1)';
         //받은 요청 확인. 단, 내가 차단한 상대로부터 들어온 요청은 보이지 않음.
         const result = await task.any(sql, [id]);
-        result.forEach((value, index, array) => array[index].req_time = convertDate(value.req_time));
+        result.map(e => e.req_time = convertDate(e.req_time));
         return result;
     } catch(err){
         throw errorAt('getReceivedById', err);
@@ -26,7 +26,7 @@ const getSentById = async (id, task = db) => {
         'on users.id = receiver WHERE sender = $1'
         //보낸 요청 확인.
         const result = await task.any(sql, [id]);
-        result.forEach((value, index, array) => array[index].req_time = convertDate(value.req_time));
+        result.map(e => e.req_time = convertDate(e.req_time));
         return result;
     } catch(err) {
         throw errorAt('getSentById', err);
@@ -39,7 +39,7 @@ const getFriendsById = async (id, task = db)=>{
         'SELECT id2 as id, nick, friend_date FROM flist join users on users.id = flist.id2 WHERE id1 = $1';
         //친구 확인.
         const result = await task.any(sql, [id]);
-        result.forEach((value, index, array) => array[index].req_time = convertDate(value.req_time));
+        result.map(e => e.friend_date = convertDate(e.friend_date));
         return result;
     } catch(err) {
         throw errorAt('getFriendsById', err);
@@ -51,7 +51,7 @@ const getBlacksById = async (id, task = db)=>{
         const sql = 'SELECT blist.added as id, nick, black_date FROM blist, users WHERE users.id = blist.added and blist.adder = $1';
         //블랙 확인
         const result = await task.any(sql, [id]);
-        result.forEach((value, index, array) => array[index].req_time = convertDate(value.req_time));
+        result.map(e => e.black_date = convertDate(e.black_date));
         return result;
     } catch(err){
         throw errorAt('getBlackById', err);

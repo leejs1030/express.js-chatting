@@ -38,7 +38,7 @@ const getSettingById = async (id, task = db) =>{ // 유저의 설정 값을 불�
 
 const setSettingById = async(id, info, task = db) =>{ // 유저의 설정 값을 업데이트함.
     try{
-        task.none('UPDATE user_settings SET send_enter = ${info.send_enter} WHERE id = ${id}', {id, info});
+        await task.none('UPDATE user_settings SET send_enter = ${info.send_enter} WHERE id = ${id}', {id, info});
         // 설정 값이 여러 개가 필요하게 될 경우, []보다는 {}이 더 유용할 것. 따라서 미리 그렇게 함.
         return 0;
     } catch(err){

@@ -20,8 +20,8 @@ const createUser = async (id, encryptedPassword, nick, task = db) =>{ // 새 유
         if(isExist || isExist instanceof Error) return false; // 중복. 생성 실패.
         const sql1 = 'INSERT INTO users values($1, $2, $3)'; // id, password, nick을 받아서 유저 테이블에 삽입.
         const sql2 = 'INSERT INTO user_settings values($1)'; // 유저 설정 값 테이블에도 등록
-        t.none(sql1, [id, encryptedPassword, nick]);
-        t.none(sql2, [id]);
+        await t.none(sql1, [id, encryptedPassword, nick]);
+        await t.none(sql2, [id]);
         return true;
     }).then(data => data)
     .catch(err => {console.error(err); return false;})

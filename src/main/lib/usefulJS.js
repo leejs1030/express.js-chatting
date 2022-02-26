@@ -1,6 +1,7 @@
 const getAlertScript = (msg) => `<script>alert("${msg}");history.back();</script>`; // alert 메시지를 띄우기 위함
 const errorAt = (name, err) => { // 반복 작업 축소
-    console.log("Error at " + name);
+    console.error("Error at " + name);
+    console.error(err);
     // console.log(err);
     // throw err;
     return err;

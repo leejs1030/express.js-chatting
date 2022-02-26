@@ -17,6 +17,19 @@ describe('Studying pg-promise API with reference documents', async () =>{
         expect(res2).to.be(true);
     });
 
+    it('Test for db.oneOrNone', async () =>{
+        const isUserExists = (id) => async (t) => { // 유저가 존재하는지 확인함
+            const sql = 'SELECT * FROM users WHERE id = $1';
+            const result = await t.oneOrNone(sql, [id]);
+            return !(result === null);
+        }
+        let [res1, res2] = await db.task('check user is existence', async(t) =>{
+            return t.batch([await isUserExists('asdifjjfdslj')(t), await isUserExists('admin')(t)]);
+        });
+        expect(res1).to.be(false);
+        expect(res2).to.be(true);
+    });
+
     it('Test for db.tx (transaction)', async () =>{ // transaction 공부를 위함.
         let a = await db.one('SELECT money, debt FROM test WHERE id = $1', ['lee']); // 초기 값
         await db.tx('fail transaction', async (t) =>{
@@ -48,6 +61,8 @@ describe('Studying pg-promise API with reference documents', async () =>{
         } catch(err){
             expect(err).to.be.an(QueryResultError);
         }
+        any = await db.oneOrNone('SELECT money, debt FROM test WHERE id = $1', ['lasdfee']); // (객체의) 배열
+        console.log(any);
     });
 
     it('Test for return Value', async () => {

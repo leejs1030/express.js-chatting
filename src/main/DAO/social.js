@@ -72,6 +72,7 @@ const allowRequest = async (sender, receiver, task = db) =>{
 }
 
 const canSendRequest = async (sender, receiver, task = db) =>{ // 친구 요청을 보낼 수 있는지 확인
+    if(sender === receiver) return false;
     try{
         const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; // 친구이거나
         const sqlblack = 'SELECT * FROM blist WHERE (adder = $1 and added = $2)'; // 블랙 충이거나
@@ -98,6 +99,7 @@ const newRequest = async (sender, receiver, task = db)=>{ //새로운 친구 요
 }
 
 const canAddBlack = async (adder, added, task = db) =>{ // 블랙 추가 가능한지 확인
+    if(adder === added) return false;
     try{
         const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2'; //이미 블랙했는지 확인
         const result = await task.oneOrNone(sql, [adder, added]);

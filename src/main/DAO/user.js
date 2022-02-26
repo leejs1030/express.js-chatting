@@ -1,16 +1,13 @@
 const db = require('../lib/dbconnection');
 const {errorAt} = require('../lib/usefulJS');
-const {queryResultErrorCode} = require('pg-promise').errors;
 
 const getById = async (id, task = db) => { // task를 위한 호출을 생각하자.
     // 기본값은 db. 간혹 task 안에서 수행이 필요할 경우 getById(id, t); 형태로
     try{
-        return await task.one('SELECT id, password, nick FROM users WHERE id = $1', [id]); //id를 기준으로 유저의 정보 확인.
-        // db.one은 결과가 하나가 아니라면 오류를 뿜음
+        return await task.oneOrNone('SELECT id, password, nick FROM users WHERE id = $1', [id]); //id를 기준으로 유저의 정보 확인.
+        // db.oneOrNone - 결과가 하나면 그대로 리턴. 0개면 null 리턴. 그 외는 오류.
     } catch(err){
-        if(err.name === 'QueryResultError' && err.code === queryResultErrorCode.noData) // 쿼리 결과 오류(리턴값 없음의 경우)
-            return null; // 없으니까 null. 아니면 해당 유저에 대한 오브젝트가 제대로 나옴.
-        else throw errorAt('getById', err);
+        throw errorAt('getById', err);
     }
 };
 
@@ -38,7 +35,7 @@ const getSettingById = async (id, task = db) =>{ // 유저의 설정 값을 불�
 
 const setSettingById = async(id, info, task = db) =>{ // 유저의 설정 값을 업데이트함.
     try{
-        await task.none('UPDATE user_settingsd SET send_enter = ${info.send_enter} WHERE id = ${id}', {id, info});
+        await task.none('UPDATE user_settings SET send_enter = ${info.send_enter} WHERE id = ${id}', {id, info});
         // 설정 값이 여러 개가 필요하게 될 경우, []보다는 {}이 더 유용할 것. 따라서 미리 그렇게 함.
         return 0;
     } catch(err){

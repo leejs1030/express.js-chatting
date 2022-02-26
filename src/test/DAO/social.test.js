@@ -1,6 +1,6 @@
 const {SocialDAO} = require('../../main/DAO');
 const expect = require('expect.js');
-const {db} = require('../../main/lib/dbconnection');
+const db = require('../../main/lib/dbconnection');
 
 const tempuser = [{id: 'temp0', pass: 'temppass', nick: '임시0'},
 {id: 'temp1', pass: 'temppass', nick: '임시1'},

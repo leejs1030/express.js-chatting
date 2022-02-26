@@ -1,4 +1,4 @@
-const {db} = require('../main/lib/dbconnection');
+const db = require('../main/lib/dbconnection');
 const expect = require('expect.js');
 
 describe('Studying pg-promise API with reference documents', async () =>{

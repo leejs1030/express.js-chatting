@@ -1,4 +1,4 @@
-const {db} = require('./dbconnection');
+const db = require('./dbconnection');
 
 
 const runQuery = async (sql, values) =>{ // 쿼리와 값을 받아서 결과를 리턴함

@@ -1,5 +1,6 @@
 const db = require('../main/lib/dbconnection');
 const expect = require('expect.js');
+const {queryResultErrorCode, QueryResultError} = require('pg-promise').errors;
 
 describe('Studying pg-promise API with reference documents', async () =>{
     it('Test for db.none', async () =>{
@@ -42,6 +43,11 @@ describe('Studying pg-promise API with reference documents', async () =>{
         expect(one).to.a(typeof({})); // 하나의 객체
         expect(any).to.a(typeof([])); // 배열
         expect(any[0]).to.a(typeof({})); // 객채의 배열
+        try{
+            await db.one('SELECT money, debt FROM test WHERE id = $1', ['adsf']);
+        } catch(err){
+            expect(err).to.be.an(QueryResultError);
+        }
     });
 
     it('Test for return Value', async () => {

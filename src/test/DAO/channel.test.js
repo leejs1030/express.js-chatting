@@ -35,6 +35,7 @@ describe('Test ChannelDAO', async () => {
 
     it('Test count channel joined', async () =>{
         let num = await ChannelDAO.countChannelsByUserId('subadmin');
+        expect(await ChannelDAO.countChannelsByUserId('asdfkuajfds')).equal(0);
         expect(num).a(typeof(1));
         expect(num).within(0, Infinity);
         let cid = await ChannelDAO.createChannel('fdsa', 'subadmin');

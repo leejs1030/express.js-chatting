@@ -2,8 +2,6 @@ const getAlertScript = (msg) => `<script>alert("${msg}");history.back();</script
 const errorAt = (name, err) => { // 반복 작업 축소
     console.error("Error at " + name);
     console.error(err);
-    // console.log(err);
-    // throw err;
     return err;
 };
 const isNumber = (str) =>{ // 숫자인지 판별

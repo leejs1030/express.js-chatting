@@ -1,5 +1,5 @@
 const {isNumber} = require('../lib/usefulJS');
-const {ChannelDAO, SocialDAO} = require('../DAO');
+const {ChannelDAO, SocialDAO, compressIntoTx} = require('../DAO');
 
 const initialJoinRoom = async (socket, roomnum) =>{
     try{
@@ -38,16 +38,21 @@ const receiveAndSend = async (io, socket, receiveData, roomnum) =>{
 
 const inviteFriend = async (io, socket, roomnum, targetId) =>{
     try{
-        if(!(await SocialDAO.isFriend(socket.request.session.user.id, targetId))) throw new Error("User can only invite their friends.");
-        if(await ChannelDAO.isChannelMember(roomnum, targetId)) throw new Error("You can't invite who is already in channel.");
-        await ChannelDAO.includeToChannel(roomnum, targetId);
-        const channelInfo = (await ChannelDAO.getChannelInfoById(roomnum, targetId));
-        io.to(targetId).emit(`invite`, {
-            cid: roomnum,
-            cname: channelInfo.name,
-            cunread: channelInfo.unread,
-            ctime: channelInfo.updatetime,
-        });
+        compressIntoTx(async () => {
+            if(!(await SocialDAO.isFriend(socket.request.session.user.id, targetId))) throw new Error("User can only invite their friends.");
+            if(await ChannelDAO.isChannelMember(roomnum, targetId)) throw new Error("You can't invite who is already in channel.");
+            await ChannelDAO.includeToChannel(roomnum, targetId);
+            return (await ChannelDAO.getChannelInfoById(roomnum, targetId));
+        })
+        .then(channelInfo => {
+            io.to(targetId).emit(`invite`, {
+                cid: roomnum,
+                cname: channelInfo.name,
+                cunread: channelInfo.unread,
+                ctime: channelInfo.updatetime,
+            });
+        })
+        .catch(err => {throw err;});
     } catch(err){
         console.log(err);
         return err;

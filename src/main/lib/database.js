@@ -1,5 +1,4 @@
-const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env;
-const {pgp, db} = require('./dbconnection');
+const db = require('./dbconnection');
 
 
 const runQuery = async (sql, values) =>{ // 쿼리와 값을 받아서 결과를 리턴함

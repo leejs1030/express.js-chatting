@@ -1,4 +1,4 @@
-const {ChannelDAO, SocialDAO, UserDAO} = require('../../DAO');
+const {ChannelDAO, SocialDAO, UserDAO, compressIntoTask} = require('../../DAO');
 const {getAlertScript} = require('../../lib/usefulJS');
 
 // GET /
@@ -30,13 +30,27 @@ const createChannel = async (req, res, next) =>{ // 채널을 만듦
 
 // GET /:channelId
 const showChannel = async(req, res, next) =>{ // 특정 채널을 보여줌.
+    // more than one DAO
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const {msglist, unread} = await ChannelDAO.getMsgFromChannel(channelId, user.id); // 메시지 불러오기
-        const {send_enter} = await UserDAO.getSettingById(user.id); // 설정값에서 엔터로 전송할지 여부 불러오기
-        const channelName = (await ChannelDAO.getChannelInfoById(channelId)).name; // 채널 이름 불러오기
-
+        let msglist, unread, send_enter, channelName;
+        const loadChannelInfo = async t => {
+            let msginfo = await ChannelDAO.getMsgFromChannel(channelId, user.id, t); // 메시지 불러오기
+            msglist = msginfo.msglist; unread = msginfo.unread;
+            let configinfo = await UserDAO.getSettingById(user.id, t); // 설정값에서 엔터로 전송할지 여부 불러오기
+            send_enter = configinfo.send_enter;
+            channelName = (await ChannelDAO.getChannelInfoById(channelId, undefined, t)).name; // 채널 이름 불러오기    
+        }
+        await compressIntoTask(loadChannelInfo);
+        unread = (unread > msglist.length) ? msglist.length : unread;
+        /* 
+        * 채널에 처음 초대 받으면, 메시지가 없어도 1로 뜬다.
+        * 이 경우에는, 채널을 로드하는 과정에서, 메시지가 없음에도 읽을 메시지가 있다고 인식하여
+        * 로드할 수 없는 상황에서도 계속 메시지를 로드 시도한다.
+        * 그로 인해 무한 루프에 빠져, 페이지가 로드되지 않는다.
+        * 따라서, unread보다 msglist.length가 더 작으면, unread를 갱신한다. 이러면 실제 메시지 개수와 잘 맞게 된다.
+        */
         return res.status(200).render("channels/chattings.pug", {user, channelId, send_enter, channelName, unread,
             initialMsgs: JSON.stringify(msglist), // 직렬화
             csrfToken: req.csrfToken(),
@@ -63,7 +77,7 @@ const deleteChannel = async(req, res, next) =>{ // 채널 지우기
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        await ChannelDAO.deleteChannel(channelId, user.id);
+        await ChannelDAO.deleteChannel(channelId);
         return res.redirect(303, 'back');
     } catch(err){
         return next(err);
@@ -76,7 +90,7 @@ const inviteFriend = async(req, res, next) =>{ // 친구를 초대하기 위한 
     try{
         const {user} = req.session;
         const {channelId} = req.params;
-        const flist = await SocialDAO.getFriendsByIdNotInChannel(user.id, channelId); // 친구들 중 채널에 속하지 않은 친구의 리스트
+        const flist = await ChannelDAO.getFriendsByIdNotInChannel(user.id, channelId); // 친구들 중 채널에 속하지 않은 친구의 리스트
         // 이들을 초대 가능.
         return res.status(200).render('channels/invites.pug', {user, channelId, flist:JSON.stringify(flist), // 직렬화
             csrfToken: req.csrfToken(),
@@ -135,7 +149,7 @@ const includeToChannel = async(req, res, next) =>{ // 초대하기. 미사용.
         console.log('hello');
         const {user} = req.session;
         const {channelId, targetId} = req.params;
-        await SocialDAO.includeToChannel(channelId, targetId);
+        await ChannelDAO.includeToChannel(channelId, targetId);
         const channelInfo = (await ChannelDAO.getChannelInfoById(channelId));
         const unread = (await ChannelDAO.getChannelInfoById(channelId, targetId)).unread;
         const io = req.app.get('socketio');

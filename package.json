@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon ./dist/main/index.js",
-    "test": "mocha ./src/test/**/*.js -r dotenv/config"
+    "test": "mocha ./src/test/**/*.test.ts -r ts-node/register dotenv/config"
   },
   "keywords": [],
   "author": "",
@@ -29,12 +29,16 @@
   "devDependencies": {
     "@babel/core": "^7.17.5",
     "@babel/preset-env": "^7.16.11",
+    "@types/chai": "^4.3.0",
     "@types/express": "^4.17.13",
+    "@types/mocha": "^9.1.0",
     "babel-jest": "^27.5.1",
+    "chai": "^4.3.6",
     "curl": "^0.1.4",
     "expect.js": "^0.3.1",
     "mocha": "^9.2.1",
     "nodemon": "^2.0.15",
+    "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   }
 }

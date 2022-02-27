@@ -1,5 +1,4 @@
 // const pg = require("pg"); // postgresql 연동용. 더 이상 쓰지 않음.
-require('../env'); // 환경변수
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env; // 환경 변수
 const pgp = require('pg-promise')(); // postgresql 연동용.
 

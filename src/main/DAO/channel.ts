@@ -1,5 +1,5 @@
 import { convertDate } from '../lib/convertDate';
-import {db} from '../lib/dbconnection';
+import db = require('../lib/dbconnection');
 import { errorAt } from '../lib/usefulJS';
 import { canAddBlack, canSendRequest } from './social';
 

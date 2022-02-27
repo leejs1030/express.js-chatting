@@ -9,4 +9,4 @@ router.get('/', authRequired, ctrl.getUserConfig); // 로그인 필요. 클라�
 router.post('/', authRequired, ctrl.postUserConfig); // 클라이언트의 POST로부터 설정 값 받아서 처리.
 
 
-export {router};
+export = router;

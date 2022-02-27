@@ -13,4 +13,4 @@ const cn = {
 
 const db = pgp(cn); // object 가지고 db 연결
 
-export {db}; // export함. 쿼리 하거나 할 때 쓸 것.
+export = db; // export함. 쿼리 하거나 할 때 쓸 것.

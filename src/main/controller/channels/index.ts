@@ -33,4 +33,4 @@ router.get('/:channelId/members', authRequired, doesChannelExist, membershipRequ
 // router.get('/:channelId/invitelist/:targetId', authRequired, membershipRequired, ctrl.includeToChannel); socket 사용 중.
 // 현재는 미 사용. 필요하다면 put(혹은 patch?) 사용할 것.
 
-export {router};
+export = router;

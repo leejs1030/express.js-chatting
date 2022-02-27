@@ -1,4 +1,4 @@
-import {db} from '../lib/dbconnection';
+import db = require('../lib/dbconnection');
 import { convertDate } from '../lib/convertDate';
 import { getById } from './user';
 import { errorAt } from '../lib/usefulJS';

@@ -1,4 +1,4 @@
-import { db } from '../lib/dbconnection';
+import db = require('../lib/dbconnection');
 import { errorAt } from '../lib/usefulJS';
 
 const getById = async (id, task = db) => { // task를 위한 호출을 생각하자.

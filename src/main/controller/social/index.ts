@@ -31,4 +31,4 @@ router.delete('/friends/:friend', authRequired, ctrl.deleteFriend); // 친구 �
 router.delete('/blacks/:added', authRequired, ctrl.unBlack); // 블랙 삭제
 
 
-export {router};
+export = router;

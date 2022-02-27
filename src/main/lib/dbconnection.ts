@@ -1,6 +1,6 @@
 // const pg = require("pg"); // postgresql 연동용. 더 이상 쓰지 않음.
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env; // 환경 변수
-const pgp = require("pg-promise")(); // postgresql 연동용.
+const pgp = require('pg-promise')(); // postgresql 연동용.
 
 const cn = {
     host: DB_HOST,
@@ -13,4 +13,4 @@ const cn = {
 
 const db = pgp(cn); // object 가지고 db 연결
 
-module.exports = db; // export함. 쿼리 하거나 할 때 쓸 것.
+export {db}; // export함. 쿼리 하거나 할 때 쓸 것.

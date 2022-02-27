@@ -1,5 +1,5 @@
-const {isNumber} = require('../lib/usefulJS');
-const {ChannelDAO, SocialDAO, compressIntoTx} = require('../DAO');
+import { isNumber } from '../lib/usefulJS';
+import { ChannelDAO, SocialDAO, compressIntoTx } from '../DAO';
 
 const initialJoinRoom = async (socket, roomnum) =>{
     try{
@@ -59,7 +59,7 @@ const inviteFriend = async (io, socket, roomnum, targetId) =>{
     }
 }
 
-module.exports = {
+export {
     initialJoinRoom,
     receiveAndSend,
     inviteFriend,

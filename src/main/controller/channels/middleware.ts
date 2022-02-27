@@ -1,5 +1,5 @@
-const {ChannelDAO} = require('../../DAO');
-const {getAlertScript} = require('../../lib/usefulJS');
+import { ChannelDAO } from '../../DAO';
+import { getAlertScript } from '../../lib/usefulJS';
 
 const doesChannelExist = async(req, res, next) =>{ // 채널이 존재하는지 확인해주는 미들웨어.
     try{
@@ -43,7 +43,7 @@ const isChannelId = (req, res, next, id) =>{
     else res.status(400).send(getAlertScript('적절하지 않은 채널 id입니다! 자연수로 입력해주세요.')); // 상태 코드는 400 Bad Request
 };
 
-module.exports = {doesChannelExist,
+export {doesChannelExist,
     membershipRequired,
     ownRequired,
     isChannelId,

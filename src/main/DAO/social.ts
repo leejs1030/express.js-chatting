@@ -1,7 +1,7 @@
-const db = require('../lib/dbconnection');
-const { convertDate } = require('../lib/convertDate');
-const {getById} = require('./user.js');
-const {errorAt} = require('../lib/usefulJS');
+import {db} from '../lib/dbconnection';
+import { convertDate } from '../lib/convertDate';
+import { getById } from './user';
+import { errorAt } from '../lib/usefulJS';
 
 
 
@@ -190,7 +190,7 @@ const getSocialsById = async (id, task = db) =>{ // social탭에서 사용할 �
     .catch(err => {throw errorAt('getSocialsById', err)});
 }
 
-module.exports = {
+export {
     getReceivedById,
     getSentById,
     getFriendsById,

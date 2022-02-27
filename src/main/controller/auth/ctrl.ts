@@ -1,6 +1,6 @@
-const {UserDAO} = require('../../DAO');
-const { generatePassword, verifyPassword } = require('../../lib/passwords'); // 해시+솔트+반복으로 비밀번호 암호화&검증
-const {getAlertScript} = require('../../lib/usefulJS');
+import { UserDAO } from '../../DAO';
+import { generatePassword, verifyPassword } from '../../lib/passwords'; // 해시+솔트+반복으로 비밀번호 암호화&검증
+import { getAlertScript } from '../../lib/usefulJS';
 
 //GET /sign-in
 const signInForm = async (req, res, next) =>{ // 로그 인 페이지 보여주기
@@ -61,7 +61,7 @@ const signUp = async (req, res, next) =>{ // 회원 가입 시도
         const result = await UserDAO.createUser(id, encryptedPassword, nick); // 유저 정보 생성. 성공하면 true. 실패하면 false.
         if(result === false) return res.status(400).send(getAlertScript("이미 존재하는 ID입니다!")); // 실패. 이미 존재하기 때문.
         else if(result === true) return res.redirect(303, '/auth/sign-in'); // 성공. 리다이렉션. 303 See Other
-        else throw err;
+        else throw new Error("unexpected error");
     }catch(err){
         return next(err);
     }
@@ -79,7 +79,7 @@ const signOut = async (req, res, next) =>{ // 로그 아웃하기
     }
 };
 
-module.exports = {
+export {
     signInForm,
     signIn,
     signUpForm,

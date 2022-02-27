@@ -1,5 +1,5 @@
-const {SocialDAO} = require('../../DAO');
-const {getAlertScript} = require('../../lib/usefulJS');
+import { SocialDAO } from '../../DAO';
+import { getAlertScript } from '../../lib/usefulJS';
 
 // GET /
 const indexPage = async (req, res, next) =>{ // /social의 기본 화면
@@ -101,7 +101,7 @@ const unBlack = async(req, res, next) =>{ // 블랙 해제
 };
 
 
-module.exports = {
+export {
     indexPage,
     sendRequest,
     addBlack,

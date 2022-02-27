@@ -1,4 +1,4 @@
-const db = require('./dbconnection');
+import {db} from './dbconnection';
 
 
 const runQuery = async (sql, values) =>{ // 쿼리와 값을 받아서 결과를 리턴함
@@ -38,7 +38,7 @@ const rollBackTransaction = async () => { // 트랜잭션용
 	}
 }
 
-module.exports = { runQuery, beginTransaction, commitTransaction, rollBackTransaction };
+export { runQuery, beginTransaction, commitTransaction, rollBackTransaction };
 
 
 

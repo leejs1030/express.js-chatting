@@ -1,7 +1,6 @@
-export{}
-const {Router} = require('express');
-const ctrl = require('./ctrl');
-const { limiter } = require('./middleware');
+import { Router } from 'express';
+import ctrl = require('./ctrl');
+import { limiter } from './middleware';
 const router = Router({
     caseSensitive: true,
 });
@@ -17,4 +16,4 @@ router.post('/sign-up', ctrl.signUp); // 회원 가입 하기
 router.post('/sign-out', ctrl.signOut); //GET으로 하면 브라우저가 미리 로딩하는 과정에서 로그아웃 될 수도 있음.
 // POST로 하면 그런 일이 생기지 않음.
 
-module.exports = router;
+export {router};

@@ -1,7 +1,7 @@
-const { convertDate } = require('../lib/convertDate');
-const db = require('../lib/dbconnection');
-const {errorAt} = require('../lib/usefulJS');
-const { canAddBlack, canSendRequest } = require('./social');
+import { convertDate } from '../lib/convertDate';
+import {db} from '../lib/dbconnection';
+import { errorAt } from '../lib/usefulJS';
+import { canAddBlack, canSendRequest } from './social';
 
 const getChannelsByUserId = async (id, task = db) =>{
     const sql = 'SELECT id, name, unread, updatetime, creater FROM channel_users join channels ON id = channel_id WHERE user_id = $1 '
@@ -26,7 +26,7 @@ const getChannelUnreadById = async (cid, uid, task = db) =>{
     }
 };
 
-const getChannelInfoById = async (cid, uid, task = db) =>{ //채널 정보 불러오기
+const getChannelInfoById = async (cid, uid?, task = db) =>{ //채널 정보 불러오기
     const sql = 'SELECT * FROM channels WHERE id = $1'; // cid로 채널 정보 불러오기
     return task.tx('get-channel-tx', async t =>{
         const result = (await t.one(sql, [cid]));
@@ -199,7 +199,24 @@ const getFriendsByIdNotInChannel = async(uid, cid, task = db) =>{ // 유저(uid)
     }
 }
 
-module.exports = {
+// module.exports = {
+//     getChannelsByUserId,
+//     getChannelInfoById,
+//     getChannelUnreadById,
+//     countChannelsByUserId,
+//     createChannel,
+//     isChannelMember,
+//     getMsgFromChannel,
+//     sendMsg,
+//     isChannelCreater,
+//     quitChannel,
+//     deleteChannel,
+//     getMemberFromChannel,
+//     readMsgFromChannel,
+//     includeToChannel,
+//     getFriendsByIdNotInChannel,
+// };
+export {
     getChannelsByUserId,
     getChannelInfoById,
     getChannelUnreadById,

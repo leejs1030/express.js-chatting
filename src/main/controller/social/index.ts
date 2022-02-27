@@ -1,6 +1,6 @@
-const { Router } = require('express');
-const { authRequired } = require('../auth/middleware'); // 로그인이 되어있는지 확인하기 위한 미들웨어
-const ctrl = require('./ctrl');
+import { Router } from 'express';
+import { authRequired } from '../auth/middleware'; // 로그인이 되어있는지 확인하기 위한 미들웨어
+import ctrl = require('./ctrl');
 const router = Router({
     caseSensitive: true,
 });
@@ -31,4 +31,4 @@ router.delete('/friends/:friend', authRequired, ctrl.deleteFriend); // 친구 �
 router.delete('/blacks/:added', authRequired, ctrl.unBlack); // 블랙 삭제
 
 
-module.exports = router;
+export {router};

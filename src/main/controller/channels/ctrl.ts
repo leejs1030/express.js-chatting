@@ -1,5 +1,5 @@
-const {ChannelDAO, SocialDAO, UserDAO, compressIntoTask} = require('../../DAO');
-const {getAlertScript} = require('../../lib/usefulJS');
+import { ChannelDAO, SocialDAO, UserDAO, compressIntoTask } from '../../DAO';
+import { getAlertScript } from '../../lib/usefulJS';
 
 // GET /
 const indexPage = async (req, res, next) =>{ // 채널 목록을 보여주는 기본 페이지 렌더링
@@ -142,6 +142,14 @@ const sendMsg = async(req, res, next) =>{ // 메시지 보내기. 미사용.
     }
 }
 
+/**
+ * @deprecated
+ * do not use any more. moved to socket part.
+ * @param req 
+ * @param res 
+ * @param next 
+ * @returns 
+ */
 const includeToChannel = async(req, res, next) =>{ // 초대하기. 미사용.
     try{
         return; // 현재 사용하지 않음. 소켓 파트로 대체.
@@ -167,7 +175,7 @@ const includeToChannel = async(req, res, next) =>{ // 초대하기. 미사용.
 
 
 
-module.exports = {
+export {
     indexPage,
     createChannel,
     showChannel,

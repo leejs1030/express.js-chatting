@@ -1,8 +1,8 @@
 require('./env'); // 환경변수
-const {app} = require('./app'); // app
-const {ChannelDAO} = require('./DAO'); // dao
-const socketcontrol = require('./lib/socketcontrol'); // socket
-const { sessionmiddleware } = require('./middleware'); // session middleware. 소켓에서도 세션 확인하고자 사용.
+import { app } from './app'; // app
+import { ChannelDAO } from './DAO'; // dao
+import socketcontrol = require('./lib/socketcontrol'); // socket
+import { sessionmiddleware } from './middleware'; // session middleware. 소켓에서도 세션 확인하고자 사용.
 // 세션을 소켓에서 사용하여, id 위조의 가능성을 차단함.
 const port = process.env.PORT || 4000; // 포트(환경변수 사용)
 const { SESSION_SECRET, PROTOCOL } = process.env; // 환경변수

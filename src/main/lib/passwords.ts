@@ -1,5 +1,5 @@
-const util = require('util'); // promise로 다룰 필요 없이 비동기 함수 사용
-const crypto = require('crypto'); // 암호화에 필요
+import util = require('util'); // promise로 다룰 필요 없이 비동기 함수 사용
+import crypto = require('crypto'); // 암호화에 필요
 
 const pbkdf2 = util.promisify(crypto.pbkdf2); // 해시함수 + 솔트 적용
 const randomBytes = util.promisify(crypto.randomBytes); // 안전한 랜덤
@@ -24,4 +24,4 @@ const verifyPassword = async (password, hashedPassword) => {
     return Buffer.compare(digest, storedDigest) === 0; // 해시 값이 같다면, 맞은 것
 };
 
-module.exports = { generatePassword, verifyPassword };
+export { generatePassword, verifyPassword };

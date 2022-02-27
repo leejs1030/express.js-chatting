@@ -17,7 +17,6 @@ const sessionmiddleware = (SESSION_SECRET, PROTOCOL) => session({
 		secure: (PROTOCOL === 'https'), //https라면 secure한 쿠키 사용. 아니라면 그냥 사용.
 		httpOnly: true,
 	},
-	resave: false,
 });
 
 const redirecter = (req, res, next) =>{ // /로 끝나면 리더렉션
@@ -41,7 +40,7 @@ const keepSignIn = (req, res, next) => { // 만약 자동로그인 설정했다�
     next();
 }
 
-module.exports = {
+export {
 	setCookieHeader,
     sessionmiddleware,
     redirecter,

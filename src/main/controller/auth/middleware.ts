@@ -8,10 +8,10 @@ const authRequired = async (req, res, next) => { // 로그인 여부 확인하�
     }
 };
 
-const RateLimit = require('express-rate-limit');
-const limiter = (t, n) => RateLimit({
+import { rateLimit } from "express-rate-limit";
+const limiter = (t, n) => rateLimit({
 	windowMs: t * 1000, // t 초에
 	max: n // n회까지 로그인 시도 허용
 }); // 로그인을 여러 번 시도하는 것을 방지하기 위함.
 
-module.exports = { authRequired, limiter };
+export { authRequired, limiter };

@@ -1,16 +1,16 @@
-const controller = require('./controller');
-const { errorHandler } = require('./lib/error-handler');
-const express = require('express');
-const morgan = require('morgan');
+import {router as controller} from './controller';
+import { errorHandler } from './lib/error-handler';
+import express = require('express');
+import morgan = require('morgan');
 // const http = require('http');
 // const https = require('https');
 const { MODE, SESSION_SECRET, PROTOCOL, SSL_KEY, SSL_CERT } = process.env;
 const http = require(PROTOCOL); //PROTOCOL이 http라면 http로, https라면 https로 실행한다.
-const csrf = require('csurf');
-const cookieParser = require('cookie-parser');
-const { keepSignIn, sessionmiddleware, redirecter, setCookieHeader } = require('./middleware');
-const methodOverride = require('method-override');
-const fs = require('fs');
+import csrf = require('csurf');
+import cookieParser = require('cookie-parser');
+import { keepSignIn, sessionmiddleware, redirecter, setCookieHeader } from './middleware';
+import methodOverride = require('method-override');
+import fs = require('fs');
 
 
 const key = fs.readFileSync(SSL_KEY);
@@ -18,7 +18,7 @@ const cert = fs.readFileSync(SSL_CERT);
 
 const app = express();
 const server = http.createServer({key, cert}, app);
-const io = new require("socket.io")(server);
+const io = require("socket.io")(server);
 
 app.set('strict routing', true); // 맨 뒤에 / 오는 것 방지용
 app.set('case sensitive routing', true); // 대소문자를 구분하기 위함
@@ -45,4 +45,4 @@ app.use(errorHandler); // 에러를 보여주는 페이지. controller 에서 �
   
 
 
-module.exports = {app};
+export {app};

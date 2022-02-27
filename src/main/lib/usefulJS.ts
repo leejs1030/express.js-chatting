@@ -10,7 +10,7 @@ const isNumber = (str) =>{ // 숫자인지 판별
 	return true;
 };
 
-module.exports = {
+export {
     getAlertScript,
     errorAt,
     isNumber,

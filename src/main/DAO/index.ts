@@ -1,7 +1,7 @@
-const UserDAO = require('./user');
-const SocialDAO = require('./social');
-const ChannelDAO = require('./channel');
-const db = require('../lib/dbconnection');
+import UserDAO = require('./user');
+import SocialDAO = require('./social');
+import ChannelDAO = require('./channel');
+import {db} from '../lib/dbconnection';
 
 /**
  * 
@@ -14,7 +14,7 @@ const db = require('../lib/dbconnection');
  * optional.
  * @returns return value of f
  */
-const compressIntoTask = async (f, task = db, as) => {
+const compressIntoTask = async (f, task = db) => {
     return task.task(async t => await f(t)).then(data => data);
 }
 /**
@@ -33,7 +33,7 @@ const compressIntoTx = async (f, task = db) => {
     return task.tx(async t => await f(t)).then(data => data);
 }
 
-module.exports = { UserDAO, SocialDAO, ChannelDAO, compressIntoTask, compressIntoTx };
+export { UserDAO, SocialDAO, ChannelDAO, compressIntoTask, compressIntoTx };
 
 /*
 다른 코드에 접근하려면 require('~~/DAO');만 하면 됨.

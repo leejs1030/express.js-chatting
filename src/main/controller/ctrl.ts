@@ -1,4 +1,4 @@
-const {SocialDAO} = require('../DAO');
+import { SocialDAO } from '../DAO';
 
 //GET /
 const indexPage = async (req, res, next) =>{ //초기 화면
@@ -17,6 +17,6 @@ const indexPage = async (req, res, next) =>{ //초기 화면
 };
 
 
-module.exports = {
+export {
     indexPage,
 };

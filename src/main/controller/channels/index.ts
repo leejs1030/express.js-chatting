@@ -1,10 +1,10 @@
-const { Router } = require('express');
+import { Router } from 'express';
 const router = Router({
     caseSensitive: true,
 });
-const ctrl = require('./ctrl');
-const { authRequired } = require('../auth/middleware'); // 로그인 여부 확인하는 미들웨어
-const { doesChannelExist, membershipRequired, ownRequired, isChannelId, } = require('./middleware');
+import ctrl = require('./ctrl');
+import { authRequired } from '../auth/middleware'; // 로그인 여부 확인하는 미들웨어
+import { doesChannelExist, membershipRequired, ownRequired, isChannelId } from './middleware';
 // 각각 채널 존재 여부를 확인, 멤버 여부를 확인, 만든 사람인지 확인, 적절한 채널 아이디인지 확인하는 미들웨어
 
 
@@ -33,4 +33,4 @@ router.get('/:channelId/members', authRequired, doesChannelExist, membershipRequ
 // router.get('/:channelId/invitelist/:targetId', authRequired, membershipRequired, ctrl.includeToChannel); socket 사용 중.
 // 현재는 미 사용. 필요하다면 put(혹은 patch?) 사용할 것.
 
-module.exports = router;
+export {router};

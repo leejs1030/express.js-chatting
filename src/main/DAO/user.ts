@@ -1,5 +1,5 @@
-const db = require('../lib/dbconnection');
-const {errorAt} = require('../lib/usefulJS');
+import { db } from '../lib/dbconnection';
+import { errorAt } from '../lib/usefulJS';
 
 const getById = async (id, task = db) => { // task를 위한 호출을 생각하자.
     // 기본값은 db. 간혹 task 안에서 수행이 필요할 경우 getById(id, t); 형태로
@@ -42,7 +42,7 @@ const setSettingById = async(id, info, task = db) =>{ // 유저의 설정 값을
     }
 }
 
-module.exports = {
+export {
     getById,
     createUser,
     getSettingById,

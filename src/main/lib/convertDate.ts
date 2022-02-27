@@ -6,4 +6,4 @@ const convertDate = (timestamp) =>{ // postgresql의 타임스탬프 object를 �
     return result;
 }
 
-module.exports = {convertDate};
+export {convertDate};

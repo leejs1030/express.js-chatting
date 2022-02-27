@@ -1,4 +1,4 @@
-const { getAlertScript } = require("./usefulJS");
+import { getAlertScript } from "./usefulJS";
 
 const errorHandler = (err, req, res, next) => { // 적절한 에러 코드와 함께 보내기
     const {user} = req.session;
@@ -23,4 +23,4 @@ const errorHandler = (err, req, res, next) => { // 적절한 에러 코드와 �
     }
 };
 
-module.exports = { errorHandler };
+export { errorHandler };

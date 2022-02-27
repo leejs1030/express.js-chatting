@@ -1,3 +1,4 @@
+export{}
 const {Router} = require('express');
 const ctrl = require('./ctrl');
 const { limiter } = require('./middleware');

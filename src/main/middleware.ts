@@ -1,6 +1,6 @@
 import session = require('express-session');
 const PostgreSqlStore = require('connect-pg-simple')(session);
-import db = require('./lib/dbconnection');
+import db from './lib/dbconnection';
 
 
 const setCookieHeader = (req, res, next) =>{

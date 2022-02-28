@@ -1,7 +1,7 @@
 import UserDAO = require('./user');
 import SocialDAO = require('./social');
 import ChannelDAO = require('./channel');
-import db = require('../lib/dbconnection');
+import db from '../lib/dbconnection';
 
 /**
  * 

@@ -1,5 +1,5 @@
 declare module 'custom-type'{    
-    export interface channelInfo {
+    export type channelInfo = {
         id: number,
         name: string,
         updatetime: string,
@@ -8,14 +8,14 @@ declare module 'custom-type'{
         unread?: number,
     }
 
-    export interface msg {
+    export type msg = {
         id: string,
         nick?: string,
         msg: string,
         msg_date: string,
     }
 
-    export interface user {
+    export type user = {
         id: string,
         nick?: string,
         canRequest?: boolean,

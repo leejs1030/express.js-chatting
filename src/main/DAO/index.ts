@@ -5,32 +5,34 @@ import db from '../lib/dbconnection';
 
 /**
  * 
- * @param {function} f 
+ * @param {Function} f 
  * function need to be excuted with one(same) connection
  * will be sequential DAO function inside of f
  * DAO function inside of f must use their last parameter as t to work with one(same) connection.
  * 
- * @param {object} task 
+ * @param {any=} task
+ * will be Database from pg-promise
  * optional.
+ * 
  * @returns return value of f
  */
-const compressIntoTask = async (f, task = db) => {
-    return task.task(async t => await f(t)).then(data => data);
+async function compressIntoTask(f: Function, task: any | undefined = db): Promise<any> {
+    return task.task(async (t: any) => await f(t));
 }
 /**
  * 
- * @param {function} f 
+ * @param {Function} f 
  * function need to be excuted with one(same) connection
  * will be sequential DAO function inside of f
  * DAO function inside of f must use their last parameter as t to work with one(same) connection.
  * 
- * @param {object} task 
+ * @param {any=} task
  * optional.
  * @returns return value of f
  */
 
-const compressIntoTx = async (f, task = db) => {
-    return task.tx(async t => await f(t)).then(data => data);
+async function compressIntoTx(f: Function, task: any | undefined = db) {
+    return task.tx(async (t: any) => await f(t));
 }
 
 export { UserDAO, SocialDAO, ChannelDAO, compressIntoTask, compressIntoTx };

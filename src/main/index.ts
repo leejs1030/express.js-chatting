@@ -13,10 +13,11 @@ const server = app.get('server'); // 서버
 const channelPos = 2; // URI에서 "channels"가 등장하는 위치.
 const isChannelURI = (URI) => (URI[channelPos] == 'channels'); // 채널 URI인지 확인하기.
 
+const sharedsession = require("express-socket.io-session");
 
-io.use((socket, next) => {
-	sessionmiddleware(SESSION_SECRET, PROTOCOL)(socket.request, {}, next); // 소켓에서 세션 사용.
-});
+io.use(sharedsession(sessionmiddleware(SESSION_SECRET, PROTOCOL), {
+	autoSave: true,
+}));
 io.on('connection', async (socket) => {
 	let roomnum = socket.handshake.headers.referer.split('/').filter((i) => i); // 주소를 /단위로 끊어서 리스트로 저장.
 	if(isChannelURI(roomnum)) roomnum = roomnum[channelPos + 1]; // 만약 채널 URI라면, roomnum을 스칼라 값(채널 ID)으로 설정.
@@ -25,7 +26,7 @@ io.on('connection', async (socket) => {
 
 	socket.on('new msg', async (receiveData) => await socketcontrol.receiveAndSend(io, socket, receiveData, roomnum) );
 	// 새 메시지를 누가 보내면, 서버에서 받아서 다른 사람들에게 전달. db도 수정함.
-	socket.on('read', async () => await ChannelDAO.readMsgFromChannel(socket.request.session.user.id, roomnum) );
+	socket.on('read', async () => await ChannelDAO.readMsgFromChannel(socket.handshake.session.user.id, roomnum) );
 	// 새 메시지를 읽으면, db에 읽었음을 확인.
 	socket.on('disconnect', async () => await socket.removeAllListeners());
 	socket.on('invite', async (targetId) => await socketcontrol.inviteFriend(io, socket, roomnum, targetId) );

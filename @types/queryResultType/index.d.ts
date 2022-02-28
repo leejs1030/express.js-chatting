@@ -2,7 +2,7 @@ declare module 'custom-type'{
     export type channelInfo = {
         id: number,
         name: string,
-        updatetime: string,
+        update_time: string,
         creater: string,
         uid?: string,
         unread?: number,
@@ -12,7 +12,7 @@ declare module 'custom-type'{
         id: string,
         nick?: string,
         msg: string,
-        msg_date: string,
+        msg_time: string,
     }
 
     export type user = {
@@ -20,8 +20,8 @@ declare module 'custom-type'{
         nick?: string,
         canRequest?: boolean,
         canBlack?: boolean,
-        friend_date?: string,
-        req_date?: string,
-        black_date?: string,
+        friend_time?: string,
+        req_time?: string,
+        black_time?: string,
     }
 }

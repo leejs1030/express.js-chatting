@@ -36,11 +36,11 @@ async function getSentById(id: string, task = db): Promise<user[]> {
 
 async function getFriendsById(id: string, task = db): Promise<user[]> {
     try {
-        const sql = 'SELECT id1 as id, nick, friend_date FROM flist join users on users.id = flist.id1 WHERE id2 = $1 UNION ' +
-            'SELECT id2 as id, nick, friend_date FROM flist join users on users.id = flist.id2 WHERE id1 = $1';
+        const sql = 'SELECT id1 as id, nick, friend_time FROM flist join users on users.id = flist.id1 WHERE id2 = $1 UNION ' +
+            'SELECT id2 as id, nick, friend_time FROM flist join users on users.id = flist.id2 WHERE id1 = $1';
         //친구 확인.
         const result: user[] = await task.any(sql, [id]);
-        result.map(e => e.friend_date = convertDate(e.friend_date));
+        result.map(e => e.friend_time = convertDate(e.friend_time));
         return result;
     } catch (err) {
         throw errorAt('getFriendsById', err);
@@ -49,10 +49,10 @@ async function getFriendsById(id: string, task = db): Promise<user[]> {
 
 async function getBlacksById(id: string, task = db): Promise<user[]> {
     try {
-        const sql = 'SELECT blist.added as id, nick, black_date FROM blist, users WHERE users.id = blist.added and blist.adder = $1';
+        const sql = 'SELECT blist.added as id, nick, black_time FROM blist, users WHERE users.id = blist.added and blist.adder = $1';
         //블랙 확인
         const result: user[] = await task.any(sql, [id]);
-        result.map(e => e.black_date = convertDate(e.black_date));
+        result.map(e => e.black_time = convertDate(e.black_time));
         return result;
     } catch (err) {
         throw errorAt('getBlackById', err);

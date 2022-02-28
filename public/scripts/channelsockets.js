@@ -43,7 +43,7 @@ socket.on(`update`, (receiveData) =>{ // 새 메시지 도착!
     if(!("alert" in newbox.classList)) newbox.className += ' alert alert-danger'; // 박스 색 변경하기
     newbox.textContent = "NEW!"; // 새 메시지 왔음을 알림
     const updatetime = document.getElementById(`C${id}time`); // 그 채널의 업데이트 시간을
-    updatetime.textContent = receiveData.msg_date; // 갱신하고
+    updatetime.textContent = receiveData.msg_time; // 갱신하고
     const target = document.getElementById(`C${id}`); // 그 채널 박스를
     target.remove(); // 지우고
     channelList.insertBefore(target, channelList.childNodes[0]); // 맨 위로 올려줌.

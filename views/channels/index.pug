@@ -29,7 +29,7 @@ block content
                             .float-right
                                 | 최근 업데이트
                                 br
-                                span.time-info(id=`C${e.id}time`) #{e.updatetime}
+                                span.time-info(id=`C${e.id}time`) #{e.update_time}
                         if e.creater == user.id
                             form.form-inline.float-right.col-1(method='POST' action=`/channels/${e.id}?_method=DELETE`)
                                 input(type='hidden' name='_csrf' value=csrfToken)

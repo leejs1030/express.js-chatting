@@ -100,3 +100,9 @@ INSERT INTO flist values('admin', 'u001', now());
 
 -- INSERT INTO channels values(DEFAULT, 'test channel 1', 'admin', now());
 -- INSERT INTO channel_users values(1, 'admin', 0);
+
+-- IF YOU ALREADY USING DB
+ALTER TABLE msg RENAME COLUMN msg_date TO msg_time;
+ALTER TABLE blist RENAME COLUMN black_date TO black_time;
+ALTER TABLE flist RENAME COLUMN friend_date TO friend_time;
+ALTER TABLE channels RENAME COLUMN updatetime TO update_time;

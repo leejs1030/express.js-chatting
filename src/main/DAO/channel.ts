@@ -5,12 +5,14 @@ import { canAddBlack, canSendRequest } from './social';
 import { channelInfo, user, msg} from 'custom-type';
 
 async function getChannelsByUserId(uid: string, task = db): Promise<channelInfo[]> {
-    const sql = 'SELECT id, name, unread, updatetime, creater FROM channel_users join channels ON id = channel_id ' +
-        'WHERE user_id = $1 ORDER BY updatetime DESC';
+    const sql = 'SELECT id, name, unread, update_time, creater FROM channel_users join channels ON id = channel_id ' +
+        'WHERE user_id = $1 ORDER BY update_time DESC';
     //사용자가 참여 중인 채널들을 모두 불러온다. 업데이트 시간 내림차순. 최근 게 제일 처음에 오도록.
     try {
         const result: channelInfo[] = await task.any(sql, [uid]);
-        result.forEach(e => e.updatetime = convertDate(e.updatetime));
+        result.forEach(e =>{
+            e.update_time = convertDate(e.update_time);
+        });
         return result;
     } catch (err) {
         throw errorAt('getChannelsByUserId', err);
@@ -35,7 +37,7 @@ async function getChannelInfoById(cid: number, uid?: string, task = db): Promise
         return result;
     })
         .then((data: channelInfo) => {
-            data.updatetime = convertDate(data.updatetime);
+            data.update_time = convertDate(data.update_time);
             return data;
         })
         .catch((err: any) => { throw errorAt('getChannelInfoById', err); });
@@ -88,12 +90,12 @@ async function isChannelCreater(cid: number, uid: string, task = db): Promise<bo
 }
 
 async function getMsgFromChannel(cid: number, uid: string, task = db): Promise<{ msglist: any; unread: number; }> {
-    const sql = "SELECT id, nick, content as msg, msg_date FROM msg JOIN users on id = sender WHERE channel_id = $1 "
-        + "ORDER BY msg_date ASC";
+    const sql = "SELECT id, nick, content as msg, msg_time FROM msg JOIN users on id = sender WHERE channel_id = $1 "
+        + "ORDER BY msg_time ASC";
     //해당 채널에 있는 모든 메시지를 시간 오름차순으로 정렬한 것을 가져옴.
     return task.tx('get-msg-tx', async (t: any): Promise<{ msglist: msg[]; unread: number; }> => {
         const result: msg[] = await t.any(sql, [cid]);
-        result.forEach(e => e.msg_date = convertDate(e.msg_date));
+        result.forEach(e => e.msg_time = convertDate(e.msg_time));
         const unread = await getChannelUnreadById(cid, uid, t);
         await readMsgFromChannel(uid, cid, t);
         return { msglist: result, unread: unread };
@@ -113,14 +115,14 @@ async function readMsgFromChannel(uid: string, cid: number, task = db): Promise<
 }
 
 async function sendMsg(uid: string, cid: number, content: string, task = db): Promise<string> {
-    const sqlSendMsg = "INSERT INTO msg values($1, $2, now(), $3) RETURNING msg_date";
+    const sqlSendMsg = "INSERT INTO msg values($1, $2, now(), $3) RETURNING msg_time";
     //현재 체널에 메시지를 보내고, 보낸 시간을 기록.
-    const chanSql = "UPDATE channels SET updatetime = $1 WHERE id = $2";
+    const chanSql = "UPDATE channels SET update_time = $1 WHERE id = $2";
     //채널에 메시지를 보냈으니 채널의 업데이트 시간(최근 사용 시간)도 update(쿼리)함.
     const unReadSql = "UPDATE channel_users SET unread = unread + 1 WHERE user_id <> $1 and channel_id = $2";
     //UPDATE문으로 메시지를 보낸 채널의 다른 유저들의 읽지 않은 메시지 수를 1씩 증가시킴.
     return task.tx('send-msg-tx', async (t: any): Promise<string> => {
-        const date = (await t.one(sqlSendMsg, [uid, cid, content]) as { msg_date: string; }).msg_date;
+        const date = (await t.one(sqlSendMsg, [uid, cid, content]) as { msg_time: string; }).msg_time;
         await t.none(chanSql, [date, cid]);
         await t.none(unReadSql, [uid, cid]);
         return date;
@@ -184,10 +186,10 @@ async function includeToChannel(cid: number, uid: string, task = db): Promise<0>
 
 async function getFriendsByIdNotInChannel(uid: string, cid: any, task = db): Promise<user[]> {
     // 유저(uid)의 친구 중 채널(cid)에 속하지 않은 친구의 리스트를 구함.
-    const sql = '(SELECT id1 as id, nick, friend_date FROM flist join users on users.id = flist.id1 WHERE id2 = $1 and ' +
+    const sql = '(SELECT id1 as id, nick, friend_time FROM flist join users on users.id = flist.id1 WHERE id2 = $1 and ' +
         'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2)'
         + ' UNION ' +
-        'SELECT id2 as id, nick, friend_date FROM flist join users on users.id = flist.id2 WHERE id1 = $1 and ' +
+        'SELECT id2 as id, nick, friend_time FROM flist join users on users.id = flist.id2 WHERE id1 = $1 and ' +
         'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2))'
         + ' ORDER BY nick ASC';
     //채널에 있지 않은 친구들의 목록을 불러 옴.
@@ -196,7 +198,7 @@ async function getFriendsByIdNotInChannel(uid: string, cid: any, task = db): Pro
     //이후 둘을 UNION하면 채널에 속하지 않은 모든 친구를 구할 수 있음.
     try {
         const result: user[] = await task.any(sql, [uid, cid]);
-        result.forEach((e) => e.friend_date = convertDate(e.friend_date)); // 시간 변환
+        result.forEach((e) => e.friend_time = convertDate(e.friend_time)); // 시간 변환
         return result;
     } catch (err) {
         throw errorAt('getFriendsByIdNotInChannel', err);

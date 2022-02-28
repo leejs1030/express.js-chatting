@@ -27,7 +27,7 @@ const receiveAndSend = async (io, socket, receiveData, roomnum) =>{
             nick: user.nick,
             channel: roomnum,
             msg: receiveData.msg,
-            msg_date: receiveTime,
+            msg_time: receiveTime,
         };
         return io.to(sendData.channel).emit(`update`, sendData);
     } catch(err){
@@ -49,7 +49,7 @@ const inviteFriend = async (io, socket, roomnum, targetId) =>{
                 cid: roomnum,
                 cname: channelInfo.name,
                 cunread: channelInfo.unread,
-                ctime: channelInfo.updatetime,
+                ctime: channelInfo.update_time,
             });
         })
         .catch(err => {throw err;});

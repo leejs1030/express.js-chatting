@@ -12,7 +12,7 @@ describe('Test ChannelDAO', async () => {
             expect(e.name).a(typeof('s'));
             expect(e.unread).a(typeof(1));
             expect(e.unread).greaterThan(-1);
-            expect(e.updatetime).a(typeof('s'));
+            expect(e.update_time).a(typeof('s'));
             expect(e.creater).a('string');
             let a = await ChannelDAO.getChannelUnreadById(e.id, uid);
             expect(a).equal(e.unread);
@@ -106,7 +106,7 @@ describe('Test ChannelDAO', async () => {
                 console.log(e);
                 expect(e.id).a('string');
                 expect(e.nick).a('string');
-                expect(e.friend_date).a('string');
+                expect(e.friend_time).a('string');
                 await ChannelDAO.includeToChannel(cid, e.id);
             };
             friendlist = await ChannelDAO.getFriendsByIdNotInChannel(subadmin.id, cid);

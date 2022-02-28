@@ -165,7 +165,7 @@ const includeToChannel = async(req, res, next) =>{ // 초대하기. 미사용.
             cid: channelId,
             cname: channelInfo.name,
             cunread: unread,
-            ctime: channelInfo.updatetime,
+            ctime: channelInfo.update_time,
         });
         return res.redirect(303, 'back');
     } catch(err){

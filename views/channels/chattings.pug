@@ -30,10 +30,10 @@ block scripts
             //- console.log(msg);
             let newMsg = document.createElement('span');
             if(clientO.id == msg.id){
-                newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-danger font-weight-bold h5">${msg.id}(${msg.nick}):</div><div id="pre-wrap">${msg.msg}</div></div><span class="float-right text-right mb-2 h6">${msg.msg_date}에 전송됨</span>`);
+                newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-danger font-weight-bold h5">${msg.id}(${msg.nick}):</div><div id="pre-wrap">${msg.msg}</div></div><span class="float-right text-right mb-2 h6">${msg.msg_time}에 전송됨</span>`);
             }
             else{
-                newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-info">${msg.id}(${msg.nick}):</div><div id="pre-wrap">${msg.msg}</div></div><span class="float-right text-right mb-2 h6">${msg.msg_date}에 전송됨</span>`);
+                newMsg.innerHTML = (`<div class="list-group-item mb-0"><div class="text-info">${msg.id}(${msg.nick}):</div><div id="pre-wrap">${msg.msg}</div></div><span class="float-right text-right mb-2 h6">${msg.msg_time}에 전송됨</span>`);
             }
             return newMsg;
         };
@@ -69,7 +69,7 @@ block content
                     //-     #pre-wrap
                     //-         | #{e.msg}
                     //- span.float-right.text-right.mb-2.h6
-                    //-     | #{e.msg_date}에 전송됨
+                    //-     | #{e.msg_time}에 전송됨
     .container.hidden-xs.hidden-sm.sticky
         h2.mb-4
             form(method='POST' id='myPost' action='/#')

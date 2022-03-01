@@ -1,4 +1,4 @@
 {
-    "mochaExplorer.files": "src/test/**/*.js",
-    "mochaExplorer.require": "dotenv/config"
+    "mochaExplorer.files": "src/test/**/*.test.ts",
+    "mochaExplorer.require": ["ts-node/register", "dotenv/config"],
 }

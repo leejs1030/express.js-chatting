@@ -1,6 +1,7 @@
 import { getAlertScript } from "./usefulJS";
+import { Request, Response, NextFunction } from "express";
 
-const errorHandler = (err, req, res, next) => { // 적절한 에러 코드와 함께 보내기
+const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => { // 적절한 에러 코드와 함께 보내기
     const {user} = req.session;
     switch (err.message) {
         case 'BAD_REQUEST':

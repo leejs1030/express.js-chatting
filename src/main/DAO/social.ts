@@ -168,8 +168,21 @@ async function unBlack(adder: string, added: string, task = db): Promise<0> {
     }
 }
 
-async function getSocialsById(id: string, task = db): Promise<any> {
+declare interface socials{
+    reqreceived: user[],
+    reqsent: user[],
+    friendlist: user[],
+    blacklist: user[],
+    counts: {
+        received: number,
+        sent: number,
+        friends: number,
+        blacks: number,
+    }
+}
+
 // social탭에서 사용할 다양한 것들에 대한 정보를 불러옴.
+async function getSocialsById(id: string, task = db): Promise<socials> {
     return await task.tx('get-socials-tx', async (t: any) => {
         const reqreceived = await getReceivedById(id, t);
         const reqsent = await getSentById(id, t);

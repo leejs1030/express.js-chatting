@@ -35,7 +35,7 @@ const binary_search = (ctime) =>{ // 이분 탐색
 
 
 socket.on(`update`, (receiveData) =>{ // 새 메시지 도착!
-    const id = receiveData.channel; // 채널 id 파악하고
+    const id = receiveData.channel_id; // 채널 id 파악하고
     const unread = document.getElementById(`C${id}unread`); // 그 채널에서 읽지 않은 메시지 수를
     unread.textContent = parseInt(unread.textContent) + 1; // 1 늘림
     if(!("text-danger" in unread.classList))unread.className += ' text-danger font-weight-bold'; // 글자 색 변경하기

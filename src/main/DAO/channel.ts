@@ -90,7 +90,7 @@ async function isChannelCreater(cid: number, uid: string, task = db): Promise<bo
 }
 
 async function getMsgFromChannel(cid: number, uid: string, task = db): Promise<{ msglist: any; unread: number; }> {
-    const sql = "SELECT id, nick, content as msg, msg_time FROM msg JOIN users on id = sender WHERE channel_id = $1 "
+    const sql = "SELECT id, nick, content as msg, msg_time, channel_id FROM msg JOIN users on id = sender WHERE channel_id = $1 "
         + "ORDER BY msg_time ASC";
     //해당 채널에 있는 모든 메시지를 시간 오름차순으로 정렬한 것을 가져옴.
     return task.tx('get-msg-tx', async (t: any): Promise<{ msglist: msg[]; unread: number; }> => {

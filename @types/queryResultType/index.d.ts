@@ -1,4 +1,4 @@
-declare module 'custom-type'{    
+declare module 'custom-type'{
     export type channelInfo = {
         id: number,
         name: string,
@@ -11,8 +11,9 @@ declare module 'custom-type'{
     export type msg = {
         id: string,
         nick?: string,
+        channel_id?: number,
         msg: string,
-        msg_time: string,
+        msg_time?: string,
     }
 
     export type user = {

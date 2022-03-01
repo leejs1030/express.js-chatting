@@ -1,22 +1,9 @@
 import { Router } from 'express';
 import { authRequired } from '../auth/middleware'; // 로그인이 되어있는지 확인하기 위한 미들웨어
-import ctrl = require('./ctrl');
+import * as ctrl from './ctrl';
 const router = Router({
     caseSensitive: true,
 });
-
-
-
-// router.get('/', authRequired, ctrl.indexPage);
-// router.post('/', authRequired, ctrl.requestOrBlack); // 친구 요청 혹은 블랙 추가.
-//분리하자. /social/requests post와 /social/blacks post로.
-
-// router.get('/allow/:uid', authRequired, ctrl.allow); // 요청 승인. /people/friends post로. query로 정보 전달. 전달된 정보로 확인.
-// router.get('/reject/:uid', authRequired, ctrl.reject); // 요청 거절. /people/requests delete로
-// router.get('/cancel/:uid', authRequired, ctrl.cancelRequest); // 요청 취소. /people/requests delete로
-// router.get('/delete/:uid', authRequired, ctrl.deleteFriend); // 친구 삭제. /people/friend-lists delete로
-// router.get('/unblack/:uid', authRequired, ctrl.unBlack); // 블랙 취소. /people/blakcs delete로.
-
 
 
 router.get('/', authRequired, ctrl.indexPage); // /socials의 기본 페이지. 로그인 필요.

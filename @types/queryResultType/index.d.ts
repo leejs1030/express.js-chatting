@@ -18,7 +18,7 @@ declare module 'custom-type'{
 
     export type user = {
         id: string,
-        nick?: string,
+        nick: string,
         password?: string,
         setting?: setting,
         canRequest?: boolean,

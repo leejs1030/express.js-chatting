@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import ctrl = require('./ctrl');
+import * as ctrl from './ctrl';
 import { limiter } from './middleware';
 const router = Router({
     caseSensitive: true,

@@ -18,10 +18,17 @@ declare module 'custom-type'{
     export type user = {
         id: string,
         nick?: string,
+        password?: string,
+        setting?: setting,
         canRequest?: boolean,
         canBlack?: boolean,
         friend_time?: string,
         req_time?: string,
         black_time?: string,
+    }
+
+    export type user_setting = {
+        id: string,
+        send_enter: boolean,
     }
 }

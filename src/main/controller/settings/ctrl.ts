@@ -1,3 +1,4 @@
+import { user_setting } from 'custom-type';
 import { UserDAO } from '../../DAO';
 
 // GET /
@@ -17,7 +18,11 @@ const getUserConfig = async (req, res, next) =>{ // 유저의 설정 정보를 �
 const postUserConfig = async (req, res, next) =>{ // 유저의 설정 값 요청을 받아서 처리
     try {
         const {user} = req.session;
-        await UserDAO.setSettingById(user.id, req.body);
+        const user_setting: user_setting = {
+            id: user.id,
+            send_enter: req.body.send_enter,
+        }
+        await UserDAO.setSettingById(user_setting);
         return res.redirect(303, '/'); // 응답 코드는 303.  https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/303
     } catch (err) {
         return next(err);

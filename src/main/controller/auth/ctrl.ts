@@ -28,7 +28,7 @@ async function signIn(req: Request, res: Response, next: NextFunction): Promise<
         const user = await UserDAO.getById(id); // id로 유저 찾기
         if (!user) throw new Error('UNAUTHORIZED'); // 못 찾았으면 Unauthorized
 
-        const isValid = await verifyPassword(password, user.password); // 패스워드 비교하기
+        const isValid = await verifyPassword(password, user.password as string); // 패스워드 비교하기
         if (!isValid) throw new Error('UNAUTHORIZED'); // 틀렸으면 Unauthorized
 
         req.session.user = {

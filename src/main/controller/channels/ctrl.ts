@@ -1,12 +1,12 @@
 import { ChannelDAO, SocialDAO, UserDAO, compressIntoTask } from '../../DAO';
 import { getAlertScript } from '../../lib/usefulJS';
 import { NextFunction, Request, Response } from 'express';
-import { msg } from 'custom-type';
+import { msg, user } from 'custom-type';
 
 // GET /
 async function indexPage(req: Request, res: Response, next: NextFunction): Promise<void> { // 채널 목록을 보여주는 기본 페이지 렌더링
     try {
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const channelList = await ChannelDAO.getChannelsByUserId(user.id); // 채널 목록
         const num = channelList.length; // 채널 개수
         return res.status(200).render('channels/index.pug', {
@@ -22,7 +22,7 @@ async function indexPage(req: Request, res: Response, next: NextFunction): Promi
 // 채널을 만듦
 async function createChannel(req: Request, res: Response, next: NextFunction): Promise<void | Response<any, Record<string, any>>> {
     try {
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const { channelName } = req.body as { channelName: string; };
         let cname = channelName.trim();
         if (!cname) return res.status(400).send(getAlertScript("채널 이름을 입력해주세요!")); // 채널 이름이 없으면 Bad Request
@@ -36,18 +36,18 @@ async function createChannel(req: Request, res: Response, next: NextFunction): P
 // GET /:channelId
 async function showChannel(req: Request, res: Response, next: NextFunction): Promise<void> { // 특정 채널을 보여줌.
     try {
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const channelId = parseInt(req.params.channelId);
-        let msglist: msg[], unread: number, send_enter: boolean, channelName: string;
+        let msglist: msg[] = [], unread: number = 0, send_enter: boolean = true, channelName: string = "";
         const loadChannelInfo = async (t: any) => {
             let msginfo = await ChannelDAO.getMsgFromChannel(channelId, user.id, t); // 메시지 불러오기
             msglist = msginfo.msglist; unread = msginfo.unread;
             let configinfo = await UserDAO.getSettingById(user.id, t); // 설정값에서 엔터로 전송할지 여부 불러오기
             send_enter = configinfo.send_enter;
             channelName = (await ChannelDAO.getChannelInfoById(channelId, undefined, t)).name; // 채널 이름 불러오기    
+            unread = (unread > msglist.length) ? msglist.length : unread;
         };
         await compressIntoTask(loadChannelInfo);
-        unread = (unread > msglist.length) ? msglist.length : unread;
         /*
         * 채널에 처음 초대 받으면, 메시지가 없어도 1로 뜬다.
         * 이 경우에는, 채널을 로드하는 과정에서, 메시지가 없음에도 읽을 메시지가 있다고 인식하여
@@ -68,7 +68,7 @@ async function showChannel(req: Request, res: Response, next: NextFunction): Pro
 // PUT /:channelId
 async function quitChannel(req: Request, res: Response, next: NextFunction): Promise<void> { // 채널 나가기
     try {
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const channelId = parseInt(req.params.channelId);
         await ChannelDAO.quitChannel(channelId, user.id);
         return res.redirect(303, 'back');
@@ -92,7 +92,7 @@ async function deleteChannel(req: Request, res: Response, next: NextFunction): P
 async function inviteFriend(req: Request, res: Response, next: NextFunction): Promise<void> { // 친구를 초대하기 위한 페이지를 렌더링.
     // 초대 가능한 친구의 리스트가 보임.
     try {
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const { channelId } = req.params;
         const flist = await ChannelDAO.getFriendsByIdNotInChannel(user.id, channelId); // 친구들 중 채널에 속하지 않은 친구의 리스트
         // flist에 속한 이들을 초대 가능.
@@ -109,7 +109,7 @@ async function inviteFriend(req: Request, res: Response, next: NextFunction): Pr
 // GET /:channelId/members
 async function memberList(req: Request, res: Response, next: NextFunction): Promise<void> { // 채널에 속한 멤버 목록 불러오기
     try {
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const channelId = parseInt(req.params.channelId);
         let memberList = await ChannelDAO.getMemberFromChannel(channelId, user.id);
 
@@ -139,7 +139,7 @@ async function sendMsg(req: Request, res: Response, next: NextFunction): Promise
         if (content.length > 10000 || !content) {
             return res.status(409).send(getAlertScript('0 ~ 10000 글자로 작성해주세요!'));
         }
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const channelId = parseInt(req.params.channelId);
         const receiveTime = await ChannelDAO.sendMsg(user.id, channelId, content);
         const io = req.app.get('socketio');
@@ -172,7 +172,7 @@ async function includeToChannel(req: Request, res: Response, next: NextFunction)
 
         // /scripts/invitesockets.js에서 전송하면 /src/index.js에서 받아서 처리.
         console.log('hello');
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const channelId = parseInt(req.params.channelId);
         const { targetId } = req.params;
         await ChannelDAO.includeToChannel(channelId, targetId);

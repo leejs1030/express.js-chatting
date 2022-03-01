@@ -11,7 +11,7 @@ async function getChannelsByUserId(uid: string, task = db): Promise<channelInfo[
     try {
         const result: channelInfo[] = await task.any(sql, [uid]);
         result.forEach(e =>{
-            e.update_time = convertDate(e.update_time);
+            e.update_time = convertDate(e.update_time) as string;
         });
         return result;
     } catch (err) {
@@ -37,7 +37,7 @@ async function getChannelInfoById(cid: number, uid?: string, task = db): Promise
         return result;
     })
         .then((data: channelInfo) => {
-            data.update_time = convertDate(data.update_time);
+            data.update_time = convertDate(data.update_time) as string;
             return data;
         })
         .catch((err: any) => { throw errorAt('getChannelInfoById', err); });

@@ -1,6 +1,7 @@
 import { ChannelDAO } from '../../DAO';
 import { getAlertScript } from '../../lib/usefulJS';
 import { NextFunction, Request, Response } from 'express';
+import { user } from 'custom-type';
 
 // 채널이 존재하는지 확인해주는 미들웨어.
 async function doesChannelExist(req: Request, res: Response, next: NextFunction): Promise<void | Response<any, Record<string, any>>> {
@@ -18,7 +19,7 @@ async function doesChannelExist(req: Request, res: Response, next: NextFunction)
 async function membershipRequired(req: Request, res: Response, next: NextFunction): Promise<void | Response<any, Record<string, any>>> {
     try {
         const channelId = parseInt(req.params.channelId);
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const result = await ChannelDAO.isChannelMember(channelId, user.id);
         if (result) return next(); // 정상. 다음 미들웨어로
         else return res.status(403).send(getAlertScript('속하지 않은 채널입니다!')); // 상태 코드는 403 Forbidden
@@ -31,7 +32,7 @@ async function membershipRequired(req: Request, res: Response, next: NextFunctio
 async function ownRequired(req: Request, res: Response, next: NextFunction): Promise<void | Response<any, Record<string, any>>> {
     try {
         const channelId = parseInt(req.params.channelId);
-        const { user } = req.session;
+        const { user } = req.session as {user: user};
         const result = await ChannelDAO.isChannelCreater(channelId, user.id);
         if (result) return next(); // 정상. 다음 미들웨어로
         else return res.status(403).send(getAlertScript('관리자만이 접근할 수 있습니다!')); // 상태 코드는 403 Forbidden

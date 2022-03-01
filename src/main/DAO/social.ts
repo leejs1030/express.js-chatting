@@ -80,7 +80,7 @@ async function canSendRequest(sender: string, receiver: string, task = db): Prom
         const sqlreq = 'SELECT * FROM reqlist WHERE (sender = $1 and receiver = $2) or (sender = $2 and receiver = $1)'; // 요청 중인지
         const sqlcan = sqlfriend + ' UNION ' + sqlblack + ' UNION ' + sqlreq; //확인한다
         const ret: user[] | null = (await task.any(sqlcan, [sender, receiver])); // 리턴 값은 Array
-        return (ret.length === 0); // 길이가 0 = 해당사항 없음 = 요청 가능 => true
+        return (ret === null || ret.length === 0); // 길이가 0 = 해당사항 없음 = 요청 가능 => true
     } catch (err) {
         throw errorAt('canSendRequest', err);
     }

@@ -1,5 +1,5 @@
 const getAlertScript = (msg: string): string => `<script>alert("${msg}");history.back();</script>`; // alert 메시지 띄우기
-function errorAt(name: string, err: Error): Error { // 에러 처리를 위한 반복되는 코드를 축소
+function errorAt(name: string, err: any): any { // 에러 처리를 위한 반복되는 코드를 축소
     console.error("Error at " + name);
     console.error(err);
     return err;

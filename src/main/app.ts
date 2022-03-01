@@ -2,7 +2,7 @@ import controller from './controller';
 import { errorHandler } from './lib/error-handler';
 import Express from 'express';
 import morgan from 'morgan';
-const { MODE, SESSION_SECRET, PROTOCOL, SSL_KEY, SSL_CERT } = process.env;
+const { MODE, SESSION_SECRET, PROTOCOL, SSL_KEY, SSL_CERT } = process.env as {MODE: string, SESSION_SECRET: string, PROTOCOL: string, SSL_KEY: string, SSL_CERT: string};
 const http = require(PROTOCOL); //PROTOCOL이 http라면 http로, https라면 https로 실행한다.
 import socket from 'socket.io';
 import csrf from 'csurf';

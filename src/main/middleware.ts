@@ -13,7 +13,7 @@ const sessionmiddleware = (SESSION_SECRET: string, PROTOCOL: string) => session(
 	resave: false,
 	saveUninitialized: true,
 	store : new PostgreSqlStore({ pgPromise: db, }),
-	cookie: {maxAge: null,
+	cookie: {maxAge: undefined,
 		secure: (PROTOCOL === 'https'), //https라면 secure한 쿠키 사용. 아니라면 그냥 사용.
 		httpOnly: true,
 	},

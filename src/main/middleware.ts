@@ -1,14 +1,14 @@
-import session = require('express-session');
+import session from 'express-session';
 const PostgreSqlStore = require('connect-pg-simple')(session);
 import db from './lib/dbconnection';
+import {Request, Response} from 'express';
 
-
-const setCookieHeader = (req, res, next) =>{
+function setCookieHeader(req: Request, res: Response, next: Function): void {
 	res.setHeader('Set-Cookie', 'SameSite=None; secure; httpOnly');
-    next();
-};
+	next();
+}
 
-const sessionmiddleware = (SESSION_SECRET, PROTOCOL) => session({
+const sessionmiddleware = (SESSION_SECRET: string, PROTOCOL: string) => session({
 	secret: SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
@@ -19,8 +19,8 @@ const sessionmiddleware = (SESSION_SECRET, PROTOCOL) => session({
 	},
 });
 
-const redirecter = (req, res, next) =>{ // /로 끝나면 리더렉션
-	if (req.path.substr(-1) === '/' && req.path.length > 1) {
+function redirecter(req: Request, res: Response, next: Function): void { // /로 끝나면 리더렉션
+	if (req.path.substring(-1) === '/' && req.path.length > 1) {
 		const query = req.url.slice(req.path.length);
 		const safepath = req.path.slice(0, -1).replace(/\/+/g, '/');
 		res.redirect(301, safepath + query);
@@ -28,16 +28,17 @@ const redirecter = (req, res, next) =>{ // /로 끝나면 리더렉션
 	else {
 		next();
 	}
-};
+}
 
 const YEAR = 365 * 24 * 60 * 60 * 1000;
-const keepSignIn = (req, res, next) => { // 만약 자동로그인 설정했다면, 세션 유효 기간을 현 시점으로부터 1년으로 갱신함.
-    if(req.session.keepSignedIn){
-        req.session.resave = true;
-        req.session.cookie.expires = new Date(Date.now() + YEAR);
-        req.session.cookie.maxAge = YEAR;
-    }
-    next();
+function keepSignIn(req: Request, res: Response, next: Function): void {
+	// 만약 자동로그인 설정했다면, 세션 유효 기간을 현 시점으로부터 1년으로 갱신함.
+	if (req.session.keepSignedIn) {
+		req.session.resave = true;
+		req.session.cookie.expires = new Date(Date.now() + YEAR);
+		req.session.cookie.maxAge = YEAR;
+	}
+	next();
 }
 
 export {

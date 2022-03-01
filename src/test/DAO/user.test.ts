@@ -2,15 +2,16 @@ import { UserDAO } from '../../main/DAO';
 import { verifyPassword } from '../../main/lib/passwords';
 import db = require('../../main/lib/dbconnection');
 import { expect } from 'chai';
+import { user } from 'custom-type';
 
 describe('Test UserDAO', async ()=>{
     it('Find/Create user by using id', async ()=>{
         
         const admin = {id: 'admin', nick: '관리자', pass: 'admin'};
-        const user = await UserDAO.getById(admin.id);
+        const user = await UserDAO.getById(admin.id) as user;
         expect(user.nick).equal(admin.nick);
         expect(user.id).equal(admin.id);
-        expect(await verifyPassword(admin.pass, user.password)).to.be.true;
+        expect(await verifyPassword(admin.pass, user.password as string)).to.be.true;
         
         let success;
         const tempuser = {id: 'adsfjoi', nick: 'sadfi', pass: 'fsoidj'};

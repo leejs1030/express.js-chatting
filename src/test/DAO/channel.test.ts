@@ -24,7 +24,7 @@ describe('Test ChannelDAO', async () => {
     });
     
     it('Test create/deleting channel', async() =>{
-        let firstid, secondid;
+        let firstid: number = 0, secondid: number = 0;
         try{firstid = await ChannelDAO.createChannel('temp', 'subadmin');}
         finally{await ChannelDAO.deleteChannel(firstid);}
         try{secondid = await ChannelDAO.createChannel('temp', 'subadmin');}
@@ -79,7 +79,7 @@ describe('Test ChannelDAO', async () => {
         const subadmin = {id: 'subadmin', nick: '부관리자'};
         const admin = {id: 'admin', nick: '관리자'};
         const msg = ['hello I am testing.', 'Are you testing too?'];
-        let cid;
+        let cid: number = 0;
         try{
             cid = await ChannelDAO.createChannel('tempchannel', subadmin.id);
             await ChannelDAO.includeToChannel(cid, admin.id);
@@ -97,7 +97,7 @@ describe('Test ChannelDAO', async () => {
 
     it('Test getFriendsByIdNotInChannel', async () =>{
         const subadmin = {id: 'subadmin', name: '부관리자'};
-        let cid;
+        let cid: number = 0;
         try{
             cid = await ChannelDAO.createChannel('temp', subadmin.id);
             let friendlist = await ChannelDAO.getFriendsByIdNotInChannel(subadmin.id, cid);

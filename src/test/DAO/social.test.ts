@@ -8,8 +8,8 @@ const tempuser = [{id: 'temp0', pass: 'temppass', nick: '임시0'},
 const admin = {id: 'admin', nick: '관리자'}, subadmin = {id: 'subadmin', nick: '부관리자'}; // 관리자, 부관리자 다루기
 const create = require('../../main/DAO/user').createUser;
 
-const createUser = async (user) => await create(user.id, user.pass, user.nick); // 편하게 유저 만들기
-const deleteUser = async (uid) => await db.none('DELETE FROM users WHERE id = $1', [uid]); // 편하게 유저 삭제하기
+const createUser = async (user: {id: string, pass: string, nick: string}) => await create(user.id, user.pass, user.nick); // 편하게 유저 만들기
+const deleteUser = async (uid: string) => await db.none('DELETE FROM users WHERE id = $1', [uid]); // 편하게 유저 삭제하기
 
 describe('Test SocialDAO', async () =>{
     it('canSendRequest, newRequest, cancelRequest', async () =>{
@@ -76,7 +76,7 @@ describe('Test SocialDAO', async () =>{
 
             await SocialDAO.newRequest(a.id, b.id); await SocialDAO.newRequest(c.id, a.id);
             var {reqreceived, reqsent, friendlist, blacklist} = await SocialDAO.getSocialsById(a.id);
-            expect(reqreceived[0].sender_id).equal(c.id); expect(reqsent[0].receiver_id).equal(b.id); // 요청 받기/하기 반영
+            expect(reqreceived[0].id).equal(c.id); expect(reqsent[0].id).equal(b.id); // 요청 받기/하기 반영
 
             await SocialDAO.allowRequest(a.id, b.id); await SocialDAO.allowRequest(c.id, a.id); // 친구 수락했으니
             var {reqreceived, reqsent, friendlist, blacklist} = await SocialDAO.getSocialsById(a.id); 

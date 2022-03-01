@@ -14,7 +14,7 @@ async function getReceivedById(id: string, task = db): Promise<user[]> {
             'users.id not in (SELECT added FROM blist WHERE adder = $1)';
         //받은 요청 확인. 단, 내가 차단한 상대로부터 들어온 요청은 보이지 않음.
         const result: user[] = await task.any(sql, [id]);
-        result.map(e => e.req_time = convertDate(e.req_time));
+        result.map(e => e.req_time = convertDate(e.req_time as string));
         return result;
     } catch (err) {
         throw errorAt('getReceivedById', err);
@@ -27,7 +27,7 @@ async function getSentById(id: string, task = db): Promise<user[]> {
             'on users.id = receiver WHERE sender = $1';
         //보낸 요청 확인.
         const result: user[] = await task.any(sql, [id]);
-        result.map(e => e.req_time = convertDate(e.req_time));
+        result.map(e => e.req_time = convertDate(e.req_time as string));
         return result;
     } catch (err) {
         throw errorAt('getSentById', err);
@@ -40,7 +40,7 @@ async function getFriendsById(id: string, task = db): Promise<user[]> {
             'SELECT id2 as id, nick, friend_time FROM flist join users on users.id = flist.id2 WHERE id1 = $1';
         //친구 확인.
         const result: user[] = await task.any(sql, [id]);
-        result.map(e => e.friend_time = convertDate(e.friend_time));
+        result.map(e => e.friend_time = convertDate(e.friend_time as string));
         return result;
     } catch (err) {
         throw errorAt('getFriendsById', err);
@@ -52,7 +52,7 @@ async function getBlacksById(id: string, task = db): Promise<user[]> {
         const sql = 'SELECT blist.added as id, nick, black_time FROM blist, users WHERE users.id = blist.added and blist.adder = $1';
         //블랙 확인
         const result: user[] = await task.any(sql, [id]);
-        result.map(e => e.black_time = convertDate(e.black_time));
+        result.map(e => e.black_time = convertDate(e.black_time as string));
         return result;
     } catch (err) {
         throw errorAt('getBlackById', err);

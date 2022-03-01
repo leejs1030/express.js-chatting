@@ -11,7 +11,7 @@ async function getChannelsByUserId(uid: string, task = db): Promise<channelInfo[
     try {
         const result: channelInfo[] = await task.any(sql, [uid]);
         result.forEach(e =>{
-            e.update_time = convertDate(e.update_time) as string;
+            e.update_time = convertDate(e.update_time);
         });
         return result;
     } catch (err) {
@@ -37,7 +37,7 @@ async function getChannelInfoById(cid: number, uid?: string, task = db): Promise
         return result;
     })
         .then((data: channelInfo) => {
-            data.update_time = convertDate(data.update_time) as string;
+            data.update_time = convertDate(data.update_time);
             return data;
         })
         .catch((err: any) => { throw errorAt('getChannelInfoById', err); });
@@ -95,7 +95,7 @@ async function getMsgFromChannel(cid: number, uid: string, task = db): Promise<{
     //해당 채널에 있는 모든 메시지를 시간 오름차순으로 정렬한 것을 가져옴.
     return task.tx('get-msg-tx', async (t: any): Promise<{ msglist: msg[]; unread: number; }> => {
         const result: msg[] = await t.any(sql, [cid]);
-        result.forEach(e => e.msg_time = convertDate(e.msg_time));
+        result.forEach(e => e.msg_time = convertDate(e.msg_time as string));
         const unread = await getChannelUnreadById(cid, uid, t);
         await readMsgFromChannel(uid, cid, t);
         return { msglist: result, unread: unread };
@@ -198,7 +198,7 @@ async function getFriendsByIdNotInChannel(uid: string, cid: any, task = db): Pro
     //이후 둘을 UNION하면 채널에 속하지 않은 모든 친구를 구할 수 있음.
     try {
         const result: user[] = await task.any(sql, [uid, cid]);
-        result.forEach((e) => e.friend_time = convertDate(e.friend_time)); // 시간 변환
+        result.forEach((e) => e.friend_time = convertDate(e.friend_time as string)); // 시간 변환
         return result;
     } catch (err) {
         throw errorAt('getFriendsByIdNotInChannel', err);

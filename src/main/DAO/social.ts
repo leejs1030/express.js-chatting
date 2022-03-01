@@ -8,7 +8,7 @@ import { user } from 'custom-type';
 
 async function getReceivedById(id: string, task = db): Promise<user[]> {
     try {
-        const sql = 'SELECT users.nick as sender_nick, users.id as sender_id, reqlist.req_time ' +
+        const sql = 'SELECT users.nick as nick, users.id as id, reqlist.req_time ' +
             'FROM reqlist INNER JOIN users ON users.id = reqlist.sender ' +
             'WHERE reqlist.receiver = $1 AND ' +
             'users.id not in (SELECT added FROM blist WHERE adder = $1)';
@@ -23,7 +23,7 @@ async function getReceivedById(id: string, task = db): Promise<user[]> {
 
 async function getSentById(id: string, task = db): Promise<user[]> {
     try {
-        const sql = 'SELECT users.nick as receiver_nick, users.id as receiver_id, req_time FROM reqlist join users ' +
+        const sql = 'SELECT users.nick as nick, users.id as id, req_time FROM reqlist join users ' +
             'on users.id = receiver WHERE sender = $1';
         //보낸 요청 확인.
         const result: user[] = await task.any(sql, [id]);

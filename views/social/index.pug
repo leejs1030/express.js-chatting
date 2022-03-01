@@ -28,13 +28,13 @@ block content
                 .list-group-item
                     each e in reqreceived
                         div.mb-4
-                            | #{e.sender_id}(#{e.sender_nick})
+                            | #{e.id}(#{e.nick})
                             span.float-right.form-inline
                                 form(method='POST' action='/social/friends').mr-2
-                                    input(type='hidden' name='uid' value=e.sender_id)
+                                    input(type='hidden' name='uid' value=e.id)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='수락')
-                                form(method='POST' action=`/social/requests/${e.sender_id}?_method=DELETE&me=receiver`)
+                                form(method='POST' action=`/social/requests/${e.id}?_method=DELETE&me=receiver`)
                                     input(type='hidden' name='_csrf' value=csrfToken)
                                     input.btn.btn-primary(type='submit' value='거절')
                             br
@@ -46,12 +46,12 @@ block content
                 .list-group-item
                     each e in reqsent
                         div.mb-4
-                            | #{e.receiver_id}(#{e.receiver_nick})
-                            form.form-inline.float-right(method='POST' action=`/social/requests/${e.receiver_id}?_method=DELETE&me=sender`)
+                            | #{e.id}(#{e.nick})
+                            form.form-inline.float-right(method='POST' action=`/social/requests/${e.id}?_method=DELETE&me=sender`)
                                 input(type='hidden' name='_csrf' value=csrfToken)
                                 input.btn.btn-primary(type='submit' value='취소')
                             //- .float-right
-                            //-     a.btn.btn-primary.mr-2.ml-5(href=`/social/cancel/${e.receiver_id}`) 취소
+                            //-     a.btn.btn-primary.mr-2.ml-5(href=`/social/cancel/${e.id}`) 취소
                                 //- need to change get --> delete
                             br
                             | #{e.req_time}

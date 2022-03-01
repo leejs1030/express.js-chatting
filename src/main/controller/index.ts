@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import ctrl = require('./ctrl');
-import channels = require('./channels');
-import auth = require('./auth');
-import social = require('./social');
-import settings = require('./settings');
+import * as ctrl from './ctrl';
+import channels from './channels';
+import auth from './auth';
+import social from './social';
+import settings from './settings';
 const router = Router({ // 대소문자 구분
     caseSensitive: true,
 });

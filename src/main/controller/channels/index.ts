@@ -2,7 +2,7 @@ import { Router } from 'express';
 const router = Router({
     caseSensitive: true,
 });
-import ctrl = require('./ctrl');
+import * as ctrl from './ctrl';
 import { authRequired } from '../auth/middleware'; // 로그인 여부 확인하는 미들웨어
 import { doesChannelExist, membershipRequired, ownRequired, isChannelId } from './middleware';
 // 각각 채널 존재 여부를 확인, 멤버 여부를 확인, 만든 사람인지 확인, 적절한 채널 아이디인지 확인하는 미들웨어

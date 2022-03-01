@@ -1,14 +1,14 @@
-const getAlertScript = (msg: string) => `<script>alert("${msg}");history.back();</script>`; // alert 메시지를 띄우기 위함
-const errorAt = (name: string, err: Error) => { // 반복 작업 축소
+const getAlertScript = (msg: string): string => `<script>alert("${msg}");history.back();</script>`; // alert 메시지 띄우기
+function errorAt(name: string, err: Error): Error { // 에러 처리를 위한 반복되는 코드를 축소
     console.error("Error at " + name);
     console.error(err);
     return err;
-};
-const isNumber = (str: string) =>{ // 숫자인지 판별
-	let x = parseInt(str);
-	if(isNaN(x)) return false;
-	return true;
-};
+}
+function isNumber(str: string): boolean { // 숫자인지 판별
+    let x = parseInt(str);
+    if (isNaN(x)) return false;
+    else return true;
+}
 
 export {
     getAlertScript,

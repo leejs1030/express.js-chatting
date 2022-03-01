@@ -1,4 +1,4 @@
-import {router as controller} from './controller';
+import controller from './controller';
 import { errorHandler } from './lib/error-handler';
 import Express from 'express';
 import morgan from 'morgan';

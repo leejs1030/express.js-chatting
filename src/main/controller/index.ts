@@ -13,4 +13,4 @@ router.use('/channels', channels); // channels 쪽 컨트롤러에게 넘겨 줌
 router.use('/social', social); // social 쪽 컨트롤러에게 넘겨 줌.
 router.use('/auth', auth); // auth 쪽 컨트롤러에게 넘겨 줌.
 router.use('/settings', settings); // settings 쪽 컨트롤러에게 넘겨 줌.
-export {router};
+export = router;

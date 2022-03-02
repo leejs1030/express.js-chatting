@@ -18,9 +18,9 @@ import pg from 'pg-promise/typescript/pg-subset';
  * 
  * @returns return value of f
  */
-async function compressIntoTask(f: Function, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<any> {
-    return task.task(async (t: any) => await f(t));
+async function compressIntoTask<T = any>(f: (t: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>) => T, 
+    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<T> {
+    return task.task(async (t): Promise<T> => await f(t));
 }
 /**
  * 
@@ -34,9 +34,9 @@ async function compressIntoTask(f: Function,
  * @returns return value of f
  */
 
-async function compressIntoTx(f: Function, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db) {
-    return task.tx(async (t: any) => await f(t));
+async function compressIntoTx<T = any>(f: (t: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>) => T, 
+    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<T> {
+    return task.tx(async (t): Promise<T> => await f(t));
 }
 
 export { UserDAO, SocialDAO, ChannelDAO, compressIntoTask, compressIntoTx };

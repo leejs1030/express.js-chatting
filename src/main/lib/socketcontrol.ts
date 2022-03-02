@@ -2,6 +2,8 @@ import { errorAt } from '../lib/usefulJS';
 import { ChannelDAO, SocialDAO, compressIntoTx } from '../DAO';
 import { channelInfo, msg, user } from 'custom-type';
 import socket from 'socket.io';
+import pgPromise from 'pg-promise';
+import pg from 'pg-promise/typescript/pg-subset';
 
 async function initChattingListener(io: socket.Server ,socket: socket.Socket, roomnum: number) {
 	// 처음 소켓에 접속하면 접속 채널 등의 정보를 통해 적절한 room에 넣어줌.
@@ -51,13 +53,14 @@ async function receiveAndSend(io: socket.Server, socket: socket.Socket, receiveD
 }
 
 async function inviteFriend(io: socket.Server, socket: socket.Socket, roomnum: number, targetId: string): Promise<boolean> {
-    return compressIntoTx(async (): Promise<channelInfo> => {
-        if (!(await SocialDAO.isFriend(socket.handshake.session.user?.id as string, targetId))) throw new Error("User can only invite their friends.");
-        if (await ChannelDAO.isChannelMember(roomnum, targetId)) throw new Error("You can't invite who is already in channel.");
-        await ChannelDAO.includeToChannel(roomnum, targetId);
-        return (await ChannelDAO.getChannelInfoById(roomnum, targetId));
-    })
-        .then((channelInfo: channelInfo) => io.to(targetId).emit(`invite`, channelInfo))
+    const includeToChannel = async (t: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>): Promise<channelInfo> =>{
+        if (!(await SocialDAO.isFriend(socket.handshake.session.user?.id as string, targetId, t))) throw new Error("User can only invite their friends.");
+        if (await ChannelDAO.isChannelMember(roomnum, targetId, t)) throw new Error("You can't invite who is already in channel.");
+        await ChannelDAO.includeToChannel(roomnum, targetId, t);
+        return (await ChannelDAO.getChannelInfoById(roomnum, targetId, t));
+    }
+    return await compressIntoTx(includeToChannel)
+        .then((channelInfo) => io.to(targetId).emit(`invite`, channelInfo))
         .catch((err: Error) => { throw errorAt('inviteFriend', err); });
 }
 

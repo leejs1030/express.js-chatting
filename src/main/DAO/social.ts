@@ -2,7 +2,7 @@ import db from '../lib/dbconnection';
 import { convertDate } from '../lib/convertDate';
 import { getById } from './user';
 import { errorAt } from '../lib/usefulJS';
-import { atomictask, user } from 'custom-type';
+import { atomictask, socials, user } from 'custom-type';
 
 
 //받은 요청 확인. 단, 내가 차단한 상대로부터 들어온 요청은 보이지 않음.
@@ -206,19 +206,6 @@ async function unBlack(adder: string, added: string,
         return 0;
     } catch (err) {
         throw errorAt('unBlack', err);
-    }
-}
-
-declare interface socials{
-    reqreceived: user[],
-    reqsent: user[],
-    friendlist: user[],
-    blacklist: user[],
-    counts: {
-        received: number,
-        sent: number,
-        friends: number,
-        blacks: number,
     }
 }
 

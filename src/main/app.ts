@@ -16,7 +16,7 @@ const key = fs.readFileSync(SSL_KEY);
 const cert = fs.readFileSync(SSL_CERT);
 
 const app: Express.Application = Express();
-const server: any = http.createServer({key, cert}, app);
+const server: any = http.createServer({key, cert}, app); // server의 타입은 http의 Server이거나 https의 Server임
 const io: socket.Server = new socket.Server(server);
 
 app.set('strict routing', true); // 맨 뒤에 / 오는 것 방지용

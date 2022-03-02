@@ -5,30 +5,32 @@ import * as socketcontrol from './lib/socketcontrol'; // socket
 import { sessionmiddleware } from './middleware'; // session middleware. 소켓에서도 세션 확인하고자 사용.
 import sharedsession from "express-socket.io-session";// 세션을 소켓에서 사용하여, id 위조의 가능성을 차단함.
 import { msg } from 'custom-type';
+import { Server, Socket } from 'socket.io';
 const port = process.env.PORT || 4000; // 포트(환경변수 사용)
 const { SESSION_SECRET, PROTOCOL } = process.env as {SESSION_SECRET: string, PROTOCOL: string}; // 환경변수
 
-const io = app.get('socketio'); // 소켓
+const io: Server = app.get('socketio'); // 소켓
 const server = app.get('server'); // 서버
 
 const channelPos = 2; // URI에서 "channels"가 등장하는 위치.
 const isChannelURI = (URI: string[]) => (URI[channelPos] == 'channels'); // 채널 URI인지 확인하기.
 
-io.use(sharedsession(sessionmiddleware(SESSION_SECRET, PROTOCOL), {
-	autoSave: true,
-}));
+io.use(
+	(socket: Socket, next: ((err?: any) => void)) =>
+	sharedsession(sessionmiddleware(SESSION_SECRET, PROTOCOL))(socket as any, next)
+);
 
-io.on('connection', async (socket: any) => {
+io.on('connection', async (socket: Socket) => {
 	const URIs: string[] = (socket.handshake.headers.referer as string).split('/').filter(i => i);
 	// 주소를 /단위로 끊어서 리스트로 저장. '' 문자열은 제거(filter의 map과 구분되는 특성)
 	const roomnum = (isChannelURI(URIs)) ? parseInt(URIs[channelPos + 1]) : null;
 	if(roomnum !== null){
-		socketcontrol.initialJoinRoom(socket, roomnum); // 처음 소켓에 접속하면 접속 채널 등의 정보를 통해 적절한 room에 넣어줌.
+		await socketcontrol.initialJoinRoom(socket, roomnum); // 처음 소켓에 접속하면 접속 채널 등의 정보를 통해 적절한 room에 넣어줌.
 		socket.on('new msg', async (receiveData: msg) => await socketcontrol.receiveAndSend(io, socket, receiveData, roomnum) );
 		// 새 메시지를 누가 보내면, 서버에서 받아서 다른 사람들에게 전달. db도 수정함.
-		socket.on('read', async () => await ChannelDAO.readMsgFromChannel(socket.handshake.session.user.id, roomnum) );
+		socket.on('read', async () => await ChannelDAO.readMsgFromChannel((socket.handshake.session.user?.id) as string, roomnum) );
 		// 새 메시지를 읽으면, db에 읽었음을 확인.
-		socket.on('disconnect', async () => await socket.removeAllListeners());
+		socket.on('disconnect', async () => socket.removeAllListeners());
 		socket.on('invite', async (targetId: string) => await socketcontrol.inviteFriend(io, socket, roomnum, targetId) );
 		// 다른 사람을 채널에 초대 요청을 누가 보내면, 서버에서 받아서 해당 사람에게 알려줌.
 		socket.on('join to', async () => await socketcontrol.initialJoinRoom(socket, roomnum) );

@@ -2,14 +2,12 @@ import db from '../lib/dbconnection';
 import { convertDate } from '../lib/convertDate';
 import { getById } from './user';
 import { errorAt } from '../lib/usefulJS';
-import { user } from 'custom-type';
-import pgPromise from 'pg-promise';
-import pg from 'pg-promise/typescript/pg-subset';
+import { atomictask, user } from 'custom-type';
 
 
 //받은 요청 확인. 단, 내가 차단한 상대로부터 들어온 요청은 보이지 않음.
 async function getReceivedById(id: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<user[]> {
+    task: atomictask = db): Promise<user[]> {
     const sql = 'SELECT users.nick as nick, users.id as id, reqlist.req_time ' +
         'FROM reqlist INNER JOIN users ON users.id = reqlist.sender ' +
         'WHERE reqlist.receiver = $1 AND ' +
@@ -25,7 +23,7 @@ async function getReceivedById(id: string,
 
 //보낸 요청 확인.
 async function getSentById(id: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<user[]> {
+    task: atomictask = db): Promise<user[]> {
     const sql = 'SELECT users.nick as nick, users.id as id, req_time FROM reqlist join users ' +
         'on users.id = receiver WHERE sender = $1';
     try {
@@ -39,7 +37,7 @@ async function getSentById(id: string,
 
 //친구 확인.
 async function getFriendsById(id: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<user[]> {
+    task: atomictask = db): Promise<user[]> {
     const sql = 'SELECT id1 as id, nick, friend_time FROM flist join users on users.id = flist.id1 WHERE id2 = $1 UNION ' +
         'SELECT id2 as id, nick, friend_time FROM flist join users on users.id = flist.id2 WHERE id1 = $1';
     try {
@@ -53,7 +51,7 @@ async function getFriendsById(id: string,
 
 //블랙 확인
 async function getBlacksById(id: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<user[]> {
+    task: atomictask = db): Promise<user[]> {
     const sql = 'SELECT blist.added as id, nick, black_time FROM blist, users WHERE users.id = blist.added and blist.adder = $1';
     try {
         const result: user[] = await task.any(sql, [id]);
@@ -66,7 +64,7 @@ async function getBlacksById(id: string,
 
 // 요청 수락하기
 async function allowRequest(sender: string, receiver: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const sql1 = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2 RETURNING *';
     //친구 요청 수락하기 위해, 요청리스트 테이블에서 요청을 지우고
     const sql2 = 'INSERT INTO flist values($1, $2, now())';
@@ -81,7 +79,7 @@ async function allowRequest(sender: string, receiver: string,
 
 // 요청을 보낼 수 있는지 확인
 async function canSendRequest(sender: string, receiver: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<boolean> {
+    task: atomictask = db): Promise<boolean> {
     if (sender === receiver) return false;
     try {
         const sqlfriend = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; // 친구이거나
@@ -97,7 +95,7 @@ async function canSendRequest(sender: string, receiver: string,
 
 // 새로운 친구 요청 만들기
 async function newRequest(sender: string, receiver: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<number> {
+    task: atomictask = db): Promise<number> {
     const sqlSendReq = 'INSERT INTO reqlist values($1, $2, now())'; //친구 요청 전송하는 쿼리문
     return await task.tx('send-request-tx', async (t: any) => {
         if (!(await getById(receiver, t))) return 2; //상대방이 존재하는지 확인
@@ -112,7 +110,7 @@ async function newRequest(sender: string, receiver: string,
 
 // 블랙 추가 가능한지 확인
 async function canAddBlack(adder: string, added: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<boolean> {
+    task: atomictask = db): Promise<boolean> {
     if (adder === added) return false;
     try {
         const sql = 'SELECT * FROM blist WHERE adder = $1 and added = $2'; //이미 블랙했는지 확인
@@ -125,7 +123,7 @@ async function canAddBlack(adder: string, added: string,
 
 //새로 블랙하기
 async function newBlack(adder: string, added: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<number> {
+    task: atomictask = db): Promise<number> {
     const sqlDelFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
     const sqlDelReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
     const sqlAddBlack = 'INSERT INTO blist values($1, $2, now())';
@@ -144,7 +142,7 @@ async function newBlack(adder: string, added: string,
 
 // 친구인지 확인
 async function isFriend(id1: string, id2: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<boolean> {
+    task: atomictask = db): Promise<boolean> {
     const sql = 'SELECT * FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; //친구인지 확인
     //(id1, id2) 형태로 저장되었으므로, (a,b)와 (b,a)를 모두 고려해야함. 두 가지 경우 모두 a와 b가 친구.
     try {
@@ -157,7 +155,7 @@ async function isFriend(id1: string, id2: string,
 
 // 요청 지우기
 async function cancelRequest(sender: string, receiver: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const sql = 'DELETE FROM reqlist WHERE sender = $1 and receiver = $2'; //친구 요청 취소
     try {
         await task.none(sql, [sender, receiver]);
@@ -169,7 +167,7 @@ async function cancelRequest(sender: string, receiver: string,
 
 // 친구 삭제하기
 async function deleteFriend(id1: string, id2: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const sql = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id1 = $2 and id2 = $1)'; //친구로부터 삭제
     try {
         await task.none(sql, [id1, id2]);
@@ -181,7 +179,7 @@ async function deleteFriend(id1: string, id2: string,
 
 // 차단 해제하기
 async function unBlack(adder: string, added: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const sql = 'DELETE FROM blist WHERE (adder = $1 and added = $2)'; //블랙리스트로부터 삭제
     try {
         await task.none(sql, [adder, added]);
@@ -206,7 +204,7 @@ declare interface socials{
 
 // social탭에서 사용할 다양한 것들에 대한 정보를 불러옴.
 async function getSocialsById(id: string, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<socials> {
+    task: atomictask = db): Promise<socials> {
     return await task.tx('get-socials-tx', async (t: any) => {
         const reqreceived = await getReceivedById(id, t);
         const reqsent = await getSentById(id, t);

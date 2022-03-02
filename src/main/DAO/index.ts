@@ -2,9 +2,7 @@ import * as UserDAO from'./user';
 import * as SocialDAO from'./social';
 import * as ChannelDAO from'./channel';
 import db from '../lib/dbconnection';
-import pgPromise from 'pg-promise';
-import pg from 'pg-promise/typescript/pg-subset';
-
+import { atomictask } from 'custom-type';
 /**
  * 
  * @param {Function} f 
@@ -12,14 +10,14 @@ import pg from 'pg-promise/typescript/pg-subset';
  * will be sequential DAO function inside of f
  * DAO function inside of f must use their last parameter as t to work with one(same) connection.
  * 
- * @param {pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>=} task
+ * @param {atomictask=} task
  * will be Database from pg-promise
  * optional.
  * 
  * @returns return value of f
  */
-async function compressIntoTask<T = any>(f: (t: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>) => T, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<T> {
+async function compressIntoTask<T = any>(f: (t: atomictask) => T, 
+    task: atomictask = db): Promise<T> {
     return task.task(async (t): Promise<T> => await f(t));
 }
 /**
@@ -29,13 +27,13 @@ async function compressIntoTask<T = any>(f: (t: pgPromise.IDatabase<{}, pg.IClie
  * will be sequential DAO function inside of f
  * DAO function inside of f must use their last parameter as t to work with one(same) connection.
  * 
- * @param {pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>=} task
+ * @param {atomictask=} task
  * optional.
  * @returns return value of f
  */
 
-async function compressIntoTx<T = any>(f: (t: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>) => T, 
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<T> {
+async function compressIntoTx<T = any>(f: (t: atomictask) => T, 
+    task: atomictask = db): Promise<T> {
     return task.tx(async (t): Promise<T> => await f(t));
 }
 

@@ -2,13 +2,11 @@ import { convertDate } from '../lib/convertDate';
 import db from '../lib/dbconnection';
 import { errorAt } from '../lib/usefulJS';
 import { canAddBlack, canSendRequest } from './social';
-import { channelInfo, user, msg} from 'custom-type';
-import pgPromise from 'pg-promise';
-import pg from 'pg-promise/typescript/pg-subset';
+import { channelInfo, user, msg, atomictask} from 'custom-type';
 
 //사용자가 참여 중인 채널들을 모두 불러온다. 업데이트 시간 내림차순. 최근 게 제일 처음에 오도록.
 async function getChannelsByUserId(uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<channelInfo[]> {
+    task: atomictask = db): Promise<channelInfo[]> {
     const sql = 'SELECT id, name, unread, update_time, creater FROM channel_users join channels ON id = channel_id ' +
         'WHERE user_id = $1 ORDER BY update_time DESC';
     try {
@@ -24,7 +22,7 @@ async function getChannelsByUserId(uid: string,
 
 // 유저(uid가) 특정 채널(cid)에서 읽지 않은 메시지의 개수를 리턴.
 async function getChannelUnreadById(cid: number, uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<number> {
+    task: atomictask = db): Promise<number> {
     const sql = 'SELECT unread FROM channel_users WHERE channel_id = $1 and user_id = $2';
     try {
         return (await task.one(sql, [cid, uid]) as { unread: number; }).unread; // 스칼라
@@ -35,7 +33,7 @@ async function getChannelUnreadById(cid: number, uid: string,
 
 //채널 정보 불러오기
 async function getChannelInfoById(cid: number, uid?: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<channelInfo> {
+    task: atomictask = db): Promise<channelInfo> {
     const sql = 'SELECT * FROM channels WHERE id = $1'; // cid로 채널 정보 불러오기
     return task.tx('get-channel-tx', async (t: any): Promise<channelInfo> => {
         const result: channelInfo = (await t.one(sql, [cid]));
@@ -51,7 +49,7 @@ async function getChannelInfoById(cid: number, uid?: string,
 
 //사용자가 참여 중인 채널의 수를 센다.
 async function countChannelsByUserId(uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<number> {
+    task: atomictask = db): Promise<number> {
     const sql = 'SELECT count(*)::int as num FROM channel_users WHERE user_id = $1 GROUP BY user_id';
     try {
         const result: (null | { num: number; }) = (await task.oneOrNone(sql, [uid]));
@@ -64,7 +62,7 @@ async function countChannelsByUserId(uid: string,
 
 // 채널 만들기
 async function createChannel(channelName: string, creater: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<number> {
+    task: atomictask = db): Promise<number> {
     const sqlchannel = 'INSERT INTO channels values(DEFAULT, $1, $2, now()) RETURNING id::int;';
     const sqlchanuser = 'INSERT INTO channel_users values($1, $2, 0)';
     return task.tx('create-channel-tx', async (t): Promise<number> => {
@@ -77,7 +75,7 @@ async function createChannel(channelName: string, creater: string,
 
 //채널 멤버인지 확인.
 async function isChannelMember(cid: number, uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<boolean> {
+    task: atomictask = db): Promise<boolean> {
     const sql = "SELECT * FROM channel_users WHERE channel_id = $1 and user_id = $2";
     try {
         const result: (null | {}) = await task.oneOrNone(sql, [cid, uid]);
@@ -89,7 +87,7 @@ async function isChannelMember(cid: number, uid: string,
 
 //채널 생성자인지 확인.
 async function isChannelCreater(cid: number, uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<boolean> {
+    task: atomictask = db): Promise<boolean> {
     const sql = "SELECT * FROM channels WHERE id = $1 and creater = $2";
     try {
         const result: (null | {}) = await task.oneOrNone(sql, [cid, uid]);
@@ -101,7 +99,7 @@ async function isChannelCreater(cid: number, uid: string,
 
 //해당 채널에 있는 모든 메시지를 시간 오름차순으로 정렬한 것을 가져옴.
 async function getMsgFromChannel(cid: number, uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<{ msglist: msg[]; unread: number; }> {
+    task: atomictask = db): Promise<{ msglist: msg[]; unread: number; }> {
     const sql = "SELECT id, nick, content as msg, msg_time, channel_id FROM msg JOIN users on id = sender WHERE channel_id = $1 "
         + "ORDER BY msg_time ASC";
     return task.tx('get-msg-tx', async (t): Promise<{ msglist: msg[]; unread: number; }> => {
@@ -116,7 +114,7 @@ async function getMsgFromChannel(cid: number, uid: string,
 
 //UPDATE문을 사용해 사용자가 해당 채널에 읽지 않은 메시지 수를 0으로 설정.
 async function readMsgFromChannel(uid: string, cid: number,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const sql2 = "UPDATE channel_users SET unread = 0 WHERE channel_id = $1 and user_id = $2";
     try {
         await task.none(sql2, [cid, uid]);
@@ -128,7 +126,7 @@ async function readMsgFromChannel(uid: string, cid: number,
 
 // 메시지 보내기
 async function sendMsg(uid: string, cid: number, content: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<string> {
+    task: atomictask = db): Promise<string> {
     const sqlSendMsg = "INSERT INTO msg values($1, $2, now(), $3) RETURNING msg_time";
     //현재 체널에 메시지를 보내고, 보낸 시간을 기록.
     const chanSql = "UPDATE channels SET update_time = $1 WHERE id = $2";
@@ -147,7 +145,7 @@ async function sendMsg(uid: string, cid: number, content: string,
 
 //채널을 나가기.
 async function quitChannel(cid: number, uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const sql = "DELETE FROM channel_users WHERE channel_id = $1 and user_id = $2";
     try {
         await task.none(sql, [cid, uid]);
@@ -159,7 +157,7 @@ async function quitChannel(cid: number, uid: string,
 
 //채널을 삭제.
 async function deleteChannel(cid: number,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const sql = "DELETE FROM channels WHERE id = $1";
     try {
         await task.none(sql, [cid]);
@@ -171,7 +169,7 @@ async function deleteChannel(cid: number,
 
 // 채널에 속한 유저들을 모두 가져 옴.
 async function getMemberFromChannel(cid: number, uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<user[]> {
+    task: atomictask = db): Promise<user[]> {
     const sql = 'SELECT user_id as id, nick FROM channel_users join users on id = user_id ' +
         'WHERE channel_id = $1 ORDER BY nick ASC';
     return task.tx('get-member-tx', async (t): Promise<user[]> => {
@@ -187,7 +185,7 @@ async function getMemberFromChannel(cid: number, uid: string,
 
 //친구(uid)를 채널(cid)에 초대(포함시킴)
 async function includeToChannel(cid: number, uid: string,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<0> {
+    task: atomictask = db): Promise<0> {
     const msgCountSql = 'SELECT count(*)::int as num FROM msg GROUP BY channel_id HAVING channel_id = $1';
     // 초대하고자하는 채널의 메시지 개수를 불러옴.
     const includeChannelSql = 'INSERT INTO channel_users values($1, $2, $3)';
@@ -205,7 +203,7 @@ async function includeToChannel(cid: number, uid: string,
 
 // 유저(uid)의 친구 중 채널(cid)에 속하지 않은 친구의 리스트를 구함.
 async function getFriendsByIdNotInChannel(uid: string, cid: any,
-    task: pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}> = db): Promise<user[]> {
+    task: atomictask = db): Promise<user[]> {
     const sql = '(SELECT id1 as id, nick, friend_time FROM flist join users on users.id = flist.id1 WHERE id2 = $1 and ' +
         'users.id not in (SELECT user_id FROM channel_users WHERE channel_id = $2)'
         + ' UNION ' +

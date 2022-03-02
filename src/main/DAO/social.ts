@@ -93,7 +93,17 @@ async function canSendRequest(sender: string, receiver: string,
     }
 }
 
-// 새로운 친구 요청 만들기
+/**
+ * Send new friend request to user.
+ * @param sender 
+ * @param receiver 
+ * @param task 
+ * @returns Return result code.
+ * 
+ * It returns 0 when query success.
+ * It returns 1 when There is matching id for target id, but can't send request.
+ * It returns 2 when There is no matching id for target id.
+ */
 async function newRequest(sender: string, receiver: string, 
     task: atomictask = db): Promise<0 | 2 | 1> {
     const sqlSendReq = 'INSERT INTO reqlist values($1, $2, now())'; //친구 요청 전송하는 쿼리문
@@ -121,9 +131,19 @@ async function canAddBlack(adder: string, added: string,
     }
 }
 
-//새로 블랙하기
+/**
+ * Add user to blacklist
+ * @param adder 
+ * @param added 
+ * @param task
+ * @returns Return result code.
+ * 
+ * It returns 0 when query success.
+ * It returns 2 when There is no matching id for target id
+ * It returns 3 when There is matching Id for added, but can't add to blacklist.
+ */
 async function newBlack(adder: string, added: string, 
-    task: atomictask = db): Promise<number> {
+    task: atomictask = db): Promise<0 | 2 | 3> {
     const sqlDelFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
     const sqlDelReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
     const sqlAddBlack = 'INSERT INTO blist values($1, $2, now())';

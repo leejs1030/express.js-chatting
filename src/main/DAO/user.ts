@@ -19,7 +19,7 @@ async function createUser(id: string, encryptedPassword: string, nick: string,
     task: atomictask = db): Promise<boolean> {
     const sql1 = 'INSERT INTO users values($1, $2, $3)'; // id, password, nick을 받아서 유저 테이블에 삽입.
     const sql2 = 'INSERT INTO user_settings values($1)'; // 유저 설정 값 테이블에도 등록
-    return task.tx('create-user', async (t: any) => {
+    return task.tx('create-user', async (t): Promise<boolean> => {
         if (await getById(id, t))
             return false; // id 중복 확인 과정. 중복이면 생성 실패(return false).
         await t.none(sql1, [id, encryptedPassword, nick]);

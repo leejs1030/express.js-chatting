@@ -35,7 +35,7 @@ async function getChannelUnreadById(cid: number, uid: string,
 async function getChannelInfoById(cid: number, uid?: string,
     task: atomictask = db): Promise<channelInfo> {
     const sql = 'SELECT * FROM channels WHERE id = $1'; // cid로 채널 정보 불러오기
-    return task.tx('get-channel-tx', async (t: any): Promise<channelInfo> => {
+    return task.tx('get-channel-tx', async (t): Promise<channelInfo> => {
         const result: channelInfo = (await t.one(sql, [cid]));
         if (uid !== undefined) result.unread = (await getChannelUnreadById(cid, uid, t)); // uid가 들어왔다면, unread도 설정하기
         return result;

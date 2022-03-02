@@ -69,7 +69,7 @@ async function allowRequest(sender: string, receiver: string,
     //친구 요청 수락하기 위해, 요청리스트 테이블에서 요청을 지우고
     const sql2 = 'INSERT INTO flist values($1, $2, now())';
     //그 요청을 받아들여 친구리스트 테이블에 추가
-    return await task.tx('allow-request-tx', async (t: any): Promise<0> => {
+    return await task.tx('allow-request-tx', async (t): Promise<0> => {
         await t.one(sql1, [sender, receiver]); // one: 요청을 지운 것이 하나여야만 한다. 0개 or 여러 개면 에러!
         await t.none(sql2, [sender, receiver]);
         return 0;
@@ -95,9 +95,9 @@ async function canSendRequest(sender: string, receiver: string,
 
 // 새로운 친구 요청 만들기
 async function newRequest(sender: string, receiver: string, 
-    task: atomictask = db): Promise<number> {
+    task: atomictask = db): Promise<0 | 2 | 1> {
     const sqlSendReq = 'INSERT INTO reqlist values($1, $2, now())'; //친구 요청 전송하는 쿼리문
-    return await task.tx('send-request-tx', async (t: any) => {
+    return await task.tx('send-request-tx', async (t): Promise<0 | 2 | 1> => {
         if (!(await getById(receiver, t))) return 2; //상대방이 존재하는지 확인
         if (await canSendRequest(sender, receiver, t)) {
             await t.none(sqlSendReq, [sender, receiver]);
@@ -127,7 +127,7 @@ async function newBlack(adder: string, added: string,
     const sqlDelFlist = 'DELETE FROM flist WHERE (id1 = $1 and id2 = $2) or (id2 = $1 and id1 = $2)';
     const sqlDelReqlist = 'DELETE FROM reqlist where (sender = $1 and receiver = $2)';
     const sqlAddBlack = 'INSERT INTO blist values($1, $2, now())';
-    return await task.tx('new-black-tx', async (t: any) => {
+    return await task.tx('new-black-tx', async (t): Promise<0 | 2 | 3> => {
         if (!(await getById(added, t))) return 2;
         if (await canAddBlack(adder, added, t)) {
             await t.none(sqlDelFlist, [adder, added]);
@@ -205,7 +205,7 @@ declare interface socials{
 // social탭에서 사용할 다양한 것들에 대한 정보를 불러옴.
 async function getSocialsById(id: string, 
     task: atomictask = db): Promise<socials> {
-    return await task.tx('get-socials-tx', async (t: any) => {
+    return await task.tx('get-socials-tx', async (t): Promise<socials> => {
         const reqreceived = await getReceivedById(id, t);
         const reqsent = await getSentById(id, t);
         const friendlist = await getFriendsById(id, t);
@@ -221,7 +221,7 @@ async function getSocialsById(id: string,
                 friends: friendlist.length,
                 blacks: blacklist.length,
             },
-        };
+        } as socials;
     })
         .catch((err: Error) => { throw errorAt('getSocialsById', err); });
 }

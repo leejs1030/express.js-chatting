@@ -59,21 +59,21 @@ for(e of clist){ // 채널 리스트에서
 socket.on(`invite`, (channelInfo) => { // 채널에 초대받은 경우
     const newChannel = document.createElement('div'); // 새 채널 정보를 넣기 위한 div 태그 element 생성
     // console.log(channelInfo);
-    newChannel.id = `C${channelInfo.cid}`; // id 속성 설정
+    newChannel.id = `C${channelInfo.id}`; // id 속성 설정
     newChannel.className += ' row mb-3 col-12'; // className 설정. bootstrap을 위함
-    newChannel.innerHTML = `<div class='list-group-item col-11 h-100'><a class='h1' href='/channels/${channelInfo.cid}'>${channelInfo.cname}</a>(읽지 않은 메시지: <span id='C${channelInfo.cid}unread' class=' text-danger font-weight-bold'>${channelInfo.cunread}</span>)<span class='alert alert-danger' id='C${channelInfo.cid}NEW'>NEW!</span><div class='float-right'>최근 업데이트<br><span class='time-info' id='C${channelInfo.cid}time'>${channelInfo.ctime}</span></div></div><form class='form-inline float-right col-1' method='POST' action='/channels/${channelInfo.cid}?_method=PUT'><input type='hidden' name='_csrf' value=${csrfToken}><input class='btn btn-warning' type='submit' id='C${channelInfo.cid}quit' onclick='return confirm("정말 나가시겠습니까?");' value='나감'></form>`
+    newChannel.innerHTML = `<div class='list-group-item col-11 h-100'><a class='h1' href='/channels/${channelInfo.id}'>${channelInfo.name}</a>(읽지 않은 메시지: <span id='C${channelInfo.id}unread' class=' text-danger font-weight-bold'>${channelInfo.unread}</span>)<span class='alert alert-danger' id='C${channelInfo.id}NEW'>NEW!</span><div class='float-right'>최근 업데이트<br><span class='time-info' id='C${channelInfo.id}time'>${channelInfo.update_time}</span></div></div><form class='form-inline float-right col-1' method='POST' action='/channels/${channelInfo.id}?_method=PUT'><input type='hidden' name='_csrf' value=${csrfToken}><input class='btn btn-warning' type='submit' id='C${channelInfo.id}quit' onclick='return confirm("정말 나가시겠습니까?");' value='나감'></form>`
     // innerHTML 수정.
-    const getPos = binary_search(channelInfo.ctime); // 시간을 통해 들어가야 할 위치 찾기
+    const getPos = binary_search(channelInfo.update_time); // 시간을 통해 들어가야 할 위치 찾기
     // getPos: 자신보다 큰 시간을 가진 애들 중 가장 작은 애의 위치.
     // 따라서, getPos 바로 뒤에 들어가야 함.
     if(getPos != -1) channelList.insertBefore(newChannel, channelList.childNodes[getPos].nextSibling); // getPos번 노드 바로 뒤에 넣기
     else channelList.insertBefore(newChannel, channelList.childNodes[0]); // 예외: -1이면, 맨 앞에 넣기.
-    const newbox = document.getElementById(`C${channelInfo.cid}NEW`); // new box 만들기
+    const newbox = document.getElementById(`C${channelInfo.id}NEW`); // new box 만들기
     if(!("alert" in newbox.classList)) newbox.className += ' alert alert-danger';
     newbox.textContent = "NEW!";
     // 어차피 새 채널에 초대받으면 항상 NEW를 띄워야 한다.
     // unread > 0 ==> 당연히 NEW 띄움
     // unread == 0 ==> 새 채널임을 알리기 위해서 1로 설정되서 들어 옴.
     // unread < 0 ==> 존재하지 않음.
-    socket.emit('join to'); // 채널에 join 했음을 알리기 위한 소켓 통신.
+    socket.emit('join to', channelInfo); // 채널에 join 했음을 알리기 위한 소켓 통신.
 });

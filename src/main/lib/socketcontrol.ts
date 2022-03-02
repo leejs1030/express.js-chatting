@@ -14,7 +14,7 @@ async function initChattingListener(io: socket.Server ,socket: socket.Socket, ro
 	// 다른 사람을 채널에 초대 요청을 누가 보내면, 서버에서 받아서 해당 사람에게 알려줌.
 	socket.on('invite', async (targetId: string) => await inviteFriend(io, socket, roomnum, targetId));
 	// 새 채널에 초대받았다면, 새로운 룸에 접속시키기 위해서(해당 룸의 메시지를 봐야 하므로) 사용.
-	socket.on('join to', async () => await initialJoinRoom(socket, roomnum));
+	socket.on('join to', async (channelInfo: channelInfo) => socket.join(channelInfo.id.toString()));
 }
 
 async function initialJoinRoom(socket: socket.Socket, roomnum: number): Promise<0> {
@@ -33,9 +33,9 @@ async function initialJoinRoom(socket: socket.Socket, roomnum: number): Promise<
     }
 }
 
-const receiveAndSend = async (io: socket.Server, socket: socket.Socket, receiveData: msg, roomnum: number) =>{
-    try{
-        const {user} = (socket.handshake.session) as {user: user};
+async function receiveAndSend(io: socket.Server, socket: socket.Socket, receiveData: msg, roomnum: number): Promise<boolean> {
+    try {
+        const { user } = (socket.handshake.session) as { user: user; };
         const receiveTime = await ChannelDAO.sendMsg(user.id, roomnum, receiveData.msg);
         const sendData: msg = {
             id: user.id,
@@ -45,28 +45,20 @@ const receiveAndSend = async (io: socket.Server, socket: socket.Socket, receiveD
             msg_time: receiveTime,
         };
         return io.to(sendData.channel_id?.toString() as string).emit(`update`, sendData);
-    } catch(err){
-        console.log(err);
-        return err;
+    } catch (err) {
+        throw errorAt("receiveAndSend", err);
     }
 }
 
-const inviteFriend = async (io: socket.Server, socket: socket.Socket, roomnum: number, targetId: string) =>{
-    compressIntoTx(async (): Promise<channelInfo> => {
-        if(!(await SocialDAO.isFriend(socket.handshake.session.user?.id as string, targetId))) throw new Error("User can only invite their friends.");
-        if(await ChannelDAO.isChannelMember(roomnum, targetId)) throw new Error("You can't invite who is already in channel.");
+async function inviteFriend(io: socket.Server, socket: socket.Socket, roomnum: number, targetId: string): Promise<boolean> {
+    return compressIntoTx(async (): Promise<channelInfo> => {
+        if (!(await SocialDAO.isFriend(socket.handshake.session.user?.id as string, targetId))) throw new Error("User can only invite their friends.");
+        if (await ChannelDAO.isChannelMember(roomnum, targetId)) throw new Error("You can't invite who is already in channel.");
         await ChannelDAO.includeToChannel(roomnum, targetId);
         return (await ChannelDAO.getChannelInfoById(roomnum, targetId));
     })
-        .then((channelInfo: channelInfo) => {
-            io.to(targetId).emit(`invite`, {
-                cid: roomnum,
-                cname: channelInfo.name,
-                cunread: channelInfo.unread,
-                ctime: channelInfo.update_time,
-            });
-        })
-        .catch((err: Error) => {throw errorAt('inviteFriend', err);});
+        .then((channelInfo: channelInfo) => io.to(targetId).emit(`invite`, channelInfo))
+        .catch((err: Error) => { throw errorAt('inviteFriend', err); });
 }
 
 export {

@@ -117,7 +117,6 @@ async function newRequest(sender: string, receiver: string,
     })
         .catch((err: Error) => { throw errorAt('newRequest', err); });
 }
-
 // 블랙 추가 가능한지 확인
 async function canAddBlack(adder: string, added: string, 
     task: atomictask = db): Promise<boolean> {

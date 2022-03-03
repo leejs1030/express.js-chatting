@@ -1,7 +1,7 @@
 import { ChannelDAO, SocialDAO, UserDAO, compressIntoTask } from '../../DAO';
 import { getAlertScript } from '../../lib/usefulJS';
 import { NextFunction, Request, Response } from 'express';
-import { msg, user } from 'custom-type';
+import { atomictask, msg, user } from 'custom-type';
 
 // GET /
 async function indexPage(req: Request, res: Response, next: NextFunction): Promise<void> { // 채널 목록을 보여주는 기본 페이지 렌더링
@@ -39,7 +39,7 @@ async function showChannel(req: Request, res: Response, next: NextFunction): Pro
         const { user } = req.session as {user: user};
         const channelId = parseInt(req.params.channelId);
         let msglist: msg[] = [], unread: number = 0, send_enter: boolean = true, channelName: string = "";
-        const loadChannelInfo = async (t: any) => {
+        const loadChannelInfo = async (t: atomictask): Promise<void> => {
             let msginfo = await ChannelDAO.getMsgFromChannel(channelId, user.id, t); // 메시지 불러오기
             msglist = msginfo.msglist; unread = msginfo.unread;
             let configinfo = await UserDAO.getSettingById(user.id, t); // 설정값에서 엔터로 전송할지 여부 불러오기

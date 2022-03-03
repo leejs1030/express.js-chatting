@@ -1,8 +1,8 @@
-import UserDAO = require('./user');
-import SocialDAO = require('./social');
-import ChannelDAO = require('./channel');
+import * as UserDAO from'./user';
+import * as SocialDAO from'./social';
+import * as ChannelDAO from'./channel';
 import db from '../lib/dbconnection';
-
+import { atomictask } from 'custom-type';
 /**
  * 
  * @param {Function} f 
@@ -10,14 +10,15 @@ import db from '../lib/dbconnection';
  * will be sequential DAO function inside of f
  * DAO function inside of f must use their last parameter as t to work with one(same) connection.
  * 
- * @param {any=} task
+ * @param {atomictask=} task
  * will be Database from pg-promise
  * optional.
  * 
  * @returns return value of f
  */
-async function compressIntoTask(f: Function, task: any | undefined = db): Promise<any> {
-    return task.task(async (t: any) => await f(t));
+async function compressIntoTask<T = any>(f: (t: atomictask) => T, 
+    task: atomictask = db): Promise<T> {
+    return task.task(async (t): Promise<T> => await f(t));
 }
 /**
  * 
@@ -26,13 +27,14 @@ async function compressIntoTask(f: Function, task: any | undefined = db): Promis
  * will be sequential DAO function inside of f
  * DAO function inside of f must use their last parameter as t to work with one(same) connection.
  * 
- * @param {any=} task
+ * @param {atomictask=} task
  * optional.
  * @returns return value of f
  */
 
-async function compressIntoTx(f: Function, task: any | undefined = db) {
-    return task.tx(async (t: any) => await f(t));
+async function compressIntoTx<T = any>(f: (t: atomictask) => T, 
+    task: atomictask = db): Promise<T> {
+    return task.tx(async (t): Promise<T> => await f(t));
 }
 
 export { UserDAO, SocialDAO, ChannelDAO, compressIntoTask, compressIntoTx };

@@ -32,4 +32,21 @@ declare module 'custom-type'{
         id: string,
         send_enter: boolean,
     }
+
+    export type socials = {
+        reqreceived: user[],
+        reqsent: user[],
+        friendlist: user[],
+        blacklist: user[],
+        counts: {
+            received: number,
+            sent: number,
+            friends: number,
+            blacks: number,
+        }
+    }
+
+    import pgPromise from 'pg-promise';
+    import pg from 'pg-promise/typescript/pg-subset';
+    export type atomictask = (pgPromise.IDatabase<{}, pg.IClient> | pgPromise.ITask<{}>);
 }

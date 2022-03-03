@@ -2,29 +2,30 @@ import controller from './controller';
 import { errorHandler } from './lib/error-handler';
 import Express from 'express';
 import morgan from 'morgan';
-const { MODE, SESSION_SECRET, PROTOCOL, SSL_KEY, SSL_CERT } = process.env as {MODE: string, SESSION_SECRET: string, PROTOCOL: string, SSL_KEY: string, SSL_CERT: string};
-const http = require(PROTOCOL); //PROTOCOL이 http라면 http로, https라면 https로 실행한다.
-import socket from 'socket.io';
+const { MODE, SESSION_SECRET, PROTOCOL } = process.env as {MODE: string, SESSION_SECRET: string, PROTOCOL: string, SSL_KEY: string, SSL_CERT: string};
 import csrf from 'csurf';
 import cookieParser from 'cookie-parser';
 import { keepSignIn, sessionmiddleware, redirecter, setCookieHeader } from './middleware';
 import methodOverride from 'method-override';
 import fs from 'fs';
+import http from 'http';
+import https from 'https';
+import socket from 'socket.io';
 
-
-const key = fs.readFileSync(SSL_KEY);
-const cert = fs.readFileSync(SSL_CERT);
+const key = fs.readFileSync(process.env.SSL_KEY as string);
+const cert = fs.readFileSync(process.env.SSL_CERT as string);
 
 const app: Express.Application = Express();
-const server: any = http.createServer({key, cert}, app);
+const server = (process.env.PROTOCOL === 'https') ? //PROTOCOL이 https인지 확인
+    require('https').createServer({key, cert}, app) as https.Server : // 그렇다면 https
+    require('http').createServer(app) as http.Server; // 아니라면 http
+// protocol에 따라서 자연스럽게 바꾸기 위한 방법.
 const io: socket.Server = new socket.Server(server);
 
 app.set('strict routing', true); // 맨 뒤에 / 오는 것 방지용
 app.set('case sensitive routing', true); // 대소문자를 구분하기 위함
 app.set('views', `${__dirname}/../../views`); // 뷰 엔진용
 app.set('view engine', 'pug'); // 뷰 엔진용
-app.set('socketio', io); // index.js에서 사용
-app.set('server', server); // index.js에서 사용
 
 
 app.use('/scripts', Express.static(`${__dirname}/../../public/scripts`)); // js 경로.
@@ -45,4 +46,4 @@ app.use(errorHandler); // 에러를 보여주는 페이지. controller 에서 �
   
 
 
-export {app};
+export {app, io, server};

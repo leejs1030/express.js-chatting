@@ -1,6 +1,5 @@
 import db = require('../main/lib/dbconnection');
 import { expect } from 'chai';
-// const {queryResultErrorCode, errors.QueryResultError} = require('pg-promise').errors;
 import { errors } from 'pg-promise';
 
 describe('Studying pg-promise API with reference documents', async () =>{
@@ -62,8 +61,7 @@ describe('Studying pg-promise API with reference documents', async () =>{
         } catch(err){
             expect(err).instanceof(errors.QueryResultError);
         }
-        any = await db.oneOrNone('SELECT money, debt FROM test WHERE id = $1', ['lasdfee']); // (객체의) 배열
-        console.log(any);
+        expect(await db.oneOrNone('SELECT money, debt FROM test WHERE id = $1', ['lasdfee'])).to.equal(null);
     });
 
     it('Test for return Value', async () => {
